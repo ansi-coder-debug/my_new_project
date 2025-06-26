@@ -44,6 +44,12 @@
 // }
 import 'package:flutter/material.dart';
 import 'package:my_new_project/core/constant.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_inventory.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_report.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_sales.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_settings.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_tasks.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});
@@ -73,7 +79,14 @@ class MainDrawer extends StatelessWidget {
           KHeight,
           const Divider(),
           ListTile(
-            leading: Icon(Icons.dashboard),
+            leading:
+               Icon(Icons.dashboard),
+              onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_)=>ScreenDashboard())
+              );
+            },
+            
             title: Text(
               'Dashboard',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -81,6 +94,11 @@ class MainDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.directions_car),
+             onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_)=>ScreenInventory())
+              );
+            },
             title: Text(
               'Inventory',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -88,16 +106,31 @@ class MainDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.task),
+             onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_)=>ScreenTasks())
+              );
+            },
             title: Text('Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           ListTile(
             leading: Icon(Icons.attach_money),
+             onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_)=>ScreenSales())
+              );
+            },
             title: Text('Sales', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           KHeight,
           const Divider(),
           ListTile(
             leading: Icon(Icons.bar_chart),
+             onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_)=>ScreenReport())
+              );
+            },
             title: Text(
               'Reports',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -105,9 +138,15 @@ class MainDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.settings),
+             onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_)=>ScreenSettings())
+              );
+            },
             title: Text(
               'Settings',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
