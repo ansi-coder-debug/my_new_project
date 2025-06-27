@@ -1,47 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:my_new_project/core/constant.dart';
-
-// class MainDrawer extends StatelessWidget {
-//   const MainDrawer({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Drawer(
-//       child: Padding(
-//         padding: EdgeInsets.only(top: 40, left: 20),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             const Text(
-//               'Auto Inventory',
-//               style: TextStyle(
-//                 fontWeight: FontWeight.bold,
-//                 color: Colors.blue,
-//                 fontSize: 24,
-//               ),
-//             ),
-//             const Text(
-//               'Vehicle Management System',
-//               style: TextStyle(
-//                 fontWeight: FontWeight.normal,
-//                 fontSize: 13,
-//                 color: Colors.grey,
-//               ),
-//             ),
-//             KHeight30,
-//             ListTile(
-//               leading: Icon(Icons.dashboard),
-//                   title:Text('Dashboard',
-//                   style: TextStyle(
-//                     fontWeight: FontWeight.bold
-//                   ),) ,
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 import 'package:my_new_project/core/constant.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';
@@ -54,8 +10,14 @@ import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_page
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});
 
+  
+
   @override
   Widget build(BuildContext context) {
+    void delayedNavigate(Widget screen) async {
+    await Future.delayed(Duration(milliseconds: 100));
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
     return Drawer(
       child: ListView(
         padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
@@ -78,27 +40,24 @@ class MainDrawer extends StatelessWidget {
           ),
           KHeight,
           const Divider(),
+
+
           ListTile(
-            leading:
-               Icon(Icons.dashboard),
-              onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_)=>ScreenDashboard())
-              );
-            },
-            
+            splashColor: Colors.blueAccent,
+            leading: Icon(Icons.dashboard),
+            onTap: () => delayedNavigate (ScreenDashboard()),
+
             title: Text(
               'Dashboard',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
+
+
           ),
           ListTile(
             leading: Icon(Icons.directions_car),
-             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_)=>ScreenInventory())
-              );
-            },
+            splashColor: Colors.blue,
+            onTap: () => delayedNavigate(ScreenInventory()),
             title: Text(
               'Inventory',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -106,31 +65,22 @@ class MainDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.task),
-             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_)=>ScreenTasks())
-              );
-            },
+            splashColor: Colors.blue,
+            onTap: () =>delayedNavigate(ScreenTasks()),
             title: Text('Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           ListTile(
             leading: Icon(Icons.attach_money),
-             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_)=>ScreenSales())
-              );
-            },
+            splashColor: Colors.blue,
+            onTap: ()=>delayedNavigate(ScreenSales()),
             title: Text('Sales', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
           KHeight,
           const Divider(),
           ListTile(
             leading: Icon(Icons.bar_chart),
-             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_)=>ScreenReport())
-              );
-            },
+            splashColor: Colors.blue,
+            onTap: () =>delayedNavigate(ScreenReport()),
             title: Text(
               'Reports',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -138,15 +88,11 @@ class MainDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.settings),
-             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_)=>ScreenSettings())
-              );
-            },
+            splashColor: Colors.blue,
+            onTap: ()=> delayedNavigate(ScreenSettings()),
             title: Text(
               'Settings',
-              style: TextStyle(fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
@@ -164,14 +110,9 @@ class MainDrawer extends StatelessWidget {
             ),
             title: Text(
               'Admin User',
-              style: TextStyle(
-                fontWeight: FontWeight.bold
-              ),
-              
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(
-              'admin@example.com'
-            ),
+            subtitle: Text('admin@example.com'),
           ),
         ],
       ),
