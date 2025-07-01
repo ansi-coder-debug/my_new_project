@@ -3,20 +3,25 @@ import 'package:my_new_project/core/constant.dart';
 
 class InventoryVehicleCard extends StatelessWidget {
   final String title;
-   final String imageUrl;
-    final String price;
-     final String mileage;
-      final String color;
-       final String vin;
+  final String imageUrl;
+  final String price;
+  final String mileage;
+  final String color;
+  final String vin;
+  final String task;
+  final String status;
+  
 
-  const  InventoryVehicleCard({super.key,
-  required this.title,
-   required this.imageUrl,
+  const InventoryVehicleCard({
+    super.key,
+    required this.title,
+    required this.imageUrl,
     required this.price,
-     required this.mileage,
-      required this.color,
-       required this.vin,
-
+    required this.mileage,
+    required this.color,
+    required this.vin,
+    required this.task,
+    required this.status
   });
 
   @override
@@ -29,11 +34,41 @@ class InventoryVehicleCard extends StatelessWidget {
         //card column
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            imageUrl,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+              imageUrl,
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
+            
+                ),
+              ),
+              Positioned(
+                top: 8,
+                left: 8,
+                child: 
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: 
+                  Text(status,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold
+                  ),
+                  ),
+                ))
+            ],
             
           ),
 
@@ -80,8 +115,10 @@ class InventoryVehicleCard extends StatelessWidget {
                     ),
 
                     SizedBox(width: 60),
-                    Text('Color: $color',
-                     style: TextStyle(color: Colors.black)),
+                    Text(
+                      'Color: $color',
+                      style: TextStyle(color: Colors.black),
+                    ),
                   ],
                 ), // end of mileage Row
 
@@ -91,7 +128,7 @@ class InventoryVehicleCard extends StatelessWidget {
                     Text('VIN: $vin', style: TextStyle(color: Colors.black)),
 
                     Spacer(),
-                    Text('2 tasks', style: TextStyle(color: Colors.black)),
+                    Text(' tasks:$task', style: TextStyle(color: Colors.black)),
                   ],
                 ), //  END of VIN Row
               ],
