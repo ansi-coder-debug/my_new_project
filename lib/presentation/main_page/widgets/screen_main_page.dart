@@ -130,7 +130,7 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
         },
       ),
       body: _drawerPages[_selectedDrawerIndex],
-      bottomNavigationBar: const BottomNavigationWidget(),
+      // bottomNavigationBar: const BottomNavigationWidget(),
     );
   }
 }
