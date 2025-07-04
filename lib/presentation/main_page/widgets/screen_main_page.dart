@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_new_project/core/constant.dart';
+
+import 'package:my_new_project/core/constants/constant.dart';
 
 import 'package:my_new_project/presentation/main_page/widgets/bottom_nav.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';

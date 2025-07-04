@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_new_project/core/constant.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_inventory.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_report.dart';
@@ -14,17 +15,14 @@ class MainDrawer extends StatelessWidget {
   const MainDrawer({
     super.key,
     required this.selectedIndex,
-    required this.onItemSelected
-    });
+    required this.onItemSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
-
     void delayedNavigate(Widget screen) async {
-      await Future.delayed(Duration
-      (milliseconds: 100));
-      Navigator.of(context).push
-      (MaterialPageRoute(builder: (_) => screen));
+      await Future.delayed(Duration(milliseconds: 100));
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
     }
 
     return Drawer(
@@ -59,25 +57,23 @@ class MainDrawer extends StatelessWidget {
             //   'Dashboard',
             //   style: TextStyle(fontWeight: FontWeight.bold),
             // ),
-           selected: selectedIndex == 0,
-          //  selectedTileColor: Colors.blue,
-           splashColor: Colors.blueAccent,
-           leading: Icon(Icons.dashboard,
-           color: selectedIndex==0?Colors.blue :null,
-           ),
-           title: Text(
-            'Dashboard',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: selectedIndex == 0?Colors.blue:null
+            selected: selectedIndex == 0,
+            //  selectedTileColor: Colors.blue,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.dashboard,
+              color: selectedIndex == 0 ? Colors.blue : null,
             ),
+            title: Text(
+              'Dashboard',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 0 ? Colors.blue : null,
+              ),
             ),
             onTap: () => onItemSelected(0),
-
-          
           ),
           ListTile(
-
             // leading: Icon(Icons.directions_car),
             // splashColor: Colors.blue,
             // onTap: () => delayedNavigate(ScreenInventory()),
@@ -85,91 +81,64 @@ class MainDrawer extends StatelessWidget {
             //   'Inventory',
             //   style: TextStyle(fontWeight: FontWeight.bold),
             // ),
-
-          selected: selectedIndex == 1,     
-           splashColor: Colors.blueAccent,
-           leading: Icon(Icons.directions_car,
-           color: selectedIndex==1?Colors.blue :null,
-           ),
-           title: Text(
-            'Inventory',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: selectedIndex == 1?Colors.blue:null
+            selected: selectedIndex == 1,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.directions_car,
+              color: selectedIndex == 1 ? Colors.blue : null,
             ),
+            title: Text(
+              'Inventory',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 1 ? Colors.blue : null,
+              ),
             ),
             onTap: () => onItemSelected(1),
-
-
           ),
           ListTile(
-
-
-
             // leading: Icon(Icons.task),
             // splashColor: Colors.blue,
             // onTap: () => delayedNavigate(ScreenTasks()),
             // title: Text('Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
-
-          selected: selectedIndex == 2,     
-           splashColor: Colors.blueAccent,
-           leading: Icon(Icons.task,
-           color: selectedIndex==2?Colors.blue :null,
-           ),
-           title: Text(
-            'Tasks',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: selectedIndex == 2?Colors.blue:null
+            selected: selectedIndex == 2,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.task,
+              color: selectedIndex == 2 ? Colors.blue : null,
             ),
+            title: Text(
+              'Tasks',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 2 ? Colors.blue : null,
+              ),
             ),
             onTap: () => onItemSelected(2),
-
-
           ),
           ListTile(
-
-
             // leading: Icon(Icons.attach_money),
             // splashColor: Colors.blue,
             // onTap: () => delayedNavigate(ScreenSales()),
             // title: Text('Sales', style: TextStyle(fontWeight: FontWeight.bold)),
-
-              selected: selectedIndex == 3,     
-           splashColor: Colors.blueAccent,
-           leading: Icon(Icons.attach_money,
-           color: selectedIndex==3?Colors.blue :null,
-           ),
-           title: Text(
-            'Sales',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: selectedIndex == 3?Colors.blue:null
+            selected: selectedIndex == 3,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.attach_money,
+              color: selectedIndex == 3 ? Colors.blue : null,
             ),
+            title: Text(
+              'Sales',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 3 ? Colors.blue : null,
+              ),
             ),
             onTap: () => onItemSelected(3),
-
-
-          
-          
-
-
-
-
-
-
-
-
-
           ),
           KHeight,
           const Divider(),
           ListTile(
-
-
-
-
-
             // leading: Icon(Icons.bar_chart),
             // splashColor: Colors.blue,
             // onTap: () => delayedNavigate(ScreenReport()),
@@ -177,31 +146,23 @@ class MainDrawer extends StatelessWidget {
             //   'Reports',
             //   style: TextStyle(fontWeight: FontWeight.bold),
             // ),
-
-              selected: selectedIndex == 4,     
-           splashColor: Colors.blueAccent,
-           leading: Icon(Icons.bar_chart,
-           color: selectedIndex==4?Colors.blue :null,
-           ),
-           title: Text(
-            'Reports',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: selectedIndex == 4?Colors.blue:null
+            selected: selectedIndex == 4,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.bar_chart,
+              color: selectedIndex == 4 ? Colors.blue : null,
             ),
+            title: Text(
+              'Reports',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 4 ? Colors.blue : null,
+              ),
             ),
             onTap: () => onItemSelected(4),
-
-
-
-
           ),
 
-
           ListTile(
-
-
-
             // leading: Icon(Icons.settings),
             // splashColor: Colors.blue,
             // onTap: () => delayedNavigate(ScreenSettings()),
@@ -209,31 +170,20 @@ class MainDrawer extends StatelessWidget {
             //   'Settings',
             //   style: TextStyle(fontWeight: FontWeight.bold),
             // ),
-              selected: selectedIndex == 5,     
-           splashColor: Colors.blueAccent,
-           leading: Icon(Icons.settings,
-           color: selectedIndex==5?Colors.blue :null,
-           ),
-           title: Text(
-            'Settings',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: selectedIndex == 5?Colors.blue:null
+            selected: selectedIndex == 5,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.settings,
+              color: selectedIndex == 5 ? Colors.blue : null,
             ),
+            title: Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 5 ? Colors.blue : null,
+              ),
             ),
             onTap: () => onItemSelected(5),
-
-
-
-
-
-
-
-
-
-
-
-
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
           const Divider(),

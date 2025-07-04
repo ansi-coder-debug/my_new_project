@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_new_project/core/constant.dart';
+
+import 'package:my_new_project/core/constants/constant.dart';
 
 class InventoryVehicleCard extends StatelessWidget {
   final String title;
@@ -10,7 +11,7 @@ class InventoryVehicleCard extends StatelessWidget {
   final String vin;
   final String task;
   final String status;
-  
+  final String year;
 
   const InventoryVehicleCard({
     super.key,
@@ -21,7 +22,8 @@ class InventoryVehicleCard extends StatelessWidget {
     required this.color,
     required this.vin,
     required this.task,
-    required this.status
+    required this.status,
+    required this.year,
   });
 
   @override
@@ -39,37 +41,35 @@ class InventoryVehicleCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.asset(
-              imageUrl,
-              width: double.infinity,
-              height: 200,
-              fit: BoxFit.cover,
-            
+                  imageUrl,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
                 ),
               ),
               Positioned(
                 top: 8,
                 left: 8,
-                child: 
-                Container(
+                child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
-                    vertical: 4
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.black,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: 
-                  Text(status,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold
+                  child: Text(
+                    status,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  ),
-                ))
+                ),
+              ),
             ],
-            
           ),
 
           Padding(
@@ -98,7 +98,11 @@ class InventoryVehicleCard extends StatelessWidget {
                     Icon(Icons.delete),
                   ],
                 ), //end of title row
-                KHeight, // Spacer between Title Row and Price
+                KHeight, 
+                // Spacer between Title Row and Price
+                 Text(
+                  'year:$year'
+                 ),
 
                 Text(
                   '\$$price',
