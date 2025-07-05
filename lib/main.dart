@@ -12,7 +12,7 @@ void main() async {
 
   final box = await Hive.openBox<Vehicle>('vehicles');
 
-  await box.clear(); // ✅ clear old data ONCE after model change
+ // await box.clear(); // ✅ clear old data ONCE after model change
 
   runApp(const MyApp());
 }

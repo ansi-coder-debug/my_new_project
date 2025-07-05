@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/vehicle.dart';
 
 class InventoryVehicleCard extends StatelessWidget {
   final String title;
@@ -12,6 +15,9 @@ class InventoryVehicleCard extends StatelessWidget {
   final String task;
   final String status;
   final String year;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+
 
   const InventoryVehicleCard({
     super.key,
@@ -24,6 +30,8 @@ class InventoryVehicleCard extends StatelessWidget {
     required this.task,
     required this.status,
     required this.year,
+    required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -40,7 +48,13 @@ class InventoryVehicleCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
+                child: imageUrl.startsWith('/')
+                ?Image.file(File(imageUrl),
+                width: double.infinity,
+                height: 200,
+                fit: BoxFit.cover,
+                )
+                :Image.network(
                   imageUrl,
                   width: double.infinity,
                   height: 200,
@@ -93,16 +107,20 @@ class InventoryVehicleCard extends StatelessWidget {
                     ),
 
                     Spacer(),
-                    Icon(Icons.edit_square),
+
+                    // Icon(Icons.edit_square),
+                    IconButton(onPressed:onEdit ,
+                     icon: Icon(Icons.edit_square)),
+
                     KWidth12,
-                    Icon(Icons.delete),
+                    // Icon(Icons.delete),
+                    IconButton(onPressed: onDelete, icon: Icon(Icons.delete)),
                   ],
                 ), //end of title row
-                KHeight, 
+                KHeight,
                 // Spacer between Title Row and Price
-                 Text(
-                  'year:$year'
-                 ),
+                
+                // Text('year:$year'),
 
                 Text(
                   '\$$price',

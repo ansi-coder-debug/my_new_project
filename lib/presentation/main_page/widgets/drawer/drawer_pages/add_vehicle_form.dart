@@ -1,18 +1,42 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 
 class AddVehicleForm extends StatefulWidget {
   final VoidCallback? onCancel;
+  final VoidCallback onAddComplete;
+  final Vehicle? vehicleToEdit;
 
-  const AddVehicleForm({super.key, this.onCancel});
+  const AddVehicleForm({
+    super.key,
+    this.onCancel,
+    required this.onAddComplete,
+    this.vehicleToEdit,
+  });
 
   @override
   State<AddVehicleForm> createState() => _AddVehicleFormState();
 }
 
 class _AddVehicleFormState extends State<AddVehicleForm> {
+  File? _pickedImage;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+
+    final PickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (PickedFile != null) {
+      setState(() {
+        _pickedImage = File(PickedFile.path);
+      });
+    }
+  }
+
   String? selectedStatus;
 
   final TextEditingController _makeController = TextEditingController();
@@ -36,6 +60,23 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
     _imageUrlController.dispose();
     //
     _yearController.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    final vehicle = widget.vehicleToEdit;
+    if (vehicle != null) {
+      _makeController.text = vehicle.title;
+      _imageUrlController.text = vehicle.imageUrl;
+      _yearController.text = vehicle.year;
+      _priceController.text = vehicle.price;
+      _mileageController.text = vehicle.mileage;
+      _colorController.text = vehicle.color;
+      _vinController.text = vehicle.vin;
+      selectedStatus = vehicle.status;
+    }
   }
 
   @override
@@ -74,7 +115,8 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
             KHeight16,
             Text('Year', style: TextStyle(color: Colors.black)),
             TextFormField(
-              //
+              controller: _yearController,
+              style: TextStyle(color: Colors.black),
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                   vertical: 8,
@@ -82,7 +124,6 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                 ),
                 border: OutlineInputBorder(),
               ),
-              style: TextStyle(color: Colors.black),
             ),
             KHeight16,
             TextFormField(
@@ -215,7 +256,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                   padding: const EdgeInsets.only(right: 4),
 
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: _pickImage,
                     label: Text('Add', style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
@@ -228,6 +269,16 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
               ),
               style: TextStyle(color: Colors.black),
             ),
+            if (_pickedImage != null)
+              Container(
+                height: 150,
+                width: double.infinity,
+                margin: EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                ),
+                child: Image.file(_pickedImage!, fit: BoxFit.cover),
+              ),
 
             KHeight,
 
@@ -235,7 +286,9 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
               children: [
                 SizedBox(width: 90),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    widget.onCancel?.call();
+                  },
                   child: Text('Cancel', style: TextStyle(color: Colors.black)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -248,11 +301,16 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                 SizedBox(width: 20),
 
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final box = Hive.box<Vehicle>('vehicles');
+
                     final newVehicle = Vehicle(
                       title: '${_makeController.text}${_modelController.text}',
-                      imageUrl: _imageUrlController.text,
-                      //
+                      // where gallery adding saving logic 
+                      imageUrl: _pickedImage != null
+                      ?_pickedImage!.path
+                      :_imageUrlController.text,
+                      
                       year: _yearController.text,
                       price: _priceController.text,
                       mileage: _mileageController.text,
@@ -262,11 +320,20 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                       status: selectedStatus ?? 'Available',
                     );
 
-                    //save to Hive
-                    Hive.box<Vehicle>('vehicles').add(newVehicle);
+                    //edit and add data to Hive
+                    if (widget.vehicleToEdit != null) {
+                      //edit mode
+                      final Key = widget.vehicleToEdit!.key;
+                      await box.put(Key, newVehicle);
+                      print('Vehicle updated!');
+                    } else {
+                      //add mode
+                      await box.add(newVehicle);
+                      print('Vehicle added');
+                    }
 
                     //close the form
-                    Navigator.pop(context);
+                    widget.onAddComplete();
                   },
                   child: Text(
                     'Add Vehicle',

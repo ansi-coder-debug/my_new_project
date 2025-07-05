@@ -3,7 +3,7 @@ part 'vehicle.g.dart';
 
 
 @HiveType(typeId: 0)
-class Vehicle {
+class Vehicle  extends HiveObject{
   @HiveField(0) final String title;
   @HiveField(1) final String imageUrl; 
   @HiveField(2) final String price;

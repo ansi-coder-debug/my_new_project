@@ -17,6 +17,7 @@ class _ScreenInventoryState extends State<ScreenInventory> {
   String selectedStatus = 'All Status';
   String selectedSort = 'Newest First';
   bool showAddForm = false;
+  Vehicle? vehicleToEdit;
 
   final Box<Vehicle> vehicleBox = Hive.box<Vehicle>('vehicles');
 
@@ -27,183 +28,202 @@ class _ScreenInventoryState extends State<ScreenInventory> {
         title: Text(showAddForm ? 'Add New Vehicle' : 'Inventory'),
       ),
 
- body: showAddForm
+      body: showAddForm
           ? AddVehicleForm(
               onCancel: () {
                 setState(() {
                   showAddForm = false;
                 });
               },
+              onAddComplete: () {
+                setState(() {
+                  showAddForm = false;
+                });
+              },
+              vehicleToEdit: vehicleToEdit,
             )
-            
           : ValueListenableBuilder(
               valueListenable: Hive.box<Vehicle>('vehicles').listenable(),
               builder: (context, box, _) {
                 //getting all vehicles
                 List<Vehicle> vehicles = box.values.toList();
-                
+                List<int> Keys = box.keys
+                    .cast<int>()
+                    .toList(); //calling delete from the hive and refresh ui
+
                 //apply filter by status
-                if(selectedStatus != 'All Status'){
-                  vehicles=vehicles
-                  .where((v)=>v.status == selectedStatus)
-                  .toList();
+                if (selectedStatus != 'All Status') {
+                  vehicles = vehicles
+                      .where((v) => v.status == selectedStatus)
+                      .toList();
                 }
 
-                vehicles.sort((a,b) {
-                  switch(selectedSort){
-                    case'Newest First':               //high means b 
-                   return b.year.compareTo(a.year);   // low means a
+                vehicles.sort((a, b) {
+                  switch (selectedSort) {
+                    case 'Newest First': //high means b
+                      return b.year.compareTo(a.year); // low means a
 
-                    case'Oldest First':
-                    return a.year.compareTo(b.year);
+                    case 'Oldest First':
+                      return a.year.compareTo(b.year);
 
                     case 'Price High To Low':
-                    return int.parse(b.price.replaceAll(',', ''))
-                    .compareTo(int.parse(a.price.replaceAll(',', '')));
+                      return int.parse(
+                        b.price.replaceAll(',', ''),
+                      ).compareTo(int.parse(a.price.replaceAll(',', '')));
 
                     case 'Price Low To High':
-                    return int.parse(a.price.replaceAll(',', ''))
-                    .compareTo(int.parse(b.price.replaceAll(',', '')));
-                    default :
-                    return 0;
+                      return int.parse(
+                        a.price.replaceAll(',', ''),
+                      ).compareTo(int.parse(b.price.replaceAll(',', '')));
+                    default:
+                      return 0;
                   }
-                
-                }
-                );
-                  return Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(26),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search Vehicles',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                });
+                return Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(26),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search Vehicles',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                      ),
-                       onChanged: (query) {
+                        onChanged: (query) {
                           setState(() {
                             // Optional: Add search functionality if you want
                           });
                         },
+                      ),
                     ),
-                  ),
-            
-            
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 8.0,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            isExpanded: true,
-                            value: selectedStatus,
-                            decoration: const InputDecoration(
-                              // labelText: 'Status',
-                              border: OutlineInputBorder(),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              value: selectedStatus,
+                              decoration: const InputDecoration(
+                                // labelText: 'Status',
+                                border: OutlineInputBorder(),
+                              ),
+
+                              items:
+                                  [
+                                    'All Status',
+                                    'Available',
+                                    'Pending Sale',
+                                    'Sold',
+                                    'In Maintenance',
+                                  ].map((status) {
+                                    return DropdownMenuItem(
+                                      value: status,
+                                      child: Text(status),
+                                    );
+                                  }).toList(),
+
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedStatus = value!;
+                                });
+                              },
                             ),
-
-                            items:
-                                [
-                                  'All Status',
-                                  'Available',
-                                  'Pending Sale',
-                                  'Sold',
-                                  'In Maintenance',
-                                ].map((status) {
-                                  return DropdownMenuItem(
-                                    value: status,
-                                    child: Text(status),
-                                  );
-                                }).toList(),
-
-                            onChanged: (value) {
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              isExpanded: true,
+                              value: selectedSort,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                              ),
+                              items:
+                                  [
+                                    'Newest First',
+                                    'Oldest First',
+                                    'Price High to Low',
+                                    'Price Low to High',
+                                  ].map((sortOption) {
+                                    return DropdownMenuItem(
+                                      value: sortOption,
+                                      child: Text(sortOption),
+                                    );
+                                  }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedSort = value!;
+                                });
+                              },
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            icon: Icon(Icons.add),
+                            label: Text('Add'),
+                            onPressed: () {
                               setState(() {
-                                selectedStatus = value!;
+                                vehicleToEdit = null;
+                                showAddForm = true;
                               });
                             },
-                          ),
-                        ),
-                         SizedBox(width: 8),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            isExpanded: true,
-                            value: selectedSort,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                            items:
-                                [
-                                  'Newest First',
-                                  'Oldest First',
-                                  'Price High to Low',
-                                  'Price Low to High',
-                                ].map((sortOption) {
-                                  return DropdownMenuItem(
-                                    value: sortOption,
-                                    child: Text(sortOption),
-                                  );
-                                }).toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedSort = value!;
-                              });
-                            },
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        ElevatedButton.icon(
-                          icon: Icon(Icons.add),
-                          label: Text('Add'),
-                          onPressed: () {
-                            setState(() {
-                              showAddForm = true;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                        
-                  Expanded(
-                    child:vehicles.isEmpty?
-                     Center(
-                      child: Text('No Vehicle Found'),
-                     )
-                     :ListView.builder(
-                      itemCount: vehicles.length,
-                      itemBuilder:
-                      (context,index){
-                        final Vehicle =vehicles[index];
-                        return InventoryVehicleCard(
-                          title:Vehicle.title,
-                         imageUrl: Vehicle.imageUrl,
-                          price:  Vehicle.price,
-                           mileage: Vehicle.mileage,
-                            color:  Vehicle.color,
-                             vin:  Vehicle.vin,
-                              task: Vehicle.task,
-                               status:  Vehicle.status,
-                                year:  Vehicle.year
+
+                    Expanded(
+                      child: vehicles.isEmpty
+                          ? Center(child: Text('No Vehicle Found'))
+                          : ListView.builder(
+                              itemCount: vehicles.length,
+                              itemBuilder: (context, index) {
+                                final Vehicle = vehicles[index];
+
+                                return InventoryVehicleCard(
+                                  title: Vehicle.title,
+                                  imageUrl: Vehicle.imageUrl,
+                                  price: Vehicle.price,
+                                  mileage: Vehicle.mileage,
+                                  color: Vehicle.color,
+                                  vin: Vehicle.vin,
+                                  task: Vehicle.task,
+                                  status: Vehicle.status,
+                                  year: Vehicle.year,
+                                  onDelete: () {
+                                    final Key = Keys[index]; //key list
+                                    vehicleBox.delete(
+                                      Key,
+                                    ); //delete from hive storage
+                                    setState(() {}); // update ui
+                                  },
+                                  onEdit: () {
+                                    setState(() {
+                                      vehicleToEdit = vehicles[index];
+                                      showAddForm = true;
+                                    });
+                                  },
                                 );
-                                },
-                                ),
-                 ),
-                ],
+                              },
+                            ),
+                    ),
+                  ],
                 );
-                },
-    ),
+              },
+            ),
     );
   }
 }
