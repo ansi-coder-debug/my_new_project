@@ -46,6 +46,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
   final TextEditingController _colorController = TextEditingController();
   final TextEditingController _vinController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   //
   final TextEditingController _yearController = TextEditingController();
 
@@ -199,16 +200,41 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
 
             // Status
             Text('Status', style: TextStyle(color: Colors.black)),
-            TextFormField(
+            DropdownButtonFormField<String>(
+              value: selectedStatus,
               decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 8,
-                  horizontal: 12,
-                ),
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder()
               ),
-              style: TextStyle(color: Colors.black),
-            ),
+
+              items:[
+                'Available',
+                                    'Pending Sale',
+                                    'Sold',
+                                    'In Maintenance',
+                  
+              ].map((status){
+                return DropdownMenuItem(
+                  value: status,
+                  child:Text(status),
+                   );
+              }).toList(),
+             onChanged: (value){
+              setState(() {
+                selectedStatus = value!;
+              });
+             }
+             ),
+            
+            // TextFormField(
+            //   decoration: InputDecoration(
+            //     contentPadding: EdgeInsets.symmetric(
+            //       vertical: 8,
+            //       horizontal: 12,
+            //     ),
+            //     border: OutlineInputBorder(),
+            //   ),
+            //   style: TextStyle(color: Colors.black),
+            // ),
             KHeight16,
 
             // Purchase Date
@@ -316,6 +342,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                       mileage: _mileageController.text,
                       color: _colorController.text,
                       vin: _vinController.text,
+                      // description: _descriptionController.text,
                       task: '0',
                       status: selectedStatus ?? 'Available',
                     );

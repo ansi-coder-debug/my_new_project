@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/add_vehicle_form.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_vehicle_details.dart';
 import 'package:my_new_project/presentation/main_page/widgets/inventory_vehicle_card.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/add_vehicle_form.dart';
 
@@ -18,6 +19,9 @@ class _ScreenInventoryState extends State<ScreenInventory> {
   String selectedSort = 'Newest First';
   bool showAddForm = false;
   Vehicle? vehicleToEdit;
+
+  bool showVehicleDetails = false;
+  Vehicle? selectedVehicle;
 
   final Box<Vehicle> vehicleBox = Hive.box<Vehicle>('vehicles');
 
@@ -41,6 +45,16 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                 });
               },
               vehicleToEdit: vehicleToEdit,
+            )
+          : showVehicleDetails && selectedVehicle != null
+          ? ScreenVehicleDetails(
+              vehicle: selectedVehicle!,
+              onBack: () {
+                setState(() {
+                  showVehicleDetails = false;
+                  selectedVehicle = null;
+                });
+              },
             )
           : ValueListenableBuilder(
               valueListenable: Hive.box<Vehicle>('vehicles').listenable(),
@@ -66,12 +80,12 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                     case 'Oldest First':
                       return a.year.compareTo(b.year);
 
-                    case 'Price High To Low':
+                    case 'Price High to Low':
                       return int.parse(
                         b.price.replaceAll(',', ''),
                       ).compareTo(int.parse(a.price.replaceAll(',', '')));
 
-                    case 'Price Low To High':
+                    case 'Price Low to High':
                       return int.parse(
                         a.price.replaceAll(',', ''),
                       ).compareTo(int.parse(b.price.replaceAll(',', '')));
@@ -208,7 +222,7 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                                     vehicleBox.delete(
                                       Key,
                                     ); //delete from hive storage
-                                    setState(() {}); // update ui
+                                    setState(() {}); // update ui logic
                                   },
                                   onEdit: () {
                                     setState(() {
@@ -216,6 +230,13 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                                       showAddForm = true;
                                     });
                                   },
+                                  onTap: () {
+                                    setState(() {
+                                      selectedVehicle = Vehicle;
+                                      showVehicleDetails = true;
+                                    });
+                                  },
+                                  
                                 );
                               },
                             ),
