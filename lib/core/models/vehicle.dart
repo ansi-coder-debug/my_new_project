@@ -13,7 +13,9 @@ class Vehicle  extends HiveObject{
   @HiveField(6) final String task;
   @HiveField(7) final String status;
   @HiveField(8) final String year;
-  // @HiveField(9) final String description;
+  @HiveField(9) final String? description;
+  @HiveField(10) final String ? purchaseDate;
+
 
   Vehicle({
     required this.title,
@@ -25,7 +27,9 @@ class Vehicle  extends HiveObject{
     required this.task,
     required this.status,
     required this.year,
-    // required this.description
+     this.description,
+     this.purchaseDate
+
     
 
   });

@@ -47,6 +47,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
   final TextEditingController _vinController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _purchaseDateController = TextEditingController();
   //
   final TextEditingController _yearController = TextEditingController();
 
@@ -202,29 +203,20 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
             Text('Status', style: TextStyle(color: Colors.black)),
             DropdownButtonFormField<String>(
               value: selectedStatus,
-              decoration: InputDecoration(
-                border: OutlineInputBorder()
-              ),
+              decoration: InputDecoration(border: OutlineInputBorder()),
 
-              items:[
-                'Available',
-                                    'Pending Sale',
-                                    'Sold',
-                                    'In Maintenance',
-                  
-              ].map((status){
-                return DropdownMenuItem(
-                  value: status,
-                  child:Text(status),
-                   );
-              }).toList(),
-             onChanged: (value){
-              setState(() {
-                selectedStatus = value!;
-              });
-             }
-             ),
-            
+              items: ['Available', 'Pending Sale', 'Sold', 'In Maintenance']
+                  .map((status) {
+                    return DropdownMenuItem(value: status, child: Text(status));
+                  })
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedStatus = value!;
+                });
+              },
+            ),
+
             // TextFormField(
             //   decoration: InputDecoration(
             //     contentPadding: EdgeInsets.symmetric(
@@ -240,6 +232,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
             // Purchase Date
             Text('Purchase Date', style: TextStyle(color: Colors.black)),
             TextFormField(
+              controller: _purchaseDateController,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                   vertical: 8,
@@ -254,6 +247,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
             // Description
             Text('Description', style: TextStyle(color: Colors.black)),
             TextFormField(
+              controller: _descriptionController,
               maxLines: 3, // multi-line for description
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
@@ -332,16 +326,18 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
 
                     final newVehicle = Vehicle(
                       title: '${_makeController.text}${_modelController.text}',
-                      // where gallery adding saving logic 
+                      // where gallery adding saving logic
                       imageUrl: _pickedImage != null
-                      ?_pickedImage!.path
-                      :_imageUrlController.text,
-                      
+                          ? _pickedImage!.path
+                          : _imageUrlController.text,
+
                       year: _yearController.text,
                       price: _priceController.text,
                       mileage: _mileageController.text,
                       color: _colorController.text,
                       vin: _vinController.text,
+                      description: _descriptionController.text,
+                      purchaseDate: _purchaseDateController.text,
                       // description: _descriptionController.text,
                       task: '0',
                       status: selectedStatus ?? 'Available',

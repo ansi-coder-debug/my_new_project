@@ -28,9 +28,10 @@ class _ScreenInventoryState extends State<ScreenInventory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(showAddForm ? 'Add New Vehicle' : 'Inventory'),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.amber,
+      //   title: Text(showAddForm ? 'Add New Vehicle' : '' ), // 'inventory' add in add new vehicle
+      // ),
 
       body: showAddForm
           ? AddVehicleForm(
@@ -53,6 +54,13 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                 setState(() {
                   showVehicleDetails = false;
                   selectedVehicle = null;
+                });
+              },
+              onEdit: () {
+                setState(() {
+                  vehicleToEdit = selectedVehicle;
+                  showVehicleDetails = false;
+                  showAddForm = true;
                 });
               },
             )
@@ -100,6 +108,7 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: 'Search Vehicles',
+                          labelText: 'Inventory vehicles',
                           prefixIcon: Icon(Icons.search),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -236,7 +245,6 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                                       showVehicleDetails = true;
                                     });
                                   },
-                                  
                                 );
                               },
                             ),
