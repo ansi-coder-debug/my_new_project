@@ -136,30 +136,62 @@ class MainDrawer extends StatelessWidget {
             ),
             onTap: () => onItemSelected(3),
           ),
-          KHeight,
-          const Divider(),
-          ListTile(
-            // leading: Icon(Icons.bar_chart),
-            // splashColor: Colors.blue,
-            // onTap: () => delayedNavigate(ScreenReport()),
-            // title: Text(
-            //   'Reports',
-            //   style: TextStyle(fontWeight: FontWeight.bold),
-            // ),
+          // KHeight,
+
+           ListTile(   
             selected: selectedIndex == 4,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.bar_chart,
+              Icons.person,
               color: selectedIndex == 4 ? Colors.blue : null,
             ),
             title: Text(
-              'Reports',
+              'Employees',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 4 ? Colors.blue : null,
               ),
             ),
             onTap: () => onItemSelected(4),
+          ),
+          
+
+          
+           ListTile(   
+            selected: selectedIndex == 5,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.attach_money ,
+              color: selectedIndex == 5 ? Colors.blue : null,
+            ),
+            title: Text(
+              'Expense',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 5 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(5),
+          ),
+          
+
+          const Divider(),
+
+          ListTile(   
+            selected: selectedIndex == 6,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.bar_chart,
+              color: selectedIndex == 6 ? Colors.blue : null,
+            ),
+            title: Text(
+              'Reports',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 6 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(6),
           ),
 
           ListTile(
@@ -170,20 +202,20 @@ class MainDrawer extends StatelessWidget {
             //   'Settings',
             //   style: TextStyle(fontWeight: FontWeight.bold),
             // ),
-            selected: selectedIndex == 5,
+            selected: selectedIndex == 7,
             splashColor: Colors.blueAccent,
             leading: Icon(
               Icons.settings,
-              color: selectedIndex == 5 ? Colors.blue : null,
+              color: selectedIndex == 7 ? Colors.blue : null,
             ),
             title: Text(
               'Settings',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: selectedIndex == 5 ? Colors.blue : null,
+                color: selectedIndex == 7 ? Colors.blue : null,
               ),
             ),
-            onTap: () => onItemSelected(5),
+            onTap: () => onItemSelected(7),
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
           const Divider(),

@@ -359,32 +359,4 @@ class ScreenVehicleDetails extends StatelessWidget {
 
                             
                            
-                            // Description
-                           
-                            
-                       
-
-            // Text(vehicle.mileage, style: TextStyle(color: Colors.black)),
-            // SizedBox(height: 8),
-
-            // Text(vehicle.vin, style: TextStyle(color: Colors.black)),
-            // SizedBox(height: 8),
-
-            // Text(vehicle.color, style: TextStyle(color: Colors.black)),
-            // SizedBox(height: 8),
-
-            // Text(vehicle.status, style: TextStyle(color: Colors.black)),
-            // SizedBox(height: 8),
-
-            // Text(vehicle.description),
-            //  SizedBox(height: 8)
-          
-             
-          //   IconButton(
-          //     onPressed: onBack,
-          //    icon:Icon(Icons.arrow_back) 
-          //    ),
-
-          // Image.file(File(vehicle.imageUrl)),
-          // SizedBox(height: 8),         //codeeeeeeeeeeeeeee
-          // Text(vehicle.title ),
+              

@@ -4,6 +4,8 @@ import 'package:my_new_project/core/constants/constant.dart';
 
 import 'package:my_new_project/presentation/main_page/widgets/bottom_nav.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_employees.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_expense.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_inventory.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_report.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_sales.dart';
@@ -28,6 +30,8 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
     ScreenInventory(),
     ScreenTasks(),
     ScreenSales(),
+    ScreenEmployees(),
+    ScreenExpense(),
     ScreenReport(),
     ScreenSettings(),
   ];

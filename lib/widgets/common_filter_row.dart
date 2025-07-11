@@ -1,92 +1,136 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/material.dart';
 
-class CommonFilterRow extends StatelessWidget {
-  final String selectedStatus;
-  final String selectedSort;
-  final ValueChanged<String?> onStatusChanged;
-  final ValueChanged<String?> onSortingChanged;
+// class SalesFilterRow extends StatelessWidget {
+//   final VoidCallback onEmployeesTap;
+//   final VoidCallback onExpenses;
+//   final VoidCallback onAddPressed;
+
+//   const SalesFilterRow({
+//     super.key,
+//     required this.onEmployeesTap,
+//     required this.onExpenses,
+//     required this.onAddPressed,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.symmetric(horizontal: 8,
+//       ),
+//       child: Row(
+//         children: [
+//           GestureDetector(
+//             child: Card(
+//               color: Colors.white,
+//               child: Padding(
+//                 padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+
+//             child: Text('Employees',
+//             style: TextStyle(
+//               color: Colors.black
+//             ),),
+//               ),
+
+//             ),
+
+//           ),
+
+//           const SizedBox(width: 8),
+//         GestureDetector(
+//           child: Card(
+//             color: Colors.white,
+//             child: Padding(padding:
+//             EdgeInsets.symmetric(
+//               vertical: 12,
+//               horizontal: 20
+//             ),
+//             child:
+
+//             Text(
+//               'Expense',
+//               style: TextStyle(
+//                 color: Colors.black
+//               ),
+//             ),
+//             ),
+//           ),
+//         ),
+
+//           const SizedBox(width: 8),
+
+      //    ElevatedButton.icon(
+      //   icon: const Icon(Icons.add),
+      //   label: const Text('Add'),
+      //   onPressed: onAddPressed,
+      //   style: ElevatedButton.styleFrom(
+      // backgroundColor: Colors.blueAccent,
+      // foregroundColor: Colors.white,
+      // shape: RoundedRectangleBorder(
+      //   borderRadius: BorderRadius.circular(16),
+      // ),
+      //   ),
+      // ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class SalesFilterRow extends StatelessWidget {
+  final String selectedSection;
+  final ValueChanged<String?> onSectionChanged;
   final VoidCallback onAddPressed;
 
-  const CommonFilterRow({
+  const SalesFilterRow({
     super.key,
-    required this.selectedStatus,
-    required this.selectedSort,
-    required this.onStatusChanged,
-    required this.onSortingChanged,
+    required this.selectedSection,
+    required this.onSectionChanged,
     required this.onAddPressed,
   });
 
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Expanded(
             child: DropdownButtonFormField<String>(
               isExpanded: true,
-              value: selectedStatus,
-              decoration: const InputDecoration(
-                // labelText: 'Status',
-                border: OutlineInputBorder(),
-              ),
-
-              items:
-                  [
-                    'All Status',
-                    'Available',
-                    'Pending Sale',
-                    'Sold',
-                    'In Maintenance',
-                  ].map((status) {
-                    return DropdownMenuItem(value: status, child: Text(status));
-                  }).toList(),
-
-              onChanged: (value) {
-                onStatusChanged(value);
-              },
-            ),
-          ),
-          SizedBox(width: 8),
-          Expanded(
-            child: DropdownButtonFormField<String>(
-              isExpanded: true,
-              value: selectedSort,
+              value: selectedSection,
               decoration: const InputDecoration(border: OutlineInputBorder()),
-              items:
-                  [
-                    'Newest First',
-                    'Oldest First',
-                    'Price High to Low',
-                    'Price Low to High',
-                  ].map((sortOption) {
-                    return DropdownMenuItem(
-                      value: sortOption,
-                      child: Text(sortOption),
-                    );
-                  }).toList(),
-              onChanged: (value) {
-                onSortingChanged(value);
-              },
+
+              items: ['all', 'Expense', 'Employees']
+                  .map(
+                    (section) => DropdownMenuItem(
+                      value: section.toLowerCase(),
+                      child: Text(section),
+                    ),
+                  )
+                  .toList(),
+              onChanged: onSectionChanged,
             ),
+             
           ),
-          SizedBox(width: 8),
-          ElevatedButton.icon(
-            icon: Icon(Icons.add),
-            label: Text('Add'),
-            onPressed: onAddPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
+           const SizedBox(width: 8),
+             ElevatedButton.icon(
+        icon: const Icon(Icons.add),
+        label: const Text('Add'),
+        onPressed: onAddPressed,
+        style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.blueAccent,
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+        ),
+      ),
         ],
       ),
     );
   }
 }
-
-// the boxes below search bar and not include card 
