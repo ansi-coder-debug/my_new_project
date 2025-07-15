@@ -1,22 +1,23 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-class InventoryFilterRow extends StatelessWidget {
+class EmployeeFilterRow extends StatelessWidget {
   final String selectedStatus;
-  final String selectedSort;
+   final String selectedSort;
   final ValueChanged<String?> onStatusChanged;
   final ValueChanged<String?> onSortingChanged;
   final VoidCallback onAddPressed;
 
-  const InventoryFilterRow({
-    super.key,
-    required this.selectedStatus,
+  const EmployeeFilterRow({
+   super.key,
+   required this.selectedStatus,
     required this.selectedSort,
     required this.onStatusChanged,
     required this.onSortingChanged,
     required this.onAddPressed,
-  });
 
+  });
+  
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -33,11 +34,11 @@ class InventoryFilterRow extends StatelessWidget {
 
               items:
                   [
-                    'All Status',
-                    'Available',
-                    'Pending Sale',
-                    'Sold',
-                    'In Maintenance',
+                    'All Status',   
+                    'Active',
+                    'Inactive',
+                    'Onleave',
+                    
                   ].map((status) {
                     return DropdownMenuItem(value: status, child: Text(status));
                   }).toList(),
@@ -57,8 +58,8 @@ class InventoryFilterRow extends StatelessWidget {
                   [
                     'Newest First',
                     'Oldest First',
-                    'Price High to Low',
-                    'Price Low to High',
+                    'Salary High to Low',
+                    'Salary Low to High',
                   ].map((sortOption) {
                     return DropdownMenuItem(
                       value: sortOption,
@@ -87,10 +88,7 @@ class InventoryFilterRow extends StatelessWidget {
       ),
     );
   }
+
+
+
 }
-
-// the boxes below search bar and not include card 
-
-
-
-

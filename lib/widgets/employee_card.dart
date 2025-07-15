@@ -94,12 +94,14 @@ class EmployeeCard extends StatelessWidget {
                   Row(
                     //name Row
                     children: [
-                      Text(
-                        name,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
 
@@ -121,20 +123,25 @@ class EmployeeCard extends StatelessWidget {
                   Text(
                     '\$$salary',
                     style: TextStyle(fontSize: 20, color: Colors.blue),
+                    overflow: TextOverflow.ellipsis,
                   ), //end of salary text
 
                   KHeight,
 
                   Row(
                     children: [
-                      Text(
-                        'Designation:$designation',
-                        style: TextStyle(color: Colors.black),
+                      Expanded(
+                        child: Text(
+                          'Designation:$designation',
+                          style: TextStyle(color: Colors.black),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       SizedBox(width: 60),
                       Text(
                         'Joining Year:$joiningYear',
                         style: TextStyle(color: Colors.black),
+                        // overflow: TextOverflow.ellipsis,
                       ),
                      
                     ],
@@ -143,6 +150,7 @@ class EmployeeCard extends StatelessWidget {
                    Text(
                     'Phone:$phone',
                     style: TextStyle(color: Colors.black),
+                    overflow: TextOverflow.ellipsis,
                     ),
                 ],
               ),

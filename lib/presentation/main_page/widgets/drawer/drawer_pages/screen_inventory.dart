@@ -114,7 +114,7 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                       },
                     ),
 
-                    CommonFilterRow(
+                    InventoryFilterRow(
                       selectedStatus: selectedStatus,
                       selectedSort: selectedSort,
 

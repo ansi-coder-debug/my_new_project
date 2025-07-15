@@ -12,6 +12,18 @@ class Employee extends HiveObject{
   @HiveField(5) final String status;
   @HiveField(6) final String id;
   @HiveField(7) final String imageUrl;
+  // ✅ New fields for details only:
+  @HiveField(8)
+  String? description;
+
+  @HiveField(9)
+  String? address;
+
+  @HiveField(10)
+  String? emergencyContact;
+
+  @HiveField(11)
+  String? bloodGroup;
 
 
   Employee({
@@ -22,7 +34,11 @@ class Employee extends HiveObject{
         required this.salary,
          required this.status,
           required this.id,
-          required this.imageUrl
+          required this.imageUrl,
+          this.address,
+          this.description,
+          this.emergencyContact,
+          this.bloodGroup
   });
 
 }

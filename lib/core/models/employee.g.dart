@@ -25,13 +25,17 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       status: fields[5] as String,
       id: fields[6] as String,
       imageUrl: fields[7] as String,
+      address: fields[9] as String?,
+      description: fields[8] as String?,
+      emergencyContact: fields[10] as String?,
+      bloodGroup: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Employee obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -47,7 +51,15 @@ class EmployeeAdapter extends TypeAdapter<Employee> {
       ..writeByte(6)
       ..write(obj.id)
       ..writeByte(7)
-      ..write(obj.imageUrl);
+      ..write(obj.imageUrl)
+      ..writeByte(8)
+      ..write(obj.description)
+      ..writeByte(9)
+      ..write(obj.address)
+      ..writeByte(10)
+      ..write(obj.emergencyContact)
+      ..writeByte(11)
+      ..write(obj.bloodGroup);
   }
 
   @override
