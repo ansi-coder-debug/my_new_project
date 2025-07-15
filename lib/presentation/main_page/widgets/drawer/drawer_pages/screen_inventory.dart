@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
-import 'package:my_new_project/presentation/main_page/widgets/inventory_vehicle_card.dart';
+import 'package:my_new_project/widgets/inventory_vehicle_card.dart';
+
 import 'package:my_new_project/widgets/add_vehicle_form.dart';
 import 'package:my_new_project/widgets/inventory_filter_row.dart';
 import 'package:my_new_project/widgets/common_search_bar.dart';

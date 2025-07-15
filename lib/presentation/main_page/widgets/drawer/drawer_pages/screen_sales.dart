@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/widgets/common_search_bar.dart';
-import 'package:my_new_project/widgets/employes_card.dart';
+import 'package:my_new_project/widgets/employee_card.dart';
 import 'package:my_new_project/widgets/expense_card.dart';
 import 'package:my_new_project/widgets/common_filter_row.dart';
 
