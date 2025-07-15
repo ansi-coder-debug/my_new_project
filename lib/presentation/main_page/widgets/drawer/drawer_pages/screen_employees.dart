@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:my_new_project/core/models/employee.dart';
-import 'package:my_new_project/widgets/add_employee_form.dart';
+
 import 'package:my_new_project/widgets/common_search_bar.dart';
-import 'package:my_new_project/widgets/employee_card.dart';
-import 'package:my_new_project/widgets/employee_details_screen.dart';
-import 'package:my_new_project/widgets/employee_filter_row.dart';
+import 'package:my_new_project/widgets/employee/add_employee_form.dart';
+import 'package:my_new_project/widgets/employee/employee_card.dart';
+import 'package:my_new_project/widgets/employee/employee_details_screen.dart';
+import 'package:my_new_project/widgets/employee/employee_filter_row.dart';
+
+
+
 
 class ScreenEmployees extends StatefulWidget {
   const ScreenEmployees({super.key});
