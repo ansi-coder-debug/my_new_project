@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/widgets/common_search_bar.dart';
 
-import 'package:my_new_project/widgets/expense_card.dart';
+
 
 
 class ScreenSales extends StatefulWidget {

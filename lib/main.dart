@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_new_project/core/models/employee.dart';
+import 'package:my_new_project/core/models/expense.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/presentation/main_page/widgets/screen_main_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -15,6 +16,9 @@ void main() async {
 
   Hive.registerAdapter(EmployeeAdapter());
   await Hive.openBox<Employee>('employees');
+
+  Hive.registerAdapter(ExpenseAdapter());
+  await Hive.openBox<Expense>('expenses');
 
   runApp(const MyApp());
 }

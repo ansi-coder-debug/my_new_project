@@ -70,7 +70,7 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
       final emp = widget.employeeToEdit!;
       _nameController.text = emp.name;
       _designationController.text = emp.designation;
-      _joiningYearController.text = emp.joiningYear;
+      _joiningYearController.text = emp.joiningYear;  //for existing details pre editing 
       _phoneController.text = emp.phoneNumber;
       _salaryController.text = emp.salary;
       _imageUrlController.text = emp.imageUrl;
