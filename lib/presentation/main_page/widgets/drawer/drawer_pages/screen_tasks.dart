@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 
-class ScreenTasks extends StatelessWidget {
-  const ScreenTasks({super.key});
+ class ScreenTasks extends StatelessWidget {
+   const ScreenTasks({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Tasks'
+         title: Text(
+           'Tasks'
         ),
-      ),
-    );
-  }
-}
+     ),
+     );
+   }
+ }
+
+ 

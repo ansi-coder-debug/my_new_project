@@ -17,45 +17,48 @@ class VehicleAdapter extends TypeAdapter<Vehicle> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Vehicle(
-      title: fields[0] as String,
-      imageUrl: fields[1] as String,
-      price: fields[2] as String,
-      mileage: fields[3] as String,
-      color: fields[4] as String,
-      vin: fields[5] as String,
-      task: fields[6] as String,
-      status: fields[7] as String,
-      year: fields[8] as String,
-      description: fields[9] as String?,
-      purchaseDate: fields[10] as String?,
+      id: fields[0] as String,
+      title: fields[1] as String,
+      imageUrl: fields[2] as String,
+      price: fields[3] as String,
+      mileage: fields[4] as String,
+      color: fields[5] as String,
+      vin: fields[6] as String,
+      task: fields[7] as String,
+      status: fields[8] as String,
+      year: fields[9] as String,
+      description: fields[10] as String?,
+      purchaseDate: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Vehicle obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
-      ..write(obj.title)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.imageUrl)
+      ..write(obj.title)
       ..writeByte(2)
-      ..write(obj.price)
+      ..write(obj.imageUrl)
       ..writeByte(3)
-      ..write(obj.mileage)
+      ..write(obj.price)
       ..writeByte(4)
-      ..write(obj.color)
+      ..write(obj.mileage)
       ..writeByte(5)
-      ..write(obj.vin)
+      ..write(obj.color)
       ..writeByte(6)
-      ..write(obj.task)
+      ..write(obj.vin)
       ..writeByte(7)
-      ..write(obj.status)
+      ..write(obj.task)
       ..writeByte(8)
-      ..write(obj.year)
+      ..write(obj.status)
       ..writeByte(9)
-      ..write(obj.description)
+      ..write(obj.year)
       ..writeByte(10)
+      ..write(obj.description)
+      ..writeByte(11)
       ..write(obj.purchaseDate);
   }
 

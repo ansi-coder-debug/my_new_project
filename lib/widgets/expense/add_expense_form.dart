@@ -216,6 +216,8 @@ class _AddExpenseFormState extends State<AddExpenseForm> {
                       paymentMode: _paymentModeController.text,
                       status: selectedStatus ?? 'Pending',
                       description: _descriptionController.text,
+                      vehicleId: 'unLinked' //later change 
+                      
                     );
 
                     //checking if we are editing or adding

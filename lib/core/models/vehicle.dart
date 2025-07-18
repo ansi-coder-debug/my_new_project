@@ -1,23 +1,35 @@
 import 'package:hive_flutter/hive_flutter.dart';
 part 'vehicle.g.dart';
 
-
 @HiveType(typeId: 0)
-class Vehicle  extends HiveObject{
-  @HiveField(0) final String title;
-  @HiveField(1) final String imageUrl; 
-  @HiveField(2) final String price;
-  @HiveField(3) final String mileage;
-  @HiveField(4) final String color;
-  @HiveField(5) final String vin;
-  @HiveField(6) final String task;
-  @HiveField(7) final String status;
-  @HiveField(8) final String year;
-  @HiveField(9) final String? description;
-  @HiveField(10) final String ? purchaseDate;
-
+class Vehicle extends HiveObject {
+  @HiveField(0)
+  final String id;
+  @HiveField(1)
+  final String title;
+  @HiveField(2)
+  final String imageUrl;
+  @HiveField(3)
+  final String price;
+  @HiveField(4)
+  final String mileage;
+  @HiveField(5)
+  final String color;
+  @HiveField(6)
+  final String vin;
+  @HiveField(7)
+  final String task;
+  @HiveField(8)
+  final String status;
+  @HiveField(9)
+  final String year;
+  @HiveField(10)
+  final String? description;
+  @HiveField(11)
+  final String? purchaseDate;
 
   Vehicle({
+    required this.id,
     required this.title,
     required this.imageUrl,
     required this.price,
@@ -27,10 +39,7 @@ class Vehicle  extends HiveObject{
     required this.task,
     required this.status,
     required this.year,
-     this.description,
-     this.purchaseDate
-
-    
-
+    this.description,
+    this.purchaseDate,
   });
 }

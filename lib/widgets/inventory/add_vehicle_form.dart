@@ -5,6 +5,8 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:uuid/uuid.dart';
+
 
 class AddVehicleForm extends StatefulWidget {
   final VoidCallback? onCancel;
@@ -48,6 +50,8 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _purchaseDateController = TextEditingController();
+  final TextEditingController _idController = TextEditingController();
+
   //
   final TextEditingController _yearController = TextEditingController();
 
@@ -60,6 +64,8 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
     _colorController.dispose();
     _vinController.dispose();
     _imageUrlController.dispose();
+    _idController.dispose();
+
     //
     _yearController.dispose();
   }
@@ -69,6 +75,8 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
     super.initState();
 
     final vehicle = widget.vehicleToEdit;
+    final uuid = Uuid(); // ✅ Add this
+
     if (vehicle != null) {
       _makeController.text = vehicle.title;
       _imageUrlController.text = vehicle.imageUrl;
@@ -78,7 +86,11 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
       _colorController.text = vehicle.color;
       _vinController.text = vehicle.vin;
       selectedStatus = vehicle.status;
+
     }
+    else {
+  _idController.text = uuid.v4(); // ✅ Auto-generate a new unique ID
+}
   }
 
   @override
@@ -88,6 +100,18 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
         padding: const EdgeInsets.all(16),
         child: ListView(  
           children: [
+            Text('Vehicle ID', style: TextStyle(color: Colors.black)),
+TextFormField(
+  controller: _idController,
+  readOnly: true, // Optional: prevent users from modifying it
+  style: TextStyle(color: Colors.black),
+  decoration: InputDecoration(
+    contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+    border: OutlineInputBorder(),
+  ),
+),
+KHeight16,
+
             Text('Make', style: TextStyle(color: Colors.black)),
             TextFormField(
               controller: _makeController,
@@ -325,6 +349,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                     final box = Hive.box<Vehicle>('vehicles');
 
                     final newVehicle = Vehicle(
+                      id: _idController.text,
                       title: '${_makeController.text}${_modelController.text}',
                       // where gallery adding saving logic
                       imageUrl: _pickedImage != null

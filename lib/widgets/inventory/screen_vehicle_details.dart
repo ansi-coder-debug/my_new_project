@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/expense.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/widgets/expense/add_expense_form_from_vehicle.dart';
 
-class ScreenVehicleDetails extends StatelessWidget {
+class ScreenVehicleDetails extends StatefulWidget {
   final Vehicle vehicle;
   final VoidCallback onBack;
   final VoidCallback onEdit;
@@ -16,6 +19,12 @@ class ScreenVehicleDetails extends StatelessWidget {
     required this.onEdit,
   });
 
+  @override
+  State<ScreenVehicleDetails> createState() => _ScreenVehicleDetailsState();
+}
+
+class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
+  bool _showExpenseForm = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,9 +46,9 @@ class ScreenVehicleDetails extends StatelessWidget {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: AspectRatio(
-                      aspectRatio: 16/9,
+                      aspectRatio: 16 / 9,
                       child: Image.file(
-                        File(vehicle.imageUrl),
+                        File(widget.vehicle.imageUrl),
                         fit: BoxFit.cover,
                         errorBuilder: (_, _, _) => Center(
                           child: Icon(
@@ -56,7 +65,7 @@ class ScreenVehicleDetails extends StatelessWidget {
                     child: CircleAvatar(
                       backgroundColor: Colors.white,
                       child: IconButton(
-                        onPressed: onBack,
+                        onPressed: widget.onBack,
                         icon: Icon(Icons.arrow_back, color: Colors.black),
                       ),
                     ),
@@ -65,7 +74,7 @@ class ScreenVehicleDetails extends StatelessWidget {
                     top: 8,
                     right: 8,
                     child: TextButton(
-                      onPressed: onEdit,
+                      onPressed: widget.onEdit,
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.blue,
                         padding: EdgeInsets.symmetric(
@@ -96,7 +105,7 @@ class ScreenVehicleDetails extends StatelessWidget {
               children: [
                 SizedBox(width: 10),
                 Text(
-                  '${vehicle.year} ${vehicle.title}',
+                  '${widget.vehicle.year} ${widget.vehicle.title}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -105,7 +114,7 @@ class ScreenVehicleDetails extends StatelessWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'VIN:${vehicle.vin}',
+                  'VIN:${widget.vehicle.vin}',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ],
@@ -116,7 +125,7 @@ class ScreenVehicleDetails extends StatelessWidget {
             Column(
               children: [
                 Text(
-                  '\$${vehicle.price}',
+                  '\$${widget.vehicle.price}',
                   style: TextStyle(
                     fontSize: 24,
                     color: Colors.blue,
@@ -131,7 +140,7 @@ class ScreenVehicleDetails extends StatelessWidget {
                     color: Colors.grey.withOpacity(0.1),
                   ),
                   child: Text(
-                    vehicle.status,
+                    widget.vehicle.status,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -179,7 +188,7 @@ class ScreenVehicleDetails extends StatelessWidget {
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    vehicle.color,
+                                    widget.vehicle.color,
                                     style: TextStyle(color: Colors.black),
                                   ),
                                 ],
@@ -198,7 +207,7 @@ class ScreenVehicleDetails extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    vehicle.mileage,
+                                    widget.vehicle.mileage,
                                     style: TextStyle(color: Colors.black),
                                   ),
                                 ],
@@ -214,7 +223,7 @@ class ScreenVehicleDetails extends StatelessWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          vehicle.purchaseDate ?? 'N/A',
+                          widget.vehicle.purchaseDate ?? 'N/A',
                           style: TextStyle(color: Colors.black),
                         ),
                         SizedBox(height: 12),
@@ -224,7 +233,8 @@ class ScreenVehicleDetails extends StatelessWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          vehicle.description ?? 'No description available.',
+                          widget.vehicle.description ??
+                              'No description available.',
                           style: TextStyle(color: Colors.black),
                         ),
                       ],
@@ -236,78 +246,145 @@ class ScreenVehicleDetails extends StatelessWidget {
 
             SizedBox(height: 16),
 
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            
+          ElevatedButton(
+  onPressed: () {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.85,
+            ),
+            padding: EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              child: AddExpenseFormFromVehicle(
+                vehicleId: widget.vehicle.id,
+                onCancel: () {
+                  Navigator.of(context).pop();
+                },
+                onAddComplete: () {
+                  Navigator.of(context).pop();
+                  setState(() {});
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.blue, // 🔵 Background color
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.zero, // ◼️ No rounded corners
+    ),
+  ),
+  child: Text(
+    'Add Expense',
+    style: TextStyle(color: Colors.white), // ⚪ White text
+  ),
+),
 
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.assignment),
-                      KWidth12,
-                      Text(
-                        'Vehicle Tasks',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Tasks',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
+
+
+
+
+
+
+
+
+
+
+            // ElevatedButton(
+            //   onPressed: () {
+            //     setState(() {
+            //       _showExpenseForm = true; //show the dialog form
+            //     });
+            //   },
+
+            //   child: Text('Add Expense', style: TextStyle(color: Colors.white)),
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: Colors.blue,
+            //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            //   ),
+            // ),
+
+            // if (_showExpenseForm)
+            //   Padding(
+            //     padding: EdgeInsets.all(16),
+            //     child: AddExpenseFormFromVehicle(
+            //       vehicleId: widget.vehicle.id,
+            //       onCancel: () {
+            //         setState(() {
+            //           _showExpenseForm = false;
+            //         });
+            //       },
+            //       onAddComplete: () {
+            //         setState(() {
+            //           _showExpenseForm =
+            //               false; // Hide it because it will auto update in Hive
+            //         });
+            //       },
+            //     ),
+            //   ),
+
+            // expense list header
+            Padding(
+              padding: EdgeInsets.only(top: 20, bottom: 8),
+              child: Text(
+                'Expenses',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            //Expense List
+            ValueListenableBuilder(
+              valueListenable: Hive.box<Expense>('expenses').listenable(),
+              builder: (context, box, _) {
+                final expenses = box.values
+                    .where((expense) => expense.vehicleId == widget.vehicle.id)
+                    .toList();
+
+                if (expenses.isEmpty) {
+                  return Text('No Expenses Recorded');
+                }
+                return Column(
+                  children: expenses
+                      .map(
+                        (expense) => Card(
+                          child: ListTile(
+                            title: Text(
+                              '₹${expense.amount} - ${expense.category}',
                             ),
-                            Text(
-                              '0/2 Completed',
-                              style: TextStyle(color: Colors.black),
+                            subtitle: Text(expense.date),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(expense.paymentMode),
+                                IconButton(
+                                  onPressed: () {
+                                    Hive.box<Expense>(
+                                      'expenses',
+                                    ).delete(expense.id);
+                                  },
+                                  icon: Icon(Icons.delete, color: Colors.red),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 8,
-                              horizontal: 12,
-                            ),
-                            border: OutlineInputBorder(),
-                            labelText: 'Add A New Task....',
-                            suffixIcon: Container(
-                              margin: EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child:  IconButton(onPressed: (){},
-                                         icon: Icon(Icons.add,
-                                         color: Colors.white,)),
-                            ),
+
+                            //
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                      )
+                      .toList(),
+                );
+              },
             ),
           ],
         ),
@@ -316,34 +393,6 @@ class ScreenVehicleDetails extends StatelessWidget {
   }
 }
 
-                        
-                                
-                                    
-                                 
-
-
-                            
-                           
-                           
-                           
-                        
-                             
-                                  
-                                     
-                                       
-                               
-      
-       
-
-
-                                            
-                      
-                     
-                    
-                  
-              
-             
-          
 
 
 
@@ -353,10 +402,40 @@ class ScreenVehicleDetails extends StatelessWidget {
 
 
 
+/*ElevatedButton(
+  onPressed: () {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // prevent tap outside to close
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.85,
+            ),
+            padding: EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              child: AddExpenseFormFromVehicle(
+                vehicleId: widget.vehicle.id,
+                onCancel: () {
+                  Navigator.of(context).pop(); // close dialog
+                },
+                onAddComplete: () {
+                  Navigator.of(context).pop(); // close dialog
+                  setState(() {}); // refresh if needed
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  },
+  child: Text("Add Expense"),
+)
 
-
-
-
-                            
-                           
-              
+*/

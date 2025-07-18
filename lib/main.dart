@@ -10,6 +10,9 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(VehicleAdapter());
 
+  
+  
+
   final box = await Hive.openBox<Vehicle>('vehicles');
 
   // await box.clear(); // ✅ clear old data ONCE after model change
@@ -18,7 +21,14 @@ void main() async {
   await Hive.openBox<Employee>('employees');
 
   Hive.registerAdapter(ExpenseAdapter());
+
+
+
   await Hive.openBox<Expense>('expenses');
+
+  
+
+
 
   runApp(const MyApp());
 }
