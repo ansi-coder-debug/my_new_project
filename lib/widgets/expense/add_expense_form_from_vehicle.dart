@@ -190,27 +190,3 @@ class _AddExpenseFormFromVehicleState extends State<AddExpenseFormFromVehicle> {
     );
   }
 }
-
-//  ElevatedButton(
-          //   // onPressed: () async {
-          //   //   final amountText = _amountController.text.trim();
-          //   //   if (amountText.isEmpty) return;
-
-          //   //   final amount = double.tryParse(amountText);
-          //   //   if (amount == null) return;
-
-          //   //   final expense = Expense(
-          //   //     id: Uuid().v4(),
-          //   //     vehicleId: widget.vehicleId,
-          //   //     amount: amount,
-          //   //     category: _selectedCategory,
-          //   //     paymentMode: _selectedPaymentMode,
-          //   //     date: _selectedDate,
-          //   //   );
-          //   //   final box = await Hive.openBox<Expense>('expenses');
-          //   //   await box.put(expense.id, expense);
-          //   //   widget.onAddComplete();
-          //   // },
-          //   child: Text('Save'),
-            
-          // ),

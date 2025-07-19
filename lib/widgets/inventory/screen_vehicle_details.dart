@@ -246,94 +246,50 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
 
             SizedBox(height: 16),
 
-            
-          ElevatedButton(
-  onPressed: () {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.85,
-            ),
-            padding: EdgeInsets.all(16),
-            child: SingleChildScrollView(
-              child: AddExpenseFormFromVehicle(
-                vehicleId: widget.vehicle.id,
-                onCancel: () {
-                  Navigator.of(context).pop();
-                },
-                onAddComplete: () {
-                  Navigator.of(context).pop();
-                  setState(() {});
-                },
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width * 0.9,
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.85,
+                        ),
+                        padding: EdgeInsets.all(16),
+                        child: SingleChildScrollView(
+                          child: AddExpenseFormFromVehicle(
+                            vehicleId: widget.vehicle.id,
+                            onCancel: () {
+                              Navigator.of(context).pop();
+                            },
+                            onAddComplete: () {
+                              Navigator.of(context).pop();
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue, // 🔵 Background color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero, // ◼️ No rounded corners
+                ),
+              ),
+              child: Text(
+                'Add Expense',
+                style: TextStyle(color: Colors.white), // ⚪ White text
               ),
             ),
-          ),
-        );
-      },
-    );
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.blue, // 🔵 Background color
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.zero, // ◼️ No rounded corners
-    ),
-  ),
-  child: Text(
-    'Add Expense',
-    style: TextStyle(color: Colors.white), // ⚪ White text
-  ),
-),
-
-
-
-
-
-
-
-
-
-
-
-            // ElevatedButton(
-            //   onPressed: () {
-            //     setState(() {
-            //       _showExpenseForm = true; //show the dialog form
-            //     });
-            //   },
-
-            //   child: Text('Add Expense', style: TextStyle(color: Colors.white)),
-            //   style: ElevatedButton.styleFrom(
-            //     backgroundColor: Colors.blue,
-            //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-            //   ),
-            // ),
-
-            // if (_showExpenseForm)
-            //   Padding(
-            //     padding: EdgeInsets.all(16),
-            //     child: AddExpenseFormFromVehicle(
-            //       vehicleId: widget.vehicle.id,
-            //       onCancel: () {
-            //         setState(() {
-            //           _showExpenseForm = false;
-            //         });
-            //       },
-            //       onAddComplete: () {
-            //         setState(() {
-            //           _showExpenseForm =
-            //               false; // Hide it because it will auto update in Hive
-            //         });
-            //       },
-            //     ),
-            //   ),
 
             // expense list header
             Padding(
@@ -392,50 +348,3 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-/*ElevatedButton(
-  onPressed: () {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // prevent tap outside to close
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.85,
-            ),
-            padding: EdgeInsets.all(16),
-            child: SingleChildScrollView(
-              child: AddExpenseFormFromVehicle(
-                vehicleId: widget.vehicle.id,
-                onCancel: () {
-                  Navigator.of(context).pop(); // close dialog
-                },
-                onAddComplete: () {
-                  Navigator.of(context).pop(); // close dialog
-                  setState(() {}); // refresh if needed
-                },
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  },
-  child: Text("Add Expense"),
-)
-
-*/

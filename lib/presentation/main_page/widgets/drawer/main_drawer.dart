@@ -136,9 +136,9 @@ class MainDrawer extends StatelessWidget {
             ),
             onTap: () => onItemSelected(3),
           ),
-          // KHeight,
 
-           ListTile(   
+          // KHeight,
+          ListTile(
             selected: selectedIndex == 4,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -154,14 +154,12 @@ class MainDrawer extends StatelessWidget {
             ),
             onTap: () => onItemSelected(4),
           ),
-          
 
-          
-           ListTile(   
+          ListTile(
             selected: selectedIndex == 5,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.attach_money ,
+              Icons.attach_money,
               color: selectedIndex == 5 ? Colors.blue : null,
             ),
             title: Text(
@@ -173,25 +171,41 @@ class MainDrawer extends StatelessWidget {
             ),
             onTap: () => onItemSelected(5),
           ),
-          
 
-          const Divider(),
-
-          ListTile(   
+          ListTile(
             selected: selectedIndex == 6,
-            splashColor: Colors.blueAccent,
+            splashColor: Colors.blue,
             leading: Icon(
-              Icons.bar_chart,
-              color: selectedIndex == 6 ? Colors.blue : null,
+              Icons.group,
+              color: selectedIndex == 6 ? Colors.blueAccent : null,
             ),
             title: Text(
-              'Reports',
+              'Partnerships',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 6 ? Colors.blue : null,
               ),
             ),
             onTap: () => onItemSelected(6),
+          ),
+
+          const Divider(),
+
+          ListTile(
+            selected: selectedIndex == 7,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.bar_chart,
+              color: selectedIndex == 7 ? Colors.blue : null,
+            ),
+            title: Text(
+              'Reports',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 7 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(7),
           ),
 
           ListTile(
@@ -202,20 +216,20 @@ class MainDrawer extends StatelessWidget {
             //   'Settings',
             //   style: TextStyle(fontWeight: FontWeight.bold),
             // ),
-            selected: selectedIndex == 7,
+            selected: selectedIndex == 8,
             splashColor: Colors.blueAccent,
             leading: Icon(
               Icons.settings,
-              color: selectedIndex == 7 ? Colors.blue : null,
+              color: selectedIndex == 8 ? Colors.blue : null,
             ),
             title: Text(
               'Settings',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: selectedIndex == 7 ? Colors.blue : null,
+                color: selectedIndex == 8 ? Colors.blue : null,
               ),
             ),
-            onTap: () => onItemSelected(7),
+            onTap: () => onItemSelected(8),
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
           const Divider(),

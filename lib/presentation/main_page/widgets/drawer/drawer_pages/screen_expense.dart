@@ -52,6 +52,8 @@ class _ScreenExpenseState extends State<ScreenExpense> {
 
               // ✅ If false, show the normal Expense List page UI
             )
+
+            
           : showExpenseDetails && selectedExpense != null
           ? ExpenseDetailsScreen(
               expense: selectedExpense!,

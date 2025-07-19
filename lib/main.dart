@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_new_project/core/models/employee.dart';
 import 'package:my_new_project/core/models/expense.dart';
+import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/presentation/main_page/widgets/screen_main_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -10,9 +11,6 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(VehicleAdapter());
 
-  
-  
-
   final box = await Hive.openBox<Vehicle>('vehicles');
 
   // await box.clear(); // ✅ clear old data ONCE after model change
@@ -21,12 +19,10 @@ void main() async {
   await Hive.openBox<Employee>('employees');
 
   Hive.registerAdapter(ExpenseAdapter());
-
-
-
   await Hive.openBox<Expense>('expenses');
 
-  
+  Hive.registerAdapter(PartnershipAdapter());
+  await Hive.openBox<Partnership>('partnerships');
 
 
 

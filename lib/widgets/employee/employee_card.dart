@@ -143,15 +143,13 @@ class EmployeeCard extends StatelessWidget {
                         style: TextStyle(color: Colors.black),
                         // overflow: TextOverflow.ellipsis,
                       ),
-                     
                     ],
-
                   ),
-                   Text(
+                  Text(
                     'Phone:$phone',
                     style: TextStyle(color: Colors.black),
                     overflow: TextOverflow.ellipsis,
-                    ),
+                  ),
                 ],
               ),
             ),
