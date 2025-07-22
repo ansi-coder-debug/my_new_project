@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/widgets/inventory/add_vehicle_form.dart';
 import 'package:my_new_project/widgets/inventory/inventory_filter_row.dart';
 import 'package:my_new_project/widgets/inventory/inventory_vehicle_card.dart';
 import 'package:my_new_project/widgets/inventory/screen_vehicle_details.dart';
 
-
 import 'package:my_new_project/widgets/common_search_bar.dart';
-
 
 //  Text('Inventory'),
 class ScreenInventory extends StatefulWidget {
@@ -72,9 +71,10 @@ class _ScreenInventoryState extends State<ScreenInventory> {
               builder: (context, box, _) {
                 //getting all vehicles
                 List<Vehicle> vehicles = box.values.toList();
-                List<int> Keys = box.keys
-                    .cast<int>()
-                    .toList(); //calling delete from the hive and refresh ui
+
+                // List<dynamic> Keys = box.keys .toList();
+
+                //calling delete from the hive and refresh ui
 
                 //apply filter by status
                 if (selectedStatus != 'All Status') {
@@ -102,7 +102,7 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                       ).compareTo(int.parse(b.price.replaceAll(',', '')));
                     default:
                       return 0;
-                }
+                  }
                 });
                 return Column(
                   children: [
@@ -158,13 +158,34 @@ class _ScreenInventoryState extends State<ScreenInventory> {
                                   task: Vehicle.task,
                                   status: Vehicle.status,
                                   year: Vehicle.year,
-                                  onDelete: () {
-                                    final Key = Keys[index]; //key list
-                                    vehicleBox.delete(
-                                      Key,
-                                    ); //delete from hive storage
-                                    setState(() {}); // update ui logic
+                                  onDelete: () async {
+                                    final vehicle = vehicles[index];
+                                    //get the vehicle
+                                    final vehicleKey = box.keyAt(index);
+                                    //safer way to get the key
+
+                                    final partnershipBox =
+                                        Hive.box<Partnership>('partnerships');
+                                    final partnershipId =
+                                        vehicle.partnership?.id;
+
+                                    // 1. Delete partnership if it exists
+                                    if (partnershipId != null &&
+                                        partnershipBox.containsKey(
+                                          partnershipId,
+                                        )) {
+                                      await partnershipBox.delete(
+                                        partnershipId,
+                                      );
+                                    }
+                                    // 2. Delete vehicle
+                                    await vehicleBox.delete(vehicleKey);
+
+                                    setState(() {
+                                      //refresh ui
+                                    });
                                   },
+
                                   onEdit: () {
                                     setState(() {
                                       vehicleToEdit = vehicles[index];

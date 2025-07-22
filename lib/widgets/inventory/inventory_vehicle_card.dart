@@ -122,7 +122,9 @@ class InventoryVehicleCard extends StatelessWidget {
       
                       KWidth12,
                       // Icon(Icons.delete),
-                      IconButton(onPressed: onDelete, icon: Icon(Icons.delete)),
+                      IconButton(
+                        onPressed: onDelete,
+                       icon: Icon(Icons.delete)),
                     ],
                   ), //end of title row
                   KHeight,

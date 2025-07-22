@@ -1,9 +1,11 @@
 import 'dart:io';
 
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expense.dart';
+import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/widgets/expense/add_expense_form_from_vehicle.dart';
 
@@ -24,7 +26,53 @@ class ScreenVehicleDetails extends StatefulWidget {
 }
 
 class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
+  void _deletePartnership() async {
+    final vehicleBox = Hive.box<Vehicle>('vehicles');
+
+    final partnershipBox = Hive.box<Partnership>('partnerships');
+
+    final vehicle = widget.vehicle;
+
+    // delete the actual partnership from the box
+    if (vehicle.partnership !=null){
+      await partnershipBox.delete(vehicle.partnership!.id);
+    }
+     // Step 2: Replace the vehicle with the same data but no partnership
+     final updatedVehicle= Vehicle(
+      id:vehicle.id ,
+       title: vehicle.title, 
+       imageUrl: vehicle.imageUrl,
+        price:  vehicle.price, 
+        mileage: vehicle.mileage,
+         color:  vehicle.color,
+          vin:  vehicle.vin,
+           task:  vehicle.task,
+            status:  vehicle.status,
+             year:  vehicle.year
+             );
+
+
+             // Step 3: Save updated vehicle to Hive
+          await vehicleBox.put(vehicle.id, updatedVehicle);
+
+          //step 4 rebuild ui
+          setState(() {
+            
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Partnership Deleted')
+            )
+          );
+
+
+
+
+
+  }
+
   bool _showExpenseForm = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -344,46 +392,69 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
             ),
 
             // Partnership Section
-            if(widget.vehicle.partnership !=null)...[
-              SizedBox(
-                height: 24,
+            if (widget.vehicle.partnership != null) ...[
+              SizedBox(height: 24),
+              Text(
+                'Partnership Details',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              Text('Partnership Details',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                fontWeight: FontWeight.bold
-              ),),
-                SizedBox(height: 8),
-                Container(
-                  
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color:  Colors.grey[200],
-      borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Partner Name :${widget.vehicle.partnership!.partnerName}',style: TextStyle(color: Colors.black),),
-                      SizedBox(height: 4),
-                       Text('Contact Person :${widget.vehicle.partnership!.contactPerson}',style: TextStyle(color: Colors.black),),
-                      SizedBox(height: 4),
-                      Text('Share % :${widget.vehicle.partnership!.sharePercentage}',style: TextStyle(color: Colors.black),),
-                      SizedBox(height: 4),
-                      Text('Phone :${widget.vehicle.partnership!.phone}',style: TextStyle(color: Colors.black),),
-                      SizedBox(height: 4),
-                      Text('Email:${widget.vehicle.partnership!.email}',style: TextStyle(color: Colors.black),),
-                      SizedBox(height: 4),
-                      Text('Start Date:${widget.vehicle.partnership!.startDate}',style: TextStyle(color: Colors.black),),
-                      SizedBox(height: 4),
-
-
-                    ],
-                  ),
-                )
-
-            ]
+              SizedBox(height: 8),
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Partner Name :${widget.vehicle.partnership!.partnerName}',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Contact Person :${widget.vehicle.partnership!.contactPerson}',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Share % :${widget.vehicle.partnership!.sharePercentage}',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Phone :${widget.vehicle.partnership!.phone}',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Email:${widget.vehicle.partnership!.email}',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Start Date:${widget.vehicle.partnership!.startDate}',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        IconButton(
+                          onPressed: _deletePartnership,
+                          icon: Icon(Icons.delete, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

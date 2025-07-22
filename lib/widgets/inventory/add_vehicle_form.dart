@@ -531,16 +531,25 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                       await box.put(Key, newVehicle);
                       print('Vehicle updated!');
                     } else {
-                      //add mode
-                      await box.add(newVehicle);
+
+
+
+                      //add mode using String id as key
+                      await box.put(newVehicle.id,newVehicle);
                       print('Vehicle added');
 
                       if (newVehicle.partnership != null) {
                         await Hive.box<Partnership>(
                           'partnerships',
-                        ).add(newVehicle.partnership!);
+                        ).put(newVehicle.partnership!.id,newVehicle.partnership!);
                       }
                     }
+
+
+
+
+
+
 
                     //close the form
                     widget.onAddComplete();
