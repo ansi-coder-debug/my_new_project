@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_new_project/core/models/partnership.dart';
 part 'vehicle.g.dart';
 
 @HiveType(typeId: 0)
@@ -28,6 +29,9 @@ class Vehicle extends HiveObject {
   @HiveField(11)
   final String? purchaseDate;
 
+  @HiveField(12)
+  final Partnership? partnership;
+
   Vehicle({
     required this.id,
     required this.title,
@@ -41,5 +45,6 @@ class Vehicle extends HiveObject {
     required this.year,
     this.description,
     this.purchaseDate,
+    this.partnership,
   });
 }

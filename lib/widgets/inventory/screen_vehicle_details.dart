@@ -342,9 +342,86 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
                 );
               },
             ),
+
+            // Partnership Section
+            if(widget.vehicle.partnership !=null)...[
+              SizedBox(
+                height: 24,
+              ),
+              Text('Partnership Details',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold
+              ),),
+                SizedBox(height: 8),
+                Container(
+                  
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color:  Colors.grey[200],
+      borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Partner Name :${widget.vehicle.partnership!.partnerName}',style: TextStyle(color: Colors.black),),
+                      SizedBox(height: 4),
+                       Text('Contact Person :${widget.vehicle.partnership!.contactPerson}',style: TextStyle(color: Colors.black),),
+                      SizedBox(height: 4),
+                      Text('Share % :${widget.vehicle.partnership!.sharePercentage}',style: TextStyle(color: Colors.black),),
+                      SizedBox(height: 4),
+                      Text('Phone :${widget.vehicle.partnership!.phone}',style: TextStyle(color: Colors.black),),
+                      SizedBox(height: 4),
+                      Text('Email:${widget.vehicle.partnership!.email}',style: TextStyle(color: Colors.black),),
+                      SizedBox(height: 4),
+                      Text('Start Date:${widget.vehicle.partnership!.startDate}',style: TextStyle(color: Colors.black),),
+                      SizedBox(height: 4),
+
+
+                    ],
+                  ),
+                )
+
+            ]
           ],
         ),
       ),
     );
   }
 }
+
+// if (widget.vehicle.partnership != null) ...[
+//   SizedBox(height: 24),
+//   Text(
+//     'Partnership Details',
+//     style: TextStyle(
+//       fontSize: 18,
+//       fontWeight: FontWeight.bold,
+//     ),
+//   ),
+//   SizedBox(height: 8),
+//   Container(
+//     padding: EdgeInsets.all(12),
+//     decoration: BoxDecoration(
+//       color: Colors.grey[200],
+//       borderRadius: BorderRadius.circular(12),
+//     ),
+//     child: Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text('Partner Name: ${widget.vehicle.partnership!.partnerName}'),
+//         SizedBox(height: 4),
+//         Text('Contact Person: ${widget.vehicle.partnership!.contactPerson}'),
+//         SizedBox(height: 4),
+//         Text('Share %: ${widget.vehicle.partnership!.sharePercentage}'),
+//         SizedBox(height: 4),
+//         Text('Phone: ${widget.vehicle.partnership!.phone}'),
+//         SizedBox(height: 4),
+//         Text('Email: ${widget.vehicle.partnership!.email}'),
+//         SizedBox(height: 4),
+//         Text('Start Date: ${widget.vehicle.partnership!.startDate}'),
+//       ],
+//     ),
+//   ),
+// ],

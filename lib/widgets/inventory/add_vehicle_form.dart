@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:uuid/uuid.dart';
-
 
 class AddVehicleForm extends StatefulWidget {
   final VoidCallback? onCancel;
@@ -26,6 +26,8 @@ class AddVehicleForm extends StatefulWidget {
 
 class _AddVehicleFormState extends State<AddVehicleForm> {
   File? _pickedImage;
+  bool _showPartnershipFields = false;
+  DateTime? _startDate;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -51,9 +53,15 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _purchaseDateController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
-
-  //
   final TextEditingController _yearController = TextEditingController();
+  // Partnership controllers
+  final TextEditingController _partnerNameController = TextEditingController();
+  final TextEditingController _contactPersonController =
+      TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _sharePercentageController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -65,9 +73,13 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
     _vinController.dispose();
     _imageUrlController.dispose();
     _idController.dispose();
-
-    //
     _yearController.dispose();
+    //partnership dispose
+    _partnerNameController.dispose();
+    _contactPersonController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _sharePercentageController.dispose();
   }
 
   @override
@@ -86,11 +98,40 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
       _colorController.text = vehicle.color;
       _vinController.text = vehicle.vin;
       selectedStatus = vehicle.status;
-
+    } else {
+      _idController.text = uuid.v4(); // ✅ Auto-generate a new unique ID
     }
-    else {
-  _idController.text = uuid.v4(); // ✅ Auto-generate a new unique ID
-}
+  }
+
+  //partnership field _buildtextfield
+  Widget _buildTextField(TextEditingController controller, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(color: Colors.black)),
+        SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          style: TextStyle(color: Colors.black),
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            border: OutlineInputBorder(),
+          ),
+        ),
+
+        SizedBox(height: 16),
+      ],
+    );
+  }
+
+  // condition to check partnership field is empty or not if empty vehicle details save
+  bool isPartnershipFilled() {
+    return _partnerNameController.text.trim().isNotEmpty ||
+        _contactPersonController.text.trim().isNotEmpty ||
+        _emailController.text.trim().isNotEmpty ||
+        _phoneController.text.trim().isNotEmpty ||
+        _sharePercentageController.text.trim().isNotEmpty ||
+        _startDate != null;
   }
 
   @override
@@ -98,19 +139,22 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: ListView(  
+        child: ListView(
           children: [
             Text('Vehicle ID', style: TextStyle(color: Colors.black)),
-TextFormField(
-  controller: _idController,
-  readOnly: true, // Optional: prevent users from modifying it
-  style: TextStyle(color: Colors.black),
-  decoration: InputDecoration(
-    contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-    border: OutlineInputBorder(),
-  ),
-),
-KHeight16,
+            TextFormField(
+              controller: _idController,
+              readOnly: true, // Optional: prevent users from modifying it
+              style: TextStyle(color: Colors.black),
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            KHeight16,
 
             Text('Make', style: TextStyle(color: Colors.black)),
             TextFormField(
@@ -325,6 +369,91 @@ KHeight16,
               ),
 
             KHeight,
+            //partnership listtile can also use
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _showPartnershipFields = !_showPartnershipFields;
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.black, width: 1),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.group_add, color: Colors.blue),
+                    SizedBox(width: 10),
+                    Text(
+                      'Add Partnership (Optional)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        // fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    Spacer(),
+                    Icon(
+                      _showPartnershipFields
+                          ? Icons.expand_less
+                          : Icons.expand_more,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            //dropdown of partnership fields
+            if (_showPartnershipFields)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10),
+                  _buildTextField(_partnerNameController, 'Partner Name'),
+                  _buildTextField(_contactPersonController, 'Contact Person'),
+                  _buildTextField(_emailController, 'Email'),
+                  _buildTextField(_phoneController, 'Phone'),
+                  _buildTextField(_sharePercentageController, 'Share %'),
+                  Padding(
+                    padding: EdgeInsets.only(top: 4, bottom: 16),
+                    child: InkWell(
+                      onTap: () async {
+                        DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _startDate = picked;
+                          });
+                        }
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Start Date',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: Text(
+                          _startDate != null
+                              ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
+                              : 'Select Start Date',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+            KHeight,
 
             Row(
               children: [
@@ -366,6 +495,33 @@ KHeight16,
                       // description: _descriptionController.text,
                       task: '0',
                       status: selectedStatus ?? 'Available',
+
+                      //partnership
+
+                      //                 partnership: isPartnershipFilled()
+                      // ? Partnership(
+                      //     partnerName: _partnerNameController.text,
+                      //     contactPerson: _contactPersonController.text,
+                      //     email: _emailController.text,
+                      //     phone: _phoneController.text,
+                      //     sharePercentage:
+                      //         double.tryParse(_sharePercentageController.text) ?? 0.0,
+                      //     startDate: _startDate ?? DateTime.now(),
+                      //   )
+                      // : null,
+                      partnership: isPartnershipFilled()
+                          ? Partnership(
+                              id: _idController.text,
+                              partnerName: _partnerNameController.text,
+                              contactPerson: _contactPersonController.text,
+                              email: _emailController.text,
+                              phone: _phoneController.text,
+                              sharePercentage: _sharePercentageController.text,
+                              vehicleId: _idController.text,
+                              startDate: (_startDate ?? DateTime.now())
+                                  .toIso8601String(),
+                            )
+                          : null,
                     );
 
                     //edit and add data to Hive
@@ -378,6 +534,12 @@ KHeight16,
                       //add mode
                       await box.add(newVehicle);
                       print('Vehicle added');
+
+                      if (newVehicle.partnership != null) {
+                        await Hive.box<Partnership>(
+                          'partnerships',
+                        ).add(newVehicle.partnership!);
+                      }
                     }
 
                     //close the form

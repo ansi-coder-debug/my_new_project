@@ -6,23 +6,47 @@ import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/presentation/main_page/widgets/screen_main_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Hive.initFlutter();
+//   Hive.registerAdapter(VehicleAdapter());
+
+//   final box = await Hive.openBox<Vehicle>('vehicles');
+
+//   // await box.clear(); // ✅ clear old data ONCE after model change
+
+//   Hive.registerAdapter(EmployeeAdapter());
+//   await Hive.openBox<Employee>('employees');
+
+//   Hive.registerAdapter(ExpenseAdapter());
+//   await Hive.openBox<Expense>('expenses');
+
+//   Hive.registerAdapter(PartnershipAdapter());
+//   await Hive.openBox<Partnership>('partnerships');
+//   // await Hive.box<Partnership>('partnerships').clear();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
+
+  // 1. FIRST register ALL adapters
   Hive.registerAdapter(VehicleAdapter());
-
-  final box = await Hive.openBox<Vehicle>('vehicles');
-
-  // await box.clear(); // ✅ clear old data ONCE after model change
-
-  Hive.registerAdapter(EmployeeAdapter());
-  await Hive.openBox<Employee>('employees');
-
-  Hive.registerAdapter(ExpenseAdapter());
-  await Hive.openBox<Expense>('expenses');
-
   Hive.registerAdapter(PartnershipAdapter());
+  Hive.registerAdapter(EmployeeAdapter());
+  Hive.registerAdapter(ExpenseAdapter());
+
+  // 2. THEN open boxes
+  await Hive.openBox<Vehicle>('vehicles');
+  await Hive.openBox<Employee>('employees');
+  await Hive.openBox<Expense>('expenses');
   await Hive.openBox<Partnership>('partnerships');
+
+  // 3. Clear boxes if needed (only for development)
+  // await Hive.box<Vehicle>('vehicles').clear();
+  // await Hive.box<Partnership>('partnerships').clear();
+
+
+  
+
 
 
 

@@ -23,6 +23,9 @@ class _ScreenPartnershipsState extends State<ScreenPartnerships> {
   bool showPartnershipDetails = false;
   Partnership? selectedPartnership;
 
+  //delete from bothpages
+  
+
   final Box<Partnership> partnershipBox = Hive.box<Partnership>('partnerships');
 
   @override
