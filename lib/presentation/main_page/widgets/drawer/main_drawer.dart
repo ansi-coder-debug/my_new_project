@@ -104,11 +104,11 @@ class MainDrawer extends StatelessWidget {
             selected: selectedIndex == 2,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.task,
+              Icons.shopping_cart,
               color: selectedIndex == 2 ? Colors.blue : null,
             ),
             title: Text(
-              'Tasks',
+              'Purchase',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 2 ? Colors.blue : null,
