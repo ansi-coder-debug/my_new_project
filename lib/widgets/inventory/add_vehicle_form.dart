@@ -1,4 +1,6 @@
 import 'dart:io';
+//new
+import 'package:my_new_project/core/models/purchase.dart';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -62,6 +64,11 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _sharePercentageController =
       TextEditingController();
+  //new code
+  final TextEditingController _buyerNameController = TextEditingController();
+  final TextEditingController _buyerPhoneController = TextEditingController();
+  final TextEditingController _buyerAddressController = TextEditingController();
+  final TextEditingController _paymentModeController = TextEditingController();
 
   @override
   void dispose() {
@@ -196,17 +203,17 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
               ),
             ),
             KHeight16,
-            TextFormField(
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(
-                  vertical: 8,
-                  horizontal: 12,
-                ),
-                border: OutlineInputBorder(),
-              ),
-              style: TextStyle(color: Colors.black),
-            ),
-            SizedBox(height: 16),
+            // TextFormField(
+            //   decoration: InputDecoration(
+            //     contentPadding: EdgeInsets.symmetric(
+            //       vertical: 8,
+            //       horizontal: 12,
+            //     ),
+            //     border: OutlineInputBorder(),
+            //   ),
+            //   style: TextStyle(color: Colors.black),
+            // ),
+            // SizedBox(height: 16),
 
             // Price
             Text('Price', style: TextStyle(color: Colors.black)),
@@ -311,6 +318,59 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
               style: TextStyle(color: Colors.black),
             ),
             KHeight16,
+
+            //new code of purchase list
+            Text('Seller Name', style: TextStyle(color: Colors.black)),
+            TextFormField(
+              controller: _buyerNameController,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
+                border: OutlineInputBorder(),
+              ),
+              style: TextStyle(color: Colors.black),
+            ),
+
+            Text('Seller Phone', style: TextStyle(color: Colors.black)),
+            TextFormField(
+              controller: _buyerPhoneController,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
+                border: OutlineInputBorder(),
+              ),
+              style: TextStyle(color: Colors.black),
+            ),
+
+            Text('Seller Address', style: TextStyle(color: Colors.black)),
+            TextFormField(
+              controller: _buyerAddressController,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
+                border: OutlineInputBorder(),
+              ),
+              style: TextStyle(color: Colors.black),
+            ),
+
+            Text('Mode of Payment', style: TextStyle(color: Colors.black)),
+            TextFormField(
+              controller: _paymentModeController,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
+                border: OutlineInputBorder(),
+              ),
+              style: TextStyle(color: Colors.black),
+            ),
 
             // Description
             Text('Description', style: TextStyle(color: Colors.black)),
@@ -531,22 +591,32 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                       await box.put(Key, newVehicle);
                       print('Vehicle updated!');
                     } else {
-
-
-
                       //add mode using String id as key
-                      await box.put(newVehicle.id,newVehicle);
+                      await box.put(newVehicle.id, newVehicle);
                       print('Vehicle added');
 
                       if (newVehicle.partnership != null) {
-                        await Hive.box<Partnership>(
-                          'partnerships',
-                        ).put(newVehicle.partnership!.id,newVehicle.partnership!);
+                        await Hive.box<Partnership>('partnerships').put(
+                          newVehicle.partnership!.id,
+                          newVehicle.partnership!,
+                        );
                       }
                     }
 
+                    //save purchase logic on onpressed of add vehicle
+                    final purchase = Purchase(
+                      id: Uuid().v4(),
+                      vehicleId: newVehicle.id,
+                      name: _buyerNameController.text,
+                      phone: _buyerPhoneController.text,
+                      address: _buyerAddressController.text,
+                      date: _purchaseDateController.text,
+                      price: _priceController.text,
+                      modeOfPayment: _paymentModeController.text,
+                    );
 
-
+                    //Save to Hive
+                    await Hive.box<Purchase>('purchases').put(purchase.id, purchase);
 
 
 

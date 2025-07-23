@@ -5,13 +5,13 @@ import 'package:my_new_project/core/models/purchase.dart';
 class PurchaseDetailsScreen extends StatelessWidget {
   final Purchase purchase;
    final VoidCallback onBack;
-  final VoidCallback onEdit;
+  // final VoidCallback onEdit;
 
   const PurchaseDetailsScreen({
     super.key,
     required this.purchase,
     required this.onBack,
-    required this.onEdit
+    // required this.onEdit
     
     
     });
@@ -52,30 +52,30 @@ class PurchaseDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: TextButton(
-                      onPressed: onEdit,
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Edit Purchase',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Positioned(
+                  //   top: 8,
+                  //   right: 8,
+                  //   child: TextButton(
+                  //     onPressed: onEdit,
+                  //     style: TextButton.styleFrom(
+                  //       backgroundColor: Colors.blue,
+                  //       padding: EdgeInsets.symmetric(
+                  //         horizontal: 12,
+                  //         vertical: 8,
+                  //       ),
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(8),
+                  //       ),
+                  //     ),
+                  //     child: Text(
+                  //       'Edit Purchase',
+                  //       style: TextStyle(
+                  //         color: Colors.white,
+                  //         fontWeight: FontWeight.bold,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

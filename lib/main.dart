@@ -5,6 +5,8 @@ import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/presentation/main_page/widgets/screen_main_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_new_project/core/models/purchase.dart';
+
 
 // void main() async {
 //   WidgetsFlutterBinding.ensureInitialized();
@@ -33,12 +35,16 @@ void main() async {
   Hive.registerAdapter(PartnershipAdapter());
   Hive.registerAdapter(EmployeeAdapter());
   Hive.registerAdapter(ExpenseAdapter());
+  Hive.registerAdapter(PurchaseAdapter());
+
 
   // 2. THEN open boxes
   await Hive.openBox<Vehicle>('vehicles');
   await Hive.openBox<Employee>('employees');
   await Hive.openBox<Expense>('expenses');
   await Hive.openBox<Partnership>('partnerships');
+  await Hive.openBox<Purchase>('purchases');
+
 
   // 3. Clear boxes if needed (only for development)
   // await Hive.box<Vehicle>('vehicles').clear();

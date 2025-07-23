@@ -1,11 +1,11 @@
 import 'dart:io';
 
-
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expense.dart';
 import 'package:my_new_project/core/models/partnership.dart';
+import 'package:my_new_project/core/models/purchase.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/widgets/expense/add_expense_form_from_vehicle.dart';
 
@@ -34,41 +34,32 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
     final vehicle = widget.vehicle;
 
     // delete the actual partnership from the box
-    if (vehicle.partnership !=null){
+    if (vehicle.partnership != null) {
       await partnershipBox.delete(vehicle.partnership!.id);
     }
-     // Step 2: Replace the vehicle with the same data but no partnership
-     final updatedVehicle= Vehicle(
-      id:vehicle.id ,
-       title: vehicle.title, 
-       imageUrl: vehicle.imageUrl,
-        price:  vehicle.price, 
-        mileage: vehicle.mileage,
-         color:  vehicle.color,
-          vin:  vehicle.vin,
-           task:  vehicle.task,
-            status:  vehicle.status,
-             year:  vehicle.year
-             );
+    // Step 2: Replace the vehicle with the same data but no partnership
+    final updatedVehicle = Vehicle(
+      id: vehicle.id,
+      title: vehicle.title,
+      imageUrl: vehicle.imageUrl,
+      price: vehicle.price,
+      mileage: vehicle.mileage,
+      color: vehicle.color,
+      vin: vehicle.vin,
+      task: vehicle.task,
+      status: vehicle.status,
+      year: vehicle.year,
+    );
 
+    // Step 3: Save updated vehicle to Hive
+    await vehicleBox.put(vehicle.id, updatedVehicle);
 
-             // Step 3: Save updated vehicle to Hive
-          await vehicleBox.put(vehicle.id, updatedVehicle);
+    //step 4 rebuild ui
+    setState(() {});
 
-          //step 4 rebuild ui
-          setState(() {
-            
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Partnership Deleted')
-            )
-          );
-
-
-
-
-
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Partnership Deleted')));
   }
 
   bool _showExpenseForm = false;
@@ -387,6 +378,75 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
                         ),
                       )
                       .toList(),
+                );
+              },
+            ),
+
+            // Purchase Section
+            ValueListenableBuilder(
+              //Listen to changes in the Hive 'purchases' box
+              valueListenable: Hive.box<Purchase>('purchases').listenable(),
+
+              // Find the first purchase whose vehicleId matches the current vehicle
+              builder: (context, box, _) {
+                final purchases = box.values
+                    .where(
+                      (purchase) => purchase.vehicleId == widget.vehicle.id,
+                    )
+                    .toList();
+
+                if (purchases.isEmpty) {
+                  return Text('No Purchases Recorded');
+                }
+                // if purchase found build ui section
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 24),
+                    Text(
+                      'Purchase Details',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    KHeight,
+                    // build one card per purchase
+                    ...purchases.map(
+                      (purchase) => Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            '${purchase.name} - ${purchase.price}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('📞 Phone: ${purchase.phone}'),
+                              Text('📍 Address: ${purchase.address}'),
+                              Text('🗓️ Date: ${purchase.date}'),
+                              Text(
+                                '💳 Payment Mode: ${purchase.modeOfPayment}',
+                              ),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            onPressed: () {
+                              Hive.box<Purchase>(
+                                'purchases',
+                              ).delete(purchase.id);
+                            },
+                            icon: Icon(Icons.delete, color: Colors.red),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
             ),

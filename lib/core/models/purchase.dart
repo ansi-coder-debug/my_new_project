@@ -11,7 +11,7 @@ class Purchase extends HiveObject {
   final String vehicleId;
 
   @HiveField(2)
-  final String name;
+  final String name;//Buyer name
 
   @HiveField(3)
   final String phone;

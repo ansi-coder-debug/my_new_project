@@ -12,8 +12,8 @@ class PurchaseCard extends StatelessWidget {
   final String modeOfPayment;
 
    final VoidCallback? onTap;
-  final VoidCallback onEdit;
-  final VoidCallback? onDelete;
+  // final VoidCallback onEdit;
+  // final VoidCallback? onDelete;
 
   const PurchaseCard({
     super.key,
@@ -25,8 +25,8 @@ class PurchaseCard extends StatelessWidget {
     required this.date,
     required this.price,
     required this.modeOfPayment,
-    required this.onDelete,
-    required this.onEdit,
+    // required this.onDelete,
+    // required this.onEdit,
     this.onTap,
 
     });
@@ -48,6 +48,7 @@ class PurchaseCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
+                    flex: 2,
                     child: Text(
                       'Vehicle ID: $vehicleId',//unique number
                       style: TextStyle(
@@ -55,19 +56,25 @@ class PurchaseCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    '$id',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
+                  SizedBox(width: 8),
+                  Flexible(
+                    flex: 1,
+                    child: Text(
+                      '$id',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blueGrey,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  IconButton(onPressed: onEdit, icon: Icon(Icons.edit_square)),
-                  KWidth12,
-                  IconButton(onPressed: onDelete, icon: Icon(Icons.delete)),
+                  // IconButton(onPressed: onEdit, icon: Icon(Icons.edit_square)),
+                  // KWidth12,
+                  // IconButton(onPressed: onDelete, icon: Icon(Icons.delete)),
                 ],
               ),
               KHeight,
