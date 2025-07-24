@@ -32,6 +32,9 @@ class Vehicle extends HiveObject {
   @HiveField(12)
   final Partnership? partnership;
 
+  @HiveField(13)
+  final String? salesId;
+
   Vehicle({
     required this.id,
     required this.title,
@@ -46,5 +49,6 @@ class Vehicle extends HiveObject {
     this.description,
     this.purchaseDate,
     this.partnership,
+    this.salesId,
   });
 }

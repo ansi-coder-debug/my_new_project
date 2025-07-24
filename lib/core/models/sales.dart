@@ -19,7 +19,7 @@ class Sales extends HiveObject {
   final String modeOfPayment;
 
   @HiveField(5)
-  final DateTime date;
+  final String date;
 
   Sales({
     required this.vehicleId,

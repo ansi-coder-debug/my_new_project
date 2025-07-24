@@ -15,6 +15,7 @@ class SalesDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
        body: SingleChildScrollView(
         padding: EdgeInsets.all(16),

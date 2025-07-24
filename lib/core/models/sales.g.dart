@@ -22,7 +22,7 @@ class SalesAdapter extends TypeAdapter<Sales> {
       buyerPhone: fields[2] as String,
       buyerAddress: fields[3] as String,
       modeOfPayment: fields[4] as String,
-      date: fields[5] as DateTime,
+      date: fields[5] as String,
     );
   }
 

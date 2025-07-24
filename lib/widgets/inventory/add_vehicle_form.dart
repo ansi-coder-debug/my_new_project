@@ -1,12 +1,14 @@
 import 'dart:io';
 //new
 import 'package:my_new_project/core/models/purchase.dart';
+import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/partnership.dart';
+import 'package:my_new_project/core/models/sales.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:uuid/uuid.dart';
 
@@ -29,6 +31,9 @@ class AddVehicleForm extends StatefulWidget {
 class _AddVehicleFormState extends State<AddVehicleForm> {
   File? _pickedImage;
   bool _showPartnershipFields = false;
+
+  bool _showSalesFields = false;
+
   DateTime? _startDate;
 
   Future<void> _pickImage() async {
@@ -42,6 +47,8 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
       });
     }
   }
+
+  String _status = 'Available';
 
   String? selectedStatus;
 
@@ -64,11 +71,19 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _sharePercentageController =
       TextEditingController();
-  //new code
+  //new code purchase
+  final TextEditingController _sellerNameController = TextEditingController();
+  final TextEditingController _sellerPhoneController = TextEditingController();
+  final TextEditingController _sellerAddressController =
+      TextEditingController();
+  final TextEditingController _paymentModeController = TextEditingController();
+  // sales
   final TextEditingController _buyerNameController = TextEditingController();
   final TextEditingController _buyerPhoneController = TextEditingController();
   final TextEditingController _buyerAddressController = TextEditingController();
-  final TextEditingController _paymentModeController = TextEditingController();
+  final TextEditingController _modeOfPaymentController =
+      TextEditingController();
+  final TextEditingController _saleDateController = TextEditingController();
 
   @override
   void dispose() {
@@ -87,6 +102,12 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
     _emailController.dispose();
     _phoneController.dispose();
     _sharePercentageController.dispose();
+    //sales
+    _buyerNameController.dispose();
+    _buyerPhoneController.dispose();
+    _buyerAddressController.dispose();
+    _modeOfPaymentController.dispose();
+    _saleDateController.dispose();
   }
 
   @override
@@ -140,6 +161,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
         _sharePercentageController.text.trim().isNotEmpty ||
         _startDate != null;
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -203,17 +225,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
               ),
             ),
             KHeight16,
-            // TextFormField(
-            //   decoration: InputDecoration(
-            //     contentPadding: EdgeInsets.symmetric(
-            //       vertical: 8,
-            //       horizontal: 12,
-            //     ),
-            //     border: OutlineInputBorder(),
-            //   ),
-            //   style: TextStyle(color: Colors.black),
-            // ),
-            // SizedBox(height: 16),
+           
 
             // Price
             Text('Price', style: TextStyle(color: Colors.black)),
@@ -277,8 +289,11 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
             // Status
             Text('Status', style: TextStyle(color: Colors.black)),
             DropdownButtonFormField<String>(
-              value: selectedStatus,
-              decoration: InputDecoration(border: OutlineInputBorder()),
+              value: _status,
+              decoration: InputDecoration(
+                // labelText: 'Status',
+                border: OutlineInputBorder(),
+              ),
 
               items: ['Available', 'Pending Sale', 'Sold', 'In Maintenance']
                   .map((status) {
@@ -287,21 +302,89 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                   .toList(),
               onChanged: (value) {
                 setState(() {
-                  selectedStatus = value!;
+                  _status = value!;
+                  _showSalesFields = _status == 'Sold';
                 });
               },
             ),
 
-            // TextFormField(
-            //   decoration: InputDecoration(
-            //     contentPadding: EdgeInsets.symmetric(
-            //       vertical: 8,
-            //       horizontal: 12,
-            //     ),
-            //     border: OutlineInputBorder(),
-            //   ),
-            //   style: TextStyle(color: Colors.black),
-            // ),
+            //sales
+            if (_showSalesFields)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  KHeight16,
+                  Text('Buyer Name',style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _buyerNameController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      border: OutlineInputBorder(),
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight16,
+                  Text('Buyer Phone',style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _buyerPhoneController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      border: OutlineInputBorder(),
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+
+                  KHeight16,
+                  Text('Buyer Address',style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _buyerAddressController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      border: OutlineInputBorder(),
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight16,
+                  Text('Mode Of Payment',style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _modeOfPaymentController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      border: OutlineInputBorder(),
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight16,
+                  Text('Sale Date',style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _saleDateController,
+
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      border: OutlineInputBorder(),
+                      // hintText: 'dd/mm/yyyy',
+                      // fillColor: Colors.black12
+                    ),
+                   
+                  ),
+                ],
+              ),
+
             KHeight16,
 
             // Purchase Date
@@ -322,7 +405,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
             //new code of purchase list
             Text('Seller Name', style: TextStyle(color: Colors.black)),
             TextFormField(
-              controller: _buyerNameController,
+              controller: _sellerNameController,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                   vertical: 8,
@@ -335,7 +418,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
 
             Text('Seller Phone', style: TextStyle(color: Colors.black)),
             TextFormField(
-              controller: _buyerPhoneController,
+              controller: _sellerPhoneController,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                   vertical: 8,
@@ -348,7 +431,7 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
 
             Text('Seller Address', style: TextStyle(color: Colors.black)),
             TextFormField(
-              controller: _buyerAddressController,
+              controller: _sellerAddressController,
               decoration: InputDecoration(
                 contentPadding: EdgeInsets.symmetric(
                   vertical: 8,
@@ -556,19 +639,6 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                       task: '0',
                       status: selectedStatus ?? 'Available',
 
-                      //partnership
-
-                      //                 partnership: isPartnershipFilled()
-                      // ? Partnership(
-                      //     partnerName: _partnerNameController.text,
-                      //     contactPerson: _contactPersonController.text,
-                      //     email: _emailController.text,
-                      //     phone: _phoneController.text,
-                      //     sharePercentage:
-                      //         double.tryParse(_sharePercentageController.text) ?? 0.0,
-                      //     startDate: _startDate ?? DateTime.now(),
-                      //   )
-                      // : null,
                       partnership: isPartnershipFilled()
                           ? Partnership(
                               id: _idController.text,
@@ -607,19 +677,38 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                     final purchase = Purchase(
                       id: Uuid().v4(),
                       vehicleId: newVehicle.id,
-                      name: _buyerNameController.text,
-                      phone: _buyerPhoneController.text,
-                      address: _buyerAddressController.text,
+                      name: _sellerNameController.text,
+                      phone: _sellerPhoneController.text,
+                      address: _sellerAddressController.text,
                       date: _purchaseDateController.text,
                       price: _priceController.text,
                       modeOfPayment: _paymentModeController.text,
                     );
 
                     //Save to Hive
-                    await Hive.box<Purchase>('purchases').put(purchase.id, purchase);
+                    await Hive.box<Purchase>(
+                      'purchases',
+                    ).put(purchase.id, purchase);
 
+                    //save sale logic
+                    if (selectedStatus == 'Sold') {
+                      final salesBox = Hive.box<Sales>('sales');
 
+                      final newSale = Sales(
+                        vehicleId: newVehicle.id,
+                        buyerName: _buyerNameController.text,
+                        buyerPhone: _buyerPhoneController.text,
+                        buyerAddress: _buyerAddressController.text,
+                        modeOfPayment: _paymentModeController.text,
+                        date: _saleDateController.text
+                      );
+                      await salesBox.put(newVehicle.id, newSale);
+                    }
 
+                    //closing sales form
+                    if (selectedStatus == 'Sold') {
+                      widget.onAddComplete();
+                    }
 
                     //close the form
                     widget.onAddComplete();
@@ -643,3 +732,5 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
     );
   }
 }
+
+
