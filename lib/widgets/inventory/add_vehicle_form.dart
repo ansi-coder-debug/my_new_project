@@ -129,6 +129,39 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
       _vinController.text = vehicle.vin;
       // selectedStatus = vehicle.status;
       _status = vehicle.status;
+
+      // // ✅ Load existing Purchase info if editing a vehicle
+      // final purchaseBox = Hive.box<Purchase>('purchases');
+
+      // // Try to find the purchase linked to this vehicle by vehicleId
+      // final purchase = purchaseBox.values.cast<Purchase>().firstWhere(
+      //   (p) => p.vehicleId == vehicle.id,
+      //   orElse: () => null as Purchase,
+      //   //no purchsae found
+      // );
+
+      Purchase? purchase;
+      if (widget.vehicleToEdit != null) {
+        final PurchaseList = Hive.box<Purchase>('purchases').values
+            .cast<Purchase>()
+            .where((p) => p.vehicleId == widget.vehicleToEdit!.id)
+            .toList();
+
+        if (PurchaseList.isNotEmpty) {
+          purchase = PurchaseList.first;
+        } else {
+          purchase = null;
+        }
+      }
+
+      // If a matching purchase was found, fill the form fields
+      if (purchase != null) {
+        _purchaseDateController.text = purchase.date;
+        _sellerNameController.text = purchase.name;
+        _sellerPhoneController.text = purchase.phone;
+        _sellerAddressController.text = purchase.address;
+        _paymentModeController.text = purchase.modeOfPayment;
+      }
     } else {
       _idController.text = uuid.v4(); // ✅ Auto-generate a new unique ID
     }
@@ -300,11 +333,23 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                 border: OutlineInputBorder(),
               ),
 
-              items: ['Available', 'Pending Sale', 'Sold', 'In Maintenance']
-                  .map((status) {
-                    return DropdownMenuItem(value: status, child: Text(status));
-                  })
-                  .toList(),
+              items:
+                  (widget.vehicleToEdit != null
+                          ? [
+                              'Available',
+                              'Pending Sale',
+                              'Sold',
+                              'In Maintenance',
+                            ]
+                          : ['Available', 'Pending Sale', 'In Maintenance'])
+                      .map((status) {
+                        return DropdownMenuItem(
+                          value: status,
+                          child: Text(status),
+                        );
+                      })
+                      .toList(),
+
               onChanged: (value) {
                 setState(() {
                   _status = value!;
@@ -432,28 +477,69 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
 
                       ElevatedButton(
                         onPressed: () async {
-                          if (_status == 'Sold') {
+                          if (_status == 'Sold' &&
+                              (widget.vehicleToEdit ?? widget.vehicle) !=
+                                  null) {
+                            final currentVehicle =
+                                (widget.vehicleToEdit ?? widget.vehicle)!;
                             final salesBox = Hive.box<Sales>('sales');
 
                             final newSale = Sales(
                               id: Uuid().v4(),
                               // vehicleId: widget.vehicle!.id,
-                              vehicleId: (widget.vehicleToEdit??widget.vehicle)!.id,
+                              vehicleId:
+                                  (widget.vehicleToEdit ?? widget.vehicle)!.id,
                               buyerName: _buyerNameController.text,
                               buyerPhone: _buyerPhoneController.text,
                               buyerAddress: _buyerAddressController.text,
                               modeOfPayment: _modeOfPaymentController.text,
                               date: _saleDateController.text,
                             );
+
                             await Hive.box<Sales>(
                               'sales',
                             ).put(newSale.id, newSale);
+
+                            // final vehicleBox = Hive.box<Vehicle>('vehicles');
+                            // final currentVehicle =
+                            //     (widget.vehicleToEdit ?? widget.vehicle)!;
+
+                            final updatedVehicle = currentVehicle.copyWith(
+                              status: 'Sold',
+                              salesId: newSale.id,
+                            );
+                            // await vehicleBox.put(
+                            //   updatedVehicle.id,
+                            //   updatedVehicle,
+                            // );
+                            await Hive.box<Vehicle>(
+                              'vehicles',
+                            ).put(updatedVehicle.id, updatedVehicle);
+
+                            //3 purchase save
+                            final newPurchase = Purchase(
+                              id: Uuid().v4(),
+                              vehicleId: currentVehicle.id,
+                              name: _sellerNameController.text,
+                              phone: _sellerPhoneController.text,
+                              address: _sellerAddressController.text,
+                              date: _purchaseDateController.text,
+                              price: _priceController.text,
+                              modeOfPayment: _paymentModeController.text,
+                            );
+
+                            await Hive.box<Purchase>(
+                              'purchases',
+                            ).put(newPurchase.id, newPurchase);
                           }
+                          // Update Vehicle's status and salesId using copyWith
+
                           // complete time
                           if (_status == 'Sold') {
                             widget.onAddComplete();
                           }
                         },
+
                         child: Text(
                           'Update Sale',
                           style: TextStyle(color: Colors.white),
@@ -768,8 +854,8 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                       //save purchase logic on onpressed of add vehicle
                       final purchase = Purchase(
                         id: Uuid().v4(),
-                        // vehicleId: newVehicle.id,
-                        vehicleId: (widget.vehicleToEdit??widget.vehicle)!.id,
+                        vehicleId: newVehicle.id,
+                        // vehicleId: (widget.vehicleToEdit ?? widget.vehicle)!.id,
                         name: _sellerNameController.text,
                         phone: _sellerPhoneController.text,
                         address: _sellerAddressController.text,
@@ -782,26 +868,6 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                       await Hive.box<Purchase>(
                         'purchases',
                       ).put(purchase.id, purchase);
-
-                      // //save sale logic
-                      // if (_status == 'Sold') {
-                      //   final salesBox = Hive.box<Sales>('sales');
-
-                      //   final newSale = Sales(
-                      //     vehicleId: newVehicle.id,
-                      //     buyerName: _buyerNameController.text,
-                      //     buyerPhone: _buyerPhoneController.text,
-                      //     buyerAddress: _buyerAddressController.text,
-                      //     modeOfPayment: _paymentModeController.text,
-                      //     date: _saleDateController.text,
-                      //   );
-                      //   await salesBox.put(newVehicle.id, newSale);
-                      // }
-
-                      // //closing sales form
-                      // if (_status == 'Sold') {
-                      //   widget.onAddComplete();
-                      // }
 
                       //close the form
                       widget.onAddComplete();

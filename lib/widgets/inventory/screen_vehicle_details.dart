@@ -522,37 +522,41 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
   }
 }
 
-// if (widget.vehicle.partnership != null) ...[
-//   SizedBox(height: 24),
-//   Text(
-//     'Partnership Details',
-//     style: TextStyle(
-//       fontSize: 18,
-//       fontWeight: FontWeight.bold,
-//     ),
-//   ),
-//   SizedBox(height: 8),
-//   Container(
-//     padding: EdgeInsets.all(12),
-//     decoration: BoxDecoration(
-//       color: Colors.grey[200],
-//       borderRadius: BorderRadius.circular(12),
-//     ),
-//     child: Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text('Partner Name: ${widget.vehicle.partnership!.partnerName}'),
-//         SizedBox(height: 4),
-//         Text('Contact Person: ${widget.vehicle.partnership!.contactPerson}'),
-//         SizedBox(height: 4),
-//         Text('Share %: ${widget.vehicle.partnership!.sharePercentage}'),
-//         SizedBox(height: 4),
-//         Text('Phone: ${widget.vehicle.partnership!.phone}'),
-//         SizedBox(height: 4),
-//         Text('Email: ${widget.vehicle.partnership!.email}'),
-//         SizedBox(height: 4),
-//         Text('Start Date: ${widget.vehicle.partnership!.startDate}'),
-//       ],
-//     ),
-//   ),
-// ],
+
+
+
+
+// onPressed: () async {
+//   if (_status == 'Sold') {
+//     final salesBox = Hive.box<Sales>('sales');
+
+//     final newSale = Sales(
+//       id: Uuid().v4(),
+//       vehicleId: (widget.vehicleToEdit ?? widget.vehicle)!.id,
+//       buyerName: _buyerNameController.text,
+//       buyerPhone: _buyerPhoneController.text,
+//       buyerAddress: _buyerAddressController.text,
+//       modeOfPayment: _modeOfPaymentController.text,
+//       date: _saleDateController.text,
+//     );
+
+//     await salesBox.put(newSale.id, newSale); // ✅ Save sale record
+//   }
+
+//   // ✅ Always update the vehicle status in Hive
+//   final vehicleBox = Hive.box<Vehicle>('vehicles');
+//   final currentVehicle = (widget.vehicleToEdit ?? widget.vehicle);
+
+//   if (currentVehicle != null) {
+//     final updatedVehicle = currentVehicle.copyWith(
+//       status: _status, // ✅ Apply the new status (e.g., 'Sold')
+//     );
+
+//     await vehicleBox.put(updatedVehicle.id, updatedVehicle); // ✅ Save back the updated vehicle
+//   }
+
+//   // ✅ Notify completion (close form or refresh list)
+//   if (_status == 'Sold') {
+//     widget.onAddComplete();
+//   }
+// }

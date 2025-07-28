@@ -38,8 +38,6 @@ void main() async {
   Hive.registerAdapter(PurchaseAdapter());
   Hive.registerAdapter(SalesAdapter());
 
-
-
   // 2. THEN open boxes
   await Hive.openBox<Vehicle>('vehicles');
   await Hive.openBox<Employee>('employees');
@@ -47,19 +45,17 @@ void main() async {
   await Hive.openBox<Partnership>('partnerships');
   await Hive.openBox<Purchase>('purchases');
   await Hive.openBox<Sales>('sales');
-  
 
-
-  // 3. Clear boxes if needed (only for development)
+  // // 3. Clear boxes if needed (only for development)
   // await Hive.box<Vehicle>('vehicles').clear();
   // await Hive.box<Partnership>('partnerships').clear();
   // await Hive.box<Sales>('sales').clear();
+  // await Hive.box<Purchase>('purchases').clear();
 
-  
   // await Hive.deleteBoxFromDisk('sales');
   //Delete
 
-  runApp(const MyApp());
+  runApp(const MyApp());  
 }
 
 class MyApp extends StatelessWidget {

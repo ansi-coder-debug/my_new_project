@@ -51,4 +51,37 @@ class Vehicle extends HiveObject {
     this.partnership,
     this.salesId,
   });
+  Vehicle copyWith({
+    String? id,
+    String? title,
+    String? imageUrl,
+    String? price,
+    String? mileage,
+    String? color,
+    String? vin,
+    String? task,
+    String? status,
+    String? year,
+    String? description,
+    String? purchaseDate,
+    Partnership? partnership,
+    String? salesId,
+  }) {
+    return Vehicle(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      imageUrl: imageUrl ?? this.imageUrl,
+      price: price ?? this.price,
+      mileage: mileage ?? this.mileage,
+      color: color ?? this.color,
+      vin: vin ?? this.vin,
+      task: task ?? this.task,
+      status: status ?? this.status,
+      year: year ?? this.year,
+      description: description ?? this.description,
+      purchaseDate: purchaseDate ?? this.purchaseDate,
+      partnership: partnership ?? this.partnership,
+      salesId: salesId ?? this.salesId,
+    );
+  }
 }
