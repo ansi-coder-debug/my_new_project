@@ -4,31 +4,33 @@ part 'sales.g.dart';
 @HiveType(typeId: 5)
 class Sales extends HiveObject {
   @HiveField(0)
-  final String vehicleId;
+  final String id; // ✅ Unique ID for each sale
 
   @HiveField(1)
-  final String buyerName;
+  final String vehicleId;
 
   @HiveField(2)
-  final String buyerPhone;
+  final String buyerName;
 
   @HiveField(3)
+  final String buyerPhone;
+
+  @HiveField(4) 
   final String buyerAddress;
 
-  @HiveField(4)
+  @HiveField(5)
   final String modeOfPayment;
 
-  @HiveField(5)
+  @HiveField(6)
   final String date;
 
   Sales({
+    required this.id,
     required this.vehicleId,
-     required this.buyerName,
-      required this.buyerPhone,
-       required this.buyerAddress,
-        required this.modeOfPayment,
-        required this.date
-
+    required this.buyerName,
+    required this.buyerPhone,
+    required this.buyerAddress,
+    required this.modeOfPayment,
+    required this.date,
   });
 }
-

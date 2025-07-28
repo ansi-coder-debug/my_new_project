@@ -17,7 +17,7 @@ class Purchase extends HiveObject {
   final String phone;
 
   @HiveField(4)
-  final String address;
+  final String address; 
 
   @HiveField(5)
   final String date;
