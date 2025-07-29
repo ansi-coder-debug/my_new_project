@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/core/models/employee.dart';
+
+
 import 'package:my_new_project/core/models/expense.dart';
 import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/sales.dart';
@@ -8,24 +11,7 @@ import 'package:my_new_project/presentation/main_page/widgets/screen_main_page.d
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await Hive.initFlutter();
-//   Hive.registerAdapter(VehicleAdapter());
 
-//   final box = await Hive.openBox<Vehicle>('vehicles');
-
-//   // await box.clear(); // ✅ clear old data ONCE after model change
-
-//   Hive.registerAdapter(EmployeeAdapter());
-//   await Hive.openBox<Employee>('employees');
-
-//   Hive.registerAdapter(ExpenseAdapter());
-//   await Hive.openBox<Expense>('expenses');
-
-//   Hive.registerAdapter(PartnershipAdapter());
-//   await Hive.openBox<Partnership>('partnerships');
-//   // await Hive.box<Partnership>('partnerships').clear();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
@@ -52,10 +38,12 @@ void main() async {
   // await Hive.box<Sales>('sales').clear();
   // await Hive.box<Purchase>('purchases').clear();
 
-  // await Hive.deleteBoxFromDisk('sales');
-  //Delete
-
-  runApp(const MyApp());  
+  
+  runApp( ProviderScope
+  (
+    child:
+    const MyApp()
+     ));  
 }
 
 class MyApp extends StatelessWidget {
