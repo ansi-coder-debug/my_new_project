@@ -1,6 +1,8 @@
 import 'dart:io';
 
 //new
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 
 import 'package:flutter/material.dart';
@@ -12,7 +14,7 @@ import 'package:my_new_project/core/models/sales.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:uuid/uuid.dart';
 
-class AddVehicleForm extends StatefulWidget {
+class AddVehicleForm extends ConsumerStatefulWidget {
   final VoidCallback? onCancel;
   final VoidCallback onAddComplete;
   final Vehicle? vehicleToEdit;
@@ -27,10 +29,10 @@ class AddVehicleForm extends StatefulWidget {
   });
 
   @override
-  State<AddVehicleForm> createState() => _AddVehicleFormState();
+  ConsumerState<AddVehicleForm> createState() => _AddVehicleFormState();
 }
 
-class _AddVehicleFormState extends State<AddVehicleForm> {
+class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   File? _pickedImage;
   bool _showPartnershipFields = false;
 
@@ -508,13 +510,14 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                               status: 'Sold',
                               salesId: newSale.id,
                             );
-                            // await vehicleBox.put(
-                            //   updatedVehicle.id,
-                            //   updatedVehicle,
-                            // );
-                            await Hive.box<Vehicle>(
-                              'vehicles',
-                            ).put(updatedVehicle.id, updatedVehicle);
+
+                            // await Hive.box<Vehicle>(
+                            //   'vehicles',
+                            // ).put(updatedVehicle.id, updatedVehicle);
+                            // it is hive we change to riverpod
+                            await ref
+                                .read(vehicleProvider.notifier)
+                                .updateVehicle(updatedVehicle);
 
                             //3 purchase save
                             final newPurchase = Purchase(
@@ -836,7 +839,12 @@ class _AddVehicleFormState extends State<AddVehicleForm> {
                       if (widget.vehicleToEdit != null) {
                         //edit mode
                         final Key = widget.vehicleToEdit!.key;
-                        await box.put(Key, newVehicle);
+
+                        // vehicle change from Hive to Riverpod
+                        await ref
+                            .read(vehicleProvider.notifier)
+                            .addVehicle(newVehicle);
+
                         print('Vehicle updated!');
                       } else {
                         //add mode using String id as key
