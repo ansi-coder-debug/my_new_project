@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/models/partnership.dart';
-import 'package:my_new_project/core/models/vehicle.dart';
+// import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/widgets/inventory/add_vehicle_form.dart';
 import 'package:my_new_project/widgets/inventory/inventory_filter_row.dart';
 import 'package:my_new_project/widgets/inventory/inventory_vehicle_card.dart';
@@ -20,36 +20,31 @@ class ScreenInventory extends ConsumerStatefulWidget {
 }
 
 class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
-  String selectedStatus = 'All Status';
-  String selectedSort = 'Newest First';
-  bool showAddForm = false;
-  Vehicle? vehicleToEdit;
-
-  bool showVehicleDetails = false;
-  Vehicle? selectedVehicle;
-
-  // final Box<Vehicle> vehicleBox = Hive.box<Vehicle>(
-  //   'vehicles',
-  // ); 
-
-   //here need to change because it is hive we are changing to riverpod
+  //here need to change because it is hive we are changing to riverpod
 
   @override
   Widget build(BuildContext context) {
-    // Listen to vehicleProvider instead of Hive directly
-    final vehicleList = ref.watch(vehicleProvider);
+    // Watch the vehicle state from Riverpod
+    final state = ref.watch(vehicleProvider);
+    // List<Vehicle> vehicles = [...vehicleList];
 
-    List<Vehicle> vehicles = [...vehicleList];
+    //acessing everything
+    var vehicles = [...state.vehicles];
+    final showAddForm = state.showAddForm;
+    final showVehicleDetails = state.showVehicleDetails;
+    final selectedVehicle = state.selectedVehicle;
 
     //apply filter by status
-    if (selectedStatus != 'All Status') {
-      vehicles = vehicles.where((v) => v.status == selectedStatus).toList();
+    if (state.selectedStatus != 'All Status') {
+      vehicles = vehicles
+          .where((v) => v.status == state.selectedStatus)
+          .toList();
     }
 
     //apply sort
 
     vehicles.sort((a, b) {
-      switch (selectedSort) {
+      switch (state.selectedSort) {
         case 'Newest First': //high means b
           return b.year.compareTo(a.year); // low means a
 
@@ -74,32 +69,34 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
       body: showAddForm
           ? AddVehicleForm(
               onCancel: () {
-                setState(() {
-                  showAddForm = false;
-                });
+                // showAddForm = false;
+                ref.read(vehicleProvider.notifier).setShowAddForm(false);
               },
               onAddComplete: () {
-                setState(() {
-                  showAddForm = false;
-                });
+                // showAddForm = false;
+                ref.read(vehicleProvider.notifier).setShowAddForm(false);
               },
-              vehicleToEdit: vehicleToEdit,
+              vehicleToEdit: state.vehicleToEdit,
             )
           : showVehicleDetails && selectedVehicle != null
           ? ScreenVehicleDetails(
               vehicle: selectedVehicle!,
               onBack: () {
-                setState(() {
-                  showVehicleDetails = false;
-                  selectedVehicle = null;
-                });
+                // showVehicleDetails = false;
+                ref.read(vehicleProvider.notifier).setShowVehicleDetails(false);
+                // selectedVehicle = null;
+                ref.read(vehicleProvider.notifier).setSelectedVehicle(null);
               },
               onEdit: () {
-                setState(() {
-                  vehicleToEdit = selectedVehicle;
-                  showVehicleDetails = false;
-                  showAddForm = true;
-                });
+                // vehicleToEdit = selectedVehicle;
+                ref
+                    .read(vehicleProvider.notifier)
+                    .setVehicleToEdit(selectedVehicle);
+
+                // showVehicleDetails = false;
+                ref.read(vehicleProvider.notifier).setShowVehicleDetails(false);
+                // showAddForm = true;
+                ref.read(vehicleProvider.notifier).setShowAddForm(true);
               },
             )
           : Column(
@@ -108,32 +105,34 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                   labelText: 'Inventory vehicles',
                   hintText: 'Search Vehicles',
                   onChanged: (query) {
-                    setState(() {
-                      // Optional: Add search functionality if you want
-                    });
+                    // setState(() {
+                    //   // Optional: Add search functionality if you want
+                    // });
                   },
                 ),
 
                 InventoryFilterRow(
-                  selectedStatus: selectedStatus,
-                  selectedSort: selectedSort,
+                  selectedStatus: state.selectedStatus,
+                  selectedSort: state.selectedSort,
 
                   onStatusChanged: (value) {
-                    setState(() {
-                      selectedStatus = value!;
-                    });
+                    // selectedStatus = value!;
+                    ref
+                        .read(vehicleProvider.notifier)
+                        .setSelectedStatus(value!);
                   },
 
                   onSortingChanged: (value) {
-                    setState(() {
-                      selectedSort = value!;
-                    });
+                    // selectedSort = value!;
+                    ref.read(vehicleProvider.notifier).setSelectedSort(value!);
                   },
 
                   onAddPressed: () {
-                    setState(() {
-                      vehicleToEdit = null;
-                      showAddForm = true;
+                    // vehicleToEdit = null;
+                    ref.read(vehicleProvider.notifier).setVehicleToEdit(null);
+                    // showAddForm = true;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ref.read(vehicleProvider.notifier).setShowAddForm(true);
                     });
                   },
                 ),
@@ -150,7 +149,7 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                               title: vehicle.title,
                               imageUrl: vehicle.imageUrl,
                               price: vehicle.price,
-                              mileage: vehicle.mileage,
+                             registrationId : vehicle.registrationId,
                               color: vehicle.color,
                               vin: vehicle.vin,
                               task: vehicle.task,
@@ -180,16 +179,24 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                               },
 
                               onEdit: () {
-                                setState(() {
-                                  vehicleToEdit = vehicles[index];
-                                  showAddForm = true;
-                                });
+                                // vehicleToEdit = vehicles[index];
+                                ref
+                                    .read(vehicleProvider.notifier)
+                                    .setVehicleToEdit(vehicles[index]);
+                                // showAddForm = true;
+                                ref
+                                    .read(vehicleProvider.notifier)
+                                    .setShowAddForm(true);
                               },
                               onTap: () {
-                                setState(() {
-                                  selectedVehicle = vehicle;
-                                  showVehicleDetails = true;
-                                });
+                                // selectedVehicle = vehicle;
+                                ref
+                                    .read(vehicleProvider.notifier)
+                                    .setSelectedVehicle(vehicle);
+                                // showVehicleDetails = true;
+                                ref
+                                    .read(vehicleProvider.notifier)
+                                    .setShowVehicleDetails(true);
                               },
                             );
                           },

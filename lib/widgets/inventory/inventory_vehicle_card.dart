@@ -9,7 +9,7 @@ class InventoryVehicleCard extends StatelessWidget {
   final String title;
   final String imageUrl;
   final String price;
-  final String mileage;
+  final String registrationId;
   final String color;
   final String vin;
   final String task;
@@ -24,7 +24,7 @@ class InventoryVehicleCard extends StatelessWidget {
     required this.title,
     required this.imageUrl,
     required this.price,
-    required this.mileage,
+    required this.registrationId,
     required this.color,
     required this.vin,
     required this.task,
@@ -142,7 +142,7 @@ class InventoryVehicleCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Mileage: $mileage',
+                        'RegistrationId: $registrationId',
                         style: TextStyle(color: Colors.black),
                       ),
       

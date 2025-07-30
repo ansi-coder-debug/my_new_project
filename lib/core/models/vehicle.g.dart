@@ -21,7 +21,7 @@ class VehicleAdapter extends TypeAdapter<Vehicle> {
       title: fields[1] as String,
       imageUrl: fields[2] as String,
       price: fields[3] as String,
-      mileage: fields[4] as String,
+      registrationId: fields[4] as String,
       color: fields[5] as String,
       vin: fields[6] as String,
       task: fields[7] as String,
@@ -47,7 +47,7 @@ class VehicleAdapter extends TypeAdapter<Vehicle> {
       ..writeByte(3)
       ..write(obj.price)
       ..writeByte(4)
-      ..write(obj.mileage)
+      ..write(obj.registrationId)
       ..writeByte(5)
       ..write(obj.color)
       ..writeByte(6)

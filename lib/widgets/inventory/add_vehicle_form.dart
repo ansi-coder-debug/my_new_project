@@ -59,7 +59,8 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   final TextEditingController _makeController = TextEditingController();
   final TextEditingController _modelController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _mileageController = TextEditingController();
+  final TextEditingController _registrationIdController =
+      TextEditingController();
   final TextEditingController _colorController = TextEditingController();
   final TextEditingController _vinController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
@@ -94,7 +95,7 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
     _makeController.dispose();
     _modelController.dispose();
     _priceController.dispose();
-    _mileageController.dispose();
+    _registrationIdController.dispose();
     _colorController.dispose();
     _vinController.dispose();
     _imageUrlController.dispose();
@@ -112,6 +113,8 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
     _buyerAddressController.dispose();
     _modeOfPaymentController.dispose();
     _saleDateController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -126,7 +129,7 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
       _imageUrlController.text = vehicle.imageUrl;
       _yearController.text = vehicle.year;
       _priceController.text = vehicle.price;
-      _mileageController.text = vehicle.mileage;
+      _registrationIdController.text = vehicle.registrationId;
       _colorController.text = vehicle.color;
       _vinController.text = vehicle.vin;
       // selectedStatus = vehicle.status;
@@ -202,6 +205,7 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
 
   @override
   Widget build(BuildContext context) {
+    // print('trigger.........');
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -229,6 +233,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               TextFormField(
                 controller: _makeController,
                 style: TextStyle(color: Colors.black),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the make';
+                  }
+                  return null;
+                },
 
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
@@ -238,11 +248,19 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                   border: OutlineInputBorder(),
                 ),
               ),
+
               KHeight16,
               Text('Model', style: TextStyle(color: Colors.black)),
               TextFormField(
                 controller: _modelController,
                 style: TextStyle(color: Colors.black),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the model';
+                  }
+                  return null;
+                },
+
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -256,6 +274,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               TextFormField(
                 controller: _yearController,
                 style: TextStyle(color: Colors.black),
+                 validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the year';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -271,6 +295,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               TextFormField(
                 controller: _priceController,
                 style: TextStyle(color: Colors.black),
+                 validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the price';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -282,10 +312,16 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               KHeight16,
 
               // Mileage
-              Text('Mileage', style: TextStyle(color: Colors.black)),
+              Text('RegistrationId', style: TextStyle(color: Colors.black)),
               TextFormField(
-                controller: _mileageController,
+                controller: _registrationIdController,
                 style: TextStyle(color: Colors.black),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the registrationId';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -301,6 +337,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               TextFormField(
                 controller: _vinController,
                 style: TextStyle(color: Colors.black),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the vin';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -315,6 +357,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               TextFormField(
                 controller: _colorController,
                 style: TextStyle(color: Colors.black),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the color';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -370,6 +418,7 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                   Text('Buyer Name', style: TextStyle(color: Colors.black)),
                   TextFormField(
                     controller: _buyerNameController,
+                    
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.symmetric(
                         vertical: 8,
@@ -562,24 +611,30 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
             if (!_showSalesForm) ...[
               // it is making fields disappear when Sold staus updated
               // Purchase Date
-              Text('Purchase Date', style: TextStyle(color: Colors.black)),
-              TextFormField(
-                controller: _purchaseDateController,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
-                  ),
-                  border: OutlineInputBorder(),
-                ),
-                style: TextStyle(color: Colors.black),
-              ),
+              // Text('Purchase Date', style: TextStyle(color: Colors.black)),
+              // TextFormField(
+              //   controller: _purchaseDateController,
+              //   decoration: InputDecoration(
+              //     contentPadding: EdgeInsets.symmetric(
+              //       vertical: 8,
+              //       horizontal: 12,
+              //     ),
+              //     border: OutlineInputBorder(),
+              //   ),
+              //   style: TextStyle(color: Colors.black),
+              // ),
               KHeight16,
 
               //new code of purchase list
               Text('Seller Name', style: TextStyle(color: Colors.black)),
               TextFormField(
                 controller: _sellerNameController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the Seller Name';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -593,6 +648,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               Text('Seller Phone', style: TextStyle(color: Colors.black)),
               TextFormField(
                 controller: _sellerPhoneController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the seller phone';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -606,6 +667,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               Text('Seller Address', style: TextStyle(color: Colors.black)),
               TextFormField(
                 controller: _sellerAddressController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the seller address';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -619,6 +686,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               Text('Mode of Payment', style: TextStyle(color: Colors.black)),
               TextFormField(
                 controller: _paymentModeController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the mode of payment';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     vertical: 8,
@@ -650,6 +723,12 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
 
               TextFormField(
                 controller: _imageUrlController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please insert image';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(
                   hintText: 'Add photo URL or use file picker',
                   contentPadding: EdgeInsets.symmetric(
@@ -796,7 +875,8 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
 
                   ElevatedButton(
                     onPressed: () async {
-                      final box = Hive.box<Vehicle>('vehicles');
+                      // await ref
+                      // .read(vehicleProvider.notifier) .addVehicle(newVehicle);
 
                       final newVehicle = Vehicle(
                         id: _idController.text,
@@ -809,7 +889,7 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
 
                         year: _yearController.text,
                         price: _priceController.text,
-                        mileage: _mileageController.text,
+                        registrationId: _registrationIdController.text,
                         color: _colorController.text,
                         vin: _vinController.text,
                         description: _descriptionController.text,
@@ -834,29 +914,31 @@ class _AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                               )
                             : null,
                       );
+                      await ref
+                          .read(vehicleProvider.notifier)
+                          .addVehicle(newVehicle); //newly added code
 
-                      //edit and add data to Hive
+                      //edit and add data to riverpod
                       if (widget.vehicleToEdit != null) {
-                        //edit mode
-                        final Key = widget.vehicleToEdit!.key;
-
-                        // vehicle change from Hive to Riverpod
+                        // use update for existing vehicle
                         await ref
                             .read(vehicleProvider.notifier)
-                            .addVehicle(newVehicle);
+                            .updateVehicle(newVehicle);
 
                         print('Vehicle updated!');
                       } else {
-                        //add mode using String id as key
-                        await box.put(newVehicle.id, newVehicle);
-                        print('Vehicle added');
+                        await ref
+                            .read(vehicleProvider.notifier)
+                            .addVehicle(newVehicle);
+                      }
 
-                        if (newVehicle.partnership != null) {
-                          await Hive.box<Partnership>('partnerships').put(
-                            newVehicle.partnership!.id,
-                            newVehicle.partnership!,
-                          );
-                        }
+                      print('Vehicle added');
+
+                      if (newVehicle.partnership != null) {
+                        await Hive.box<Partnership>('partnerships').put(
+                          newVehicle.partnership!.id,
+                          newVehicle.partnership!,
+                        );
                       }
 
                       //save purchase logic on onpressed of add vehicle

@@ -43,7 +43,7 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
       title: vehicle.title,
       imageUrl: vehicle.imageUrl,
       price: vehicle.price,
-      mileage: vehicle.mileage,
+      registrationId: vehicle.registrationId,
       color: vehicle.color,
       vin: vehicle.vin,
       task: vehicle.task,
@@ -239,14 +239,14 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Mileage',
+                                    'RegistrationId',
                                     style: TextStyle(
                                       color: Colors.grey,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                   Text(
-                                    widget.vehicle.mileage,
+                                    widget.vehicle.registrationId,
                                     style: TextStyle(color: Colors.black),
                                   ),
                                 ],
@@ -525,38 +525,3 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
 
 
 
-
-// onPressed: () async {
-//   if (_status == 'Sold') {
-//     final salesBox = Hive.box<Sales>('sales');
-
-//     final newSale = Sales(
-//       id: Uuid().v4(),
-//       vehicleId: (widget.vehicleToEdit ?? widget.vehicle)!.id,
-//       buyerName: _buyerNameController.text,
-//       buyerPhone: _buyerPhoneController.text,
-//       buyerAddress: _buyerAddressController.text,
-//       modeOfPayment: _modeOfPaymentController.text,
-//       date: _saleDateController.text,
-//     );
-
-//     await salesBox.put(newSale.id, newSale); // ✅ Save sale record
-//   }
-
-//   // ✅ Always update the vehicle status in Hive
-//   final vehicleBox = Hive.box<Vehicle>('vehicles');
-//   final currentVehicle = (widget.vehicleToEdit ?? widget.vehicle);
-
-//   if (currentVehicle != null) {
-//     final updatedVehicle = currentVehicle.copyWith(
-//       status: _status, // ✅ Apply the new status (e.g., 'Sold')
-//     );
-
-//     await vehicleBox.put(updatedVehicle.id, updatedVehicle); // ✅ Save back the updated vehicle
-//   }
-
-//   // ✅ Notify completion (close form or refresh list)
-//   if (_status == 'Sold') {
-//     widget.onAddComplete();
-//   }
-// }

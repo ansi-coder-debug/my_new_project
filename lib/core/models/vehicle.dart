@@ -13,7 +13,7 @@ class Vehicle extends HiveObject {
   @HiveField(3)
   final String price;
   @HiveField(4)
-  final String mileage;
+  final String registrationId;
   @HiveField(5)
   final String color;
   @HiveField(6)
@@ -40,7 +40,7 @@ class Vehicle extends HiveObject {
     required this.title,
     required this.imageUrl,
     required this.price,
-    required this.mileage,
+    required this.registrationId,
     required this.color,
     required this.vin,
     required this.task,
@@ -72,7 +72,7 @@ class Vehicle extends HiveObject {
       title: title ?? this.title,
       imageUrl: imageUrl ?? this.imageUrl,
       price: price ?? this.price,
-      mileage: mileage ?? this.mileage,
+      registrationId: registrationId ?? this.registrationId,
       color: color ?? this.color,
       vin: vin ?? this.vin,
       task: task ?? this.task,
