@@ -1,54 +1,8 @@
-
-
-
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:my_new_project/application/vehicle/vehicle_state.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
-
-class VehicleState {
-  //determing
-  final List<Vehicle> vehicles;
-  final String selectedStatus;
-  final String selectedSort;
-  final bool showAddForm;
-  final bool showVehicleDetails;
-  final Vehicle? vehicleToEdit;
-  final Vehicle? selectedVehicle;
-
-  // initialising
-
-  VehicleState({
-    required this.vehicles,
-    this.selectedStatus = 'All Status', // default sttings
-    this.selectedSort = 'Newest First',
-    this.showAddForm = false,
-    this.showVehicleDetails = false,
-    this.vehicleToEdit,
-    this.selectedVehicle,
-  });
-
-  // copyWith` lets us update just parts of the state,
-  //     without overwriting everything
-  VehicleState copyWith({
-    List<Vehicle>? vehicles,
-    String? selectedStatus,
-    String? selectedSort,
-    bool? showAddForm,
-    bool? showVehicleDetails,
-    Vehicle? vehicleToEdit,
-    Vehicle? selectedVehicle,
-  }) {
-    return VehicleState(
-      vehicles: vehicles ?? this.vehicles,
-      selectedStatus: selectedStatus ?? this.selectedStatus,
-      selectedSort: selectedSort ?? this.selectedSort,
-      showAddForm: showAddForm ?? this.showAddForm,
-      showVehicleDetails: showVehicleDetails ?? this.showVehicleDetails,
-      vehicleToEdit: vehicleToEdit ?? this.vehicleToEdit,
-      selectedVehicle: selectedVehicle ?? this.selectedVehicle,
-    );
-  }
-}
 
 // This provider gives us access to the Hive vehicle box
 final vehicleBoxProvider = Provider<Box<Vehicle>>((ref) {
@@ -59,6 +13,8 @@ final vehicleBoxProvider = Provider<Box<Vehicle>>((ref) {
 // This Notifier manages the list of vehicles using Riverpod's StateNotifier
 class VehicleNotifier extends StateNotifier<VehicleState> {
   final Box<Vehicle> _vehicleBox;
+
+  
 
   // Constructor gets the vehicleBox from Provider and loads all vehicles
   VehicleNotifier(this._vehicleBox) : super(VehicleState(vehicles: [])) {
@@ -106,11 +62,13 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
   Future<void> addVehicle(Vehicle vehicle) async {
     await _vehicleBox.put(vehicle.id, vehicle); //add
     _loadVehiclesFromHive();
+    state = state.copyWith(showAddForm: false, vehicleToEdit: null);
   }
 
   Future<void> updateVehicle(Vehicle vehicle) async {
     await _vehicleBox.put(vehicle.id, vehicle); // update
     _loadVehiclesFromHive();
+    state = state.copyWith(showAddForm: false, vehicleToEdit: null);
   }
 
   Future<void> deleteVehicle(String id) async {
@@ -121,31 +79,25 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
   Vehicle? getVehicleById(String id) {
     return _vehicleBox.get(id);
   }
+
+  // editing null everytime new opens
+  void clearVehicleToEdit() {
+    state = state.copyWith(
+      vehicleToEdit: null,
+      clearVehicleToEdit: true,
+      showAddForm: false,
+      selectedVehicle: null, // Clear any selection
+      clearSelectedVehicle: true,
+    );
+     // Verify null
+    
+  }
 }
 
-
 // this is the main Riverpod Provider for vehicle states
-final vehicleProvider = StateNotifierProvider<VehicleNotifier, VehicleState>(
-  (ref) {
+final vehicleProvider = StateNotifierProvider<VehicleNotifier, VehicleState>((
+  ref,
+) {
   final box = ref.watch(vehicleBoxProvider);
   return VehicleNotifier(box);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

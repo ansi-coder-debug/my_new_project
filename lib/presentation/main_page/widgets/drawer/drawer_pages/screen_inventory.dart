@@ -20,9 +20,12 @@ class ScreenInventory extends ConsumerStatefulWidget {
 }
 
 class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
-  //here need to change because it is hive we are changing to riverpod
+  //Global Key
+  final GlobalKey<AddVehicleFormState> addFormKey =
+      GlobalKey<AddVehicleFormState>();
 
   @override
+  // here need to change because it is hive we are changing to riverpod
   Widget build(BuildContext context) {
     // Watch the vehicle state from Riverpod
     final state = ref.watch(vehicleProvider);
@@ -65,18 +68,55 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
       }
     });
 
+    //     if (state.showAddForm && state.vehicleToEdit != null) {
+    //   print('🔥 Clearing vehicleToEdit BEFORE building AddVehicleForm');
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     ref.read(vehicleProvider.notifier).clearVehicleToEdit();
+    //   });
+    // }
+
     return Scaffold(
       body: showAddForm
-          ? AddVehicleForm(
-              onCancel: () {
-                // showAddForm = false;
-                ref.read(vehicleProvider.notifier).setShowAddForm(false);
+          ? Builder(
+              builder: (context) {
+                 final vehicleToEdit =
+              ref.watch(vehicleProvider).vehicleToEdit;
+              debugPrint("📤 vehicleToEdit inside Builder: $vehicleToEdit");
+                //Only reset when you're adding (not editing)
+
+                // WidgetsBinding.instance.addPostFrameCallback((_) {
+                //   debugPrint('>>> vehicleToEdit: ${state.vehicleToEdit}');
+                //   if (state.vehicleToEdit == null) {
+                //      debugPrint('>>> RESETTING form now');
+                //     addFormKey.currentState?.resetFormFields();
+                //   }
+                // });
+                // addFormKey.currentState?.resetFormFields();
+                print(
+                  "📤 vehicleToEdit BEFORE building AddVehicleForm: ${state.vehicleToEdit}",
+                );
+
+                return AddVehicleForm(
+                  // key: ValueKey(state.vehicleToEdit?.id ?? 'new'),
+                  key: ValueKey(
+                    "${state.vehicleToEdit?.id}-${state.showAddForm}-${DateTime.now().millisecondsSinceEpoch}",
+                  ),
+                  formKey: addFormKey,
+                  vehicleToEdit: state.vehicleToEdit,
+                  onCancel: () {
+                    addFormKey.currentState
+                        ?.resetFormFields(); //clear form first
+                    // showAddForm = false;
+                    ref.read(vehicleProvider.notifier).clearVehicleToEdit();
+                    ref.read(vehicleProvider.notifier).setShowAddForm(false);
+                  },
+                  onAddComplete: () {
+                    // showAddForm = false;
+                    ref.read(vehicleProvider.notifier).clearVehicleToEdit();
+                    ref.read(vehicleProvider.notifier).setShowAddForm(false);
+                  },
+                );
               },
-              onAddComplete: () {
-                // showAddForm = false;
-                ref.read(vehicleProvider.notifier).setShowAddForm(false);
-              },
-              vehicleToEdit: state.vehicleToEdit,
             )
           : showVehicleDetails && selectedVehicle != null
           ? ScreenVehicleDetails(
@@ -127,14 +167,44 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                     ref.read(vehicleProvider.notifier).setSelectedSort(value!);
                   },
 
-                  onAddPressed: () {
-                    // vehicleToEdit = null;
-                    ref.read(vehicleProvider.notifier).setVehicleToEdit(null);
-                    // showAddForm = true;
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      ref.read(vehicleProvider.notifier).setShowAddForm(true);
-                    });
-                  },
+
+  //                 onAddPressed: () {
+  //                   print('➕ Add New pressed');
+  //                   // vehicleToEdit = null;
+  //                   ref.read(vehicleProvider.notifier).clearVehicleToEdit();
+  //                     print('🧹 vehicleToEdit cleared');
+
+  //                   // //Reset Form Field Here
+  //                   // addFormKey.currentState?.resetFormFields();
+  //                   //   print('🧼 form reset called');
+
+  //                   // // showAddForm = true;
+  //    // SECOND: Wait for the state to update BEFORE opening the form                
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //    print('🕒 PostFrameCallback: setting showAddForm');
+  //   ref.read(vehicleProvider.notifier).setShowAddForm(true);
+  // });
+  //    },
+
+  onAddPressed: () async {
+  print('➕ Add New pressed');
+  final notifier = ref.read(vehicleProvider.notifier);
+  
+  // 1. Clear edit state
+  notifier.clearVehicleToEdit();
+  
+  // 2. WAIT for state propagation
+  await Future.delayed(Duration.zero);
+
+  
+  // 3. Verify state is clear
+  debugPrint('✅ Current state: ${ref.read(vehicleProvider).vehicleToEdit}');
+  
+  // 4. Now open form
+  notifier.setShowAddForm(true);
+},
+
+
                 ),
 
                 Expanded(
@@ -149,7 +219,7 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                               title: vehicle.title,
                               imageUrl: vehicle.imageUrl,
                               price: vehicle.price,
-                             registrationId : vehicle.registrationId,
+                              registrationId: vehicle.registrationId,
                               color: vehicle.color,
                               vin: vehicle.vin,
                               task: vehicle.task,
@@ -208,7 +278,19 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
   }
 }
 
-// | Widget            | Use `ref.watch()` in build? | Why?                                 |
-// | ----------------- | --------------------------- | ------------------------------------ |
-// | `ScreenInventory` | ✅ Yes                       | UI depends on vehicle list updates   |
-// | `AddVehicleForm`  | ❌ No                        | Form does not rebuild on data change |
+
+
+/*
+
+
+
+
+*/
+
+
+
+
+
+
+
+

@@ -37,6 +37,7 @@ class InventoryVehicleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return InkWell(
       onTap: onTap,
       
@@ -141,15 +142,22 @@ class InventoryVehicleCard extends StatelessWidget {
       
                   Row(
                     children: [
-                      Text(
-                        'RegistrationId: $registrationId',
-                        style: TextStyle(color: Colors.black),
+                      Expanded(
+                        child: Text(
+                          'RegistrationId: $registrationId',
+                          style: TextStyle(color: Colors.black),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        
                       ),
-      
-                      SizedBox(width: 60),
-                      Text(
-                        'Color: $color',
-                        style: TextStyle(color: Colors.black),
+                        
+                      SizedBox(width: 20),
+                      Expanded(
+                        child: Text(
+                          'Color: $color',
+                          style: TextStyle(color: Colors.black),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ), // end of mileage Row
