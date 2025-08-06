@@ -60,6 +60,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: ListView(
             children: [
               TextFormField(
+                   style: TextStyle(color: Colors.black),
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
                 validator: (value) {
@@ -73,6 +74,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 },
               ),
               TextFormField(
+                   style: TextStyle(color: Colors.black),
                 controller: _passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,

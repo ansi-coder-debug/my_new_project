@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/auth/auth_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';
@@ -8,7 +10,7 @@ import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_page
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_settings.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_tasks.dart';
 
-class MainDrawer extends StatelessWidget {
+class MainDrawer extends ConsumerWidget {
   final int selectedIndex;
   final Function(int) onItemSelected;
 
@@ -19,11 +21,13 @@ class MainDrawer extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     void delayedNavigate(Widget screen) async {
       await Future.delayed(Duration(milliseconds: 100));
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
     }
+
+    final user = ref.watch(authNotifierProvider).user;
 
     return Drawer(
       child: ListView(
@@ -233,11 +237,14 @@ class MainDrawer extends StatelessWidget {
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
           const Divider(),
+
           ListTile(
             leading: CircleAvatar(
               backgroundColor: Colors.blue.withOpacity(0.6),
               child: Text(
-                'A',
+                (user?.name.isNotEmpty ?? false)
+                    ? user!.name[0].toUpperCase()
+                    : 'U',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.blue[900],
@@ -245,10 +252,24 @@ class MainDrawer extends StatelessWidget {
               ),
             ),
             title: Text(
-              'Admin User',
+              user?.name ?? 'Unknown User',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text('admin@example.com'),
+            subtitle: Text(user?.email ?? 'No email'),
+          ),
+
+          KHeight16,
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () {
+              ref
+                  .read(authNotifierProvider.notifier)
+                  .logout(); // ✅ Clears memory + Hive
+
+              // ✅ Routes to Login screen
+              Navigator.of(context).pushReplacementNamed('/login');
+            },
           ),
         ],
       ),

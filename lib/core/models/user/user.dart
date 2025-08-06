@@ -1,7 +1,55 @@
-class User {
+// class User {
+//   final String id;
+//   final String name;
+//   final String email;
+//   final String token;
+
+//   User({
+//     required this.id,
+//     required this.name,
+//     required this.email,
+//     required this.token,
+//   });
+
+//   factory User.fromJson(Map<String, dynamic> json) {
+//     return User(
+//       id: json['id'] as String,
+//       name: json['name'] as String,
+//       email: json['email'] as String,
+//       token: json['token'] as String,
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'id': id,
+//       'name': name,
+//       'email': email,
+//       'token': token,
+//     };
+//   }
+// }
+
+
+
+
+
+import 'package:hive/hive.dart';
+
+   part 'user.g.dart';      // This will be generated
+
+@HiveType(typeId: 7) // Choose a unique ID (0 is fine if unused)
+class User extends HiveObject {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   final String email;
+
+  @HiveField(3)
   final String token;
 
   User({
@@ -29,3 +77,4 @@ class User {
     };
   }
 }
+
