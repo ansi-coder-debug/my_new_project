@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/auth/auth_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/presentation/main_page/widgets/screen_main_page.dart';
 import 'signup_screen.dart'; // Make sure the path is correct
+
+
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -15,20 +19,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  void _submitLogin() {
-    if (_formKey.currentState!.validate()) {
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
 
-      debugPrint('✅ Login form is valid!');
-      debugPrint('Email: $email');
-      debugPrint('Password: $password');
+ void _submitLogin() async {
+  if (_formKey.currentState!.validate()) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-      // TODO: Connect to AuthService (in future step)
-    } else {
-      debugPrint('❌ Login form is invalid');
+    // Trigger login using AuthNotifier
+    await ref
+        .read(authNotifierProvider.notifier)
+        .login(email, password);
+
+    // Read current auth state
+    final state = ref.read(authNotifierProvider);
+
+    if (state.user != null) {
+      // Login successful
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => ScreenMainPage()),
+      );
+    } else if (state.error != null) {
+      // Show login error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(state.error!)),
+      );
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

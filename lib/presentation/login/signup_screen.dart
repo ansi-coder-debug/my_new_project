@@ -19,31 +19,27 @@ class _SignupScreenState extends  ConsumerState<SignupScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
- void _submitForm(WidgetRef ref) async {
+void _submitForm(WidgetRef ref) async {
   if (_formKey.currentState!.validate()) {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
-    try {
-      final user = await ref.read(
-        signupProvider(SignupParams(name: name, email: email, password: password)).future,
+    final notifier = ref.read(authNotifierProvider.notifier); // 👈 Get notifier
+
+    await notifier.signup( name,  email,  password); // 👈 Call signup() 
+
+    final state = ref.read(authNotifierProvider); // 👈 Read latest state
+
+    if (state.user != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('✅ Signup successful')),
       );
 
-      if (user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Signup successful')),
-        );
-        // TODO: Navigate to login or home
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('❌ Signup failed')),
-        );
-      }
-    } catch (e) {
+      // TODO: Navigate to home or login
+    } else if (state.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text('❌ ${state.error}')),
       );
     }
   } else {
