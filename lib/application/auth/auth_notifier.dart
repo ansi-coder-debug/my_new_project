@@ -31,19 +31,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._authRepository) : super(AuthState());
 
-  Future<void> signup(String name, String email, String password) async {
+  //SetUser
+  void setUser(User user){
+    state = state.copyWith(user: user);
+  }
+
+
+  Future<void>register(String name,  String password) async {
     state = state.copyWith(isLoading: true, error: null);
 
-    final user = await _authRepository.signup(name, email, password);
+    final user = await _authRepository.register(name, password);
 
     if (user != null) {
+      print('✅ register Success: User = ${user.toJson()}'); // ✅ Check if token is there
       // ✅ Save user or token to Hive
-      // final box = await Hive.openBox('authBox');
-      // await box.put('user', user.toJson());
-      // state = state.copyWith(isLoading: false, user: user);
-      await login(email, password);
+      final box = await Hive.openBox('authBox');
+      await box.put('user', user.toJson());
+      state = state.copyWith(isLoading: false, user: user);
     } else {
-      state = state.copyWith(isLoading: false, error: "Signup failed");
+      state = state.copyWith(isLoading: false, error: "register failed");
     }
   }
 
@@ -53,6 +59,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final user = await _authRepository.login(email, password);
 
     if (user != null) {
+        print('✅ Login Success: User = ${user.toJson()}'); // ✅ Check if token is there
       // ✅ Save user or token to Hive
       final box = await Hive.openBox('authBox');
       await box.put('user', user.toJson());
@@ -62,7 +69,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> logout() async {
+  Future <void> logout() async{
     state = AuthState(); // Clear in memory state
 
     final box = await Hive.openBox('authBox');
@@ -75,6 +82,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final userJson = box.get('user'); // Try to get the saved user
 
     if (userJson != null) {
+      
       // Convert the saved map back into a User object
       final user = User.fromJson(Map<String, dynamic>.from(userJson));
 

@@ -46,16 +46,15 @@ class User extends HiveObject {
   @HiveField(1)
   final String name;
 
-  @HiveField(2)
-  final String email;
+  
 
-  @HiveField(3)
+  @HiveField(2)
   final String token;
 
   User({
     required this.id,
     required this.name,
-    required this.email,
+    
     required this.token,
   });
 
@@ -63,7 +62,7 @@ class User extends HiveObject {
     return User(
       id: json['id'] as String,
       name: json['name'] as String,
-      email: json['email'] as String,
+      
       token: json['token'] as String,
     );
   }
@@ -72,7 +71,7 @@ class User extends HiveObject {
     return {
       'id': id,
       'name': name,
-      'email': email,
+      
       'token': token,
     };
   }

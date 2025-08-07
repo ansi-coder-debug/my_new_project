@@ -255,7 +255,7 @@ class MainDrawer extends ConsumerWidget {
               user?.name ?? 'Unknown User',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(user?.email ?? 'No email'),
+            subtitle: Text(user?.name ?? 'No UserName'),
           ),
 
           KHeight16,

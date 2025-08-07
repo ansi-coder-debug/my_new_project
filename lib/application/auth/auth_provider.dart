@@ -28,7 +28,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
 // Mid-level: Handles app-wide business logic
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final authService = ref.read(authServiceProvider);
-  return AuthRepository(authService);
+  return AuthRepository(authService,ref);//pass ref here 
 });
 
 // Top-level: Manages UI state (login/signup/logout)

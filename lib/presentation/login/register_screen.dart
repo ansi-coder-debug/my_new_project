@@ -3,16 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/presentation/login/login_screen.dart';
+import 'package:my_new_project/presentation/main_page/widgets/screen_main_page.dart';
 
 // UI → Provider → Repository → Service (API).
-class SignupScreen extends ConsumerStatefulWidget {
-  const SignupScreen({super.key});
+class RegisterScreen extends ConsumerStatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  ConsumerState<SignupScreen> createState() => _SignupScreenState();
+  ConsumerState<RegisterScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends ConsumerState<SignupScreen> {
+class _SignupScreenState extends ConsumerState<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
@@ -29,20 +30,21 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         authNotifierProvider.notifier,
       ); // 👈 Get notifier
 
-      await notifier.signup(name, email, password); // 👈 Call signup()
+      await notifier.register(name, password); // 👈 Call signup()
 
       final state = ref.read(authNotifierProvider); // 👈 Read latest state
 
       if (state.user != null) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('✅ Signup successful')));
+        ).showSnackBar(const SnackBar(content: Text('✅ Register successful')));
 
         // ✅ Navigate to main screen
         Future.delayed(const Duration(microseconds: 500), () {
-          Navigator.of(context).pushReplacementNamed('/main');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const ScreenMainPage()),
+          );
         });
-
       } else if (state.error != null) {
         ScaffoldMessenger.of(
           context,
@@ -58,7 +60,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     final authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Signup')),
+      appBar: AppBar(title: const Text('Register')),
       body: authState.isLoading
           ? const Center(child: CircularProgressIndicator()) //show spinner
           : Padding(
@@ -75,23 +77,22 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           value == null || value.isEmpty ? 'Enter name' : null,
                     ),
 
+                    // TextFormField(
+                    //      style: TextStyle(color: Colors.black),
+                    //   controller: _emailController,
+                    //   decoration: const InputDecoration(labelText: 'Email'),
+                    //   validator: (value) {
+                    //     if (value == null || value.isEmpty) {
+                    //       return 'Enter email';
+                    //     }
+                    //     if (!value.contains('@')) {
+                    //       return 'Enter valid email';
+                    //     }
+                    //     return null;
+                    //   },
+                    // ),
                     TextFormField(
-                         style: TextStyle(color: Colors.black),
-                      controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Enter email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Enter valid email';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    TextFormField(
-                         style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black),
                       controller: _passwordController,
                       decoration: const InputDecoration(labelText: 'Password'),
                       obscureText: true,
@@ -101,7 +102,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
 
                     TextFormField(
-                         style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black),
                       controller: _confirmPasswordController,
                       decoration: const InputDecoration(
                         labelText: 'Confirm Password',
@@ -121,7 +122,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     KHeight20,
                     ElevatedButton(
                       onPressed: () => _submitForm(ref),
-                      child: const Text('Signup'),
+                      child: const Text('Register'),
                     ),
                     KHeight16,
                     const SizedBox(height: 10),

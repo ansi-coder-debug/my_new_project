@@ -2,24 +2,36 @@
 import 'package:hive_flutter/adapters.dart';
 import 'package:my_new_project/core/models/user/user.dart';
 import 'package:my_new_project/infrastructure/auth/auth_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // 🟩 ADD THIS
+import 'package:my_new_project/application/auth/auth_provider.dart'; // 🟩 ADD THIS
 
 class AuthRepository {
   final AuthService _authService;
 
-  AuthRepository(this._authService);
+  // 🟩 Add this to get access to AuthNotifier inside signup()
+  final Ref ref; // 🟩 NEW: Accept Ref (Riverpod reference)
 
-  Future<User?> signup(String name, String email, String password) async {
-    final user = await _authService.signup(name, email, password);
+  AuthRepository(
+    this._authService,
+    this.ref,
+  ); // 🟩 UPDATE constructor to include ref
+
+  Future<User?> register(String name,  String password) async {
+    final user = await _authService.register(name,  password);
     if (user != null) {
       await _saveUserToHive(user);
+
+      // 🟩 NEW: Notify Riverpod's AuthNotifier
+      ref.read(authNotifierProvider.notifier).setUser(user);
     }
     return user;
   }
 
-  Future<User?> login(String email, String password) async {
-    final user = await _authService.login(email, password);
+  Future<User?> login(String username, String password) async {
+    final user = await _authService.login(username, password);
     if (user != null) {
       await _saveUserToHive(user);
+            ref.read(authNotifierProvider.notifier).setUser(user);
     }
     return user;
   }
@@ -29,6 +41,7 @@ class AuthRepository {
     final user = box.get('user');
 
     if (user != null && user is User) {
+      print('📤 Loaded from Hive: ${user.toJson()}'); // 👈 ADD THIS LINE
       return user;
     }
     return null;
@@ -42,5 +55,6 @@ class AuthRepository {
   Future<void> _saveUserToHive(User user) async {
     final box = await Hive.openBox('authBox');
     await box.put('user', user);
+    print('📦 Saved to Hive: ${user.toJson()}'); // 👈 ADD THIS LINE
   }
 }

@@ -9,6 +9,9 @@ const KHeight16 = SizedBox(height: 16);
 const List<String> vehicleStatues = [
   'Available',
   'Pending Sale'
-  'Sold',
-  'In Maintaince'
+      'Sold',
+  'In Maintaince',
 ];
+
+// final url = 'http://192.168.29.29:5000/api/';
+// final registration = url + '/register';
