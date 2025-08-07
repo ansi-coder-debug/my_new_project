@@ -16,8 +16,8 @@ class AuthRepository {
     this.ref,
   ); // 🟩 UPDATE constructor to include ref
 
-  Future<User?> register(String name,  String password) async {
-    final user = await _authService.register(name,  password);
+  Future<User?> register(String name, String password) async {
+    final user = await _authService.register(name, password);
     if (user != null) {
       await _saveUserToHive(user);
 
@@ -31,18 +31,22 @@ class AuthRepository {
     final user = await _authService.login(username, password);
     if (user != null) {
       await _saveUserToHive(user);
-            ref.read(authNotifierProvider.notifier).setUser(user);
+      ref.read(authNotifierProvider.notifier).setUser(user);
     }
     return user;
   }
 
   Future<User?> loadUserFromHive() async {
     final box = await Hive.openBox('authBox');
-    final user = box.get('user');
+    // final user = box.get('user');
+    // if (user != null && user is User) {
+    //   print('📤 Loaded from Hive: ${user.toJson()}'); // 👈 ADD THIS LINE
+    //   return user;
+    // }
 
-    if (user != null && user is User) {
-      print('📤 Loaded from Hive: ${user.toJson()}'); // 👈 ADD THIS LINE
-      return user;
+    final userJson = box.get('user');
+    if (userJson != null) {
+      return User.fromJson(Map<String, dynamic>.from(userJson));
     }
     return null;
   }
@@ -54,7 +58,7 @@ class AuthRepository {
 
   Future<void> _saveUserToHive(User user) async {
     final box = await Hive.openBox('authBox');
-    await box.put('user', user);
+    await box.put('user', user.toJson()); // Ensure using updated toJson()
     print('📦 Saved to Hive: ${user.toJson()}'); // 👈 ADD THIS LINE
   }
 }

@@ -1,42 +1,6 @@
-// class User {
-//   final String id;
-//   final String name;
-//   final String email;
-//   final String token;
-
-//   User({
-//     required this.id,
-//     required this.name,
-//     required this.email,
-//     required this.token,
-//   });
-
-//   factory User.fromJson(Map<String, dynamic> json) {
-//     return User(
-//       id: json['id'] as String,
-//       name: json['name'] as String,
-//       email: json['email'] as String,
-//       token: json['token'] as String,
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     return {
-//       'id': id,
-//       'name': name,
-//       'email': email,
-//       'token': token,
-//     };
-//   }
-// }
-
-
-
-
-
 import 'package:hive/hive.dart';
 
-   part 'user.g.dart';      // This will be generated
+part 'user.g.dart'; // This will be generated
 
 @HiveType(typeId: 7) // Choose a unique ID (0 is fine if unused)
 class User extends HiveObject {
@@ -44,36 +8,30 @@ class User extends HiveObject {
   final String id;
 
   @HiveField(1)
-  final String name;
-
-  
+  final String username;
 
   @HiveField(2)
-  final String token;
+  final String accessToken;
 
   User({
-    required this.id,
-    required this.name,
-    
-    required this.token,
-  });
+   required this.id,
+    required this.username, // Changed field name
+    required this.accessToken // Changed field name
+    });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      
-      token: json['token'] as String,
+      id: json['id']?.toString()??'',//Handle Null
+      username: json['username']as String? ?? '',//Match backend field
+      accessToken: json['accessToken']as String? ??'', // match backend field
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'name': name,
-      
-      'token': token,
-    };
+      'id': id, 
+      'username':username,//update key name
+        'accessToken':accessToken//update key name
+       };
   }
 }
-

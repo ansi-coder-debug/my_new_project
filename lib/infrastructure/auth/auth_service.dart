@@ -18,7 +18,7 @@ class AuthService {
       final response = await _dio.post(
         // '/signup',
         '/register',
-        data: {'username': name, /*'email': email,*/ 'password': password},
+        data: {'username': name,  'password': password},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -27,9 +27,10 @@ class AuthService {
         print('📥 Backend SignUp  Response: $data'); // 👈 ADD THIS LINE
 
         return User.fromJson({
-          ...data['user'], // unpack user object
-          'token': data['token'], // include token explicitly
+          ...data,
+          'accessToken':''// Register has no token, provide default
         });
+        
       } else {
         print('Register failed with status: ${response.statusCode}');
         return null;
@@ -40,6 +41,10 @@ class AuthService {
     }
   }
 
+
+
+
+
   // adding login
   Future<User?> login(String username, String password) async {
     try {
@@ -49,12 +54,15 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        // return User.fromJson(response.data);
-
         final data = response.data;
         print('📥 Backend Login Response: $data'); // 👈 ADD THIS LINE
 
-        return User.fromJson({...data['user'], 'token': data['token']});
+         return User.fromJson({
+          ...data,
+          'id':data['id']?.toString()??'',// Login might not have id
+          'username':username  // Use login username since backend doesn't return it
+         });
+
       } else {
         print('Login failed with status: ${response.statusCode}');
         return null;

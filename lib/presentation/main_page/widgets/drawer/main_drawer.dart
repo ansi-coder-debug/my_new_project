@@ -242,8 +242,8 @@ class MainDrawer extends ConsumerWidget {
             leading: CircleAvatar(
               backgroundColor: Colors.blue.withOpacity(0.6),
               child: Text(
-                (user?.name.isNotEmpty ?? false)
-                    ? user!.name[0].toUpperCase()
+                (user?.username.isNotEmpty ?? false)
+                    ? user!.username[0].toUpperCase()
                     : 'U',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -252,10 +252,10 @@ class MainDrawer extends ConsumerWidget {
               ),
             ),
             title: Text(
-              user?.name ?? 'Unknown User',
+              user?.username ?? 'Unknown User',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(user?.name ?? 'No UserName'),
+            subtitle: Text(user?.username ?? 'No UserName'),
           ),
 
           KHeight16,

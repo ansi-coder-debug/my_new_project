@@ -42,16 +42,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     final user = await _authRepository.register(name, password);
 
-    if (user != null) {
-      print('✅ register Success: User = ${user.toJson()}'); // ✅ Check if token is there
-      // ✅ Save user or token to Hive
+    // if (user != null) {
+    //   print('✅ register Success: User = ${user.toJson()}'); // ✅ Check if token is there
+    //   // ✅ Save user or token to Hive
+    //   final box = await Hive.openBox('authBox');
+    //   await box.put('user', user.toJson());
+    //   state = state.copyWith(isLoading: false, user: user);
+    // } 
+
+   if(user !=null){
+     // Only save if token exists (or handle empty token)
+     if(user.accessToken.isNotEmpty){
       final box = await Hive.openBox('authBox');
       await box.put('user', user.toJson());
-      state = state.copyWith(isLoading: false, user: user);
-    } else {
+     }
+     state=state.copyWith(user: user);
+   }
+    else {
       state = state.copyWith(isLoading: false, error: "register failed");
     }
   }
+
+  
 
   Future<void> login(String email, String password) async {
     state = state.copyWith(isLoading: true, error: null);
