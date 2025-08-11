@@ -125,10 +125,10 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
     state = state.copyWith(isLoading: true);
     try {
       final vehicles = await _vehicleRepositary.getVehicles();
-      print('\x1B[31m✅ Successfully fetched ${vehicles.length} vehicles'); // Debug log
+      print('✅ Successfully fetched ${vehicles.length} vehicles'); // Debug log
       state = state.copyWith(vehicles: vehicles, isLoading: false, error: null);
     } catch (e) {
-      print('\x1B[31m❌ Error loading vehicles: $e',); // Debug log
+      print('❌ Error loading vehicles: $e',); // Debug log
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
@@ -206,8 +206,12 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
   void clearVehicleToEdit() {
     state = state.copyWith(
       vehicleToEdit: null,
+      clearVehicleToEdit: true,
       showAddForm: false,
       selectedVehicle: null,
+      // Add flags to ensure clearing
+      clearSelectedVehicle: true,
+      
     );
   }
 }
