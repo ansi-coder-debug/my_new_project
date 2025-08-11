@@ -84,4 +84,25 @@ class Vehicle extends HiveObject {
       salesId: salesId ?? this.salesId,
     );
   }
+  factory Vehicle.fromJson(Map<String, dynamic> json) {
+  return Vehicle(
+    id: json['id'].toString(),
+    title: '${json['make']} ${json['model']}', // Combine make + model
+    imageUrl:  json['photo'] ?? '', // Use 'photo' field
+    price: json['expected_price']?.toString() ?? '0', // Map to expected_price
+    registrationId: json['res_no'] ?? '', // Map to res_no
+    color:  json['color'] ?? '',
+    vin: json['vin'] ?? '', // Add if backend has VIN
+       task: json['task'] ?? 'No task', // Default value
+    status: json['status'] ?? 'available',
+    year: json['year'].toString(), // Convert int to String
+    description: json['description'],
+    purchaseDate: json['purchaseDate'].toString(),
+    // Handle nested partnership if needed
+    partnership: json['partnership'] != null 
+        ? Partnership.fromJson(json['partnership']) 
+        : null,
+    salesId: json['salesId'],
+  );
+}
 }

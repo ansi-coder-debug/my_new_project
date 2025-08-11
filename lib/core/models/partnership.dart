@@ -40,4 +40,6 @@ class Partnership extends HiveObject {
 
   });
 
+  static fromJson(json) {}
+
 }

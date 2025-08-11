@@ -24,12 +24,31 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
   final GlobalKey<AddVehicleFormState> addFormKey =
       GlobalKey<AddVehicleFormState>();
 
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(vehicleProvider.notifier).loadVehicles();
+    });
+  }
+
   @override
   // here need to change because it is hive we are changing to riverpod
   Widget build(BuildContext context) {
     // Watch the vehicle state from Riverpod
     final state = ref.watch(vehicleProvider);
     // List<Vehicle> vehicles = [...vehicleList];
+
+    if (state.isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    if (state.error != null) {
+      return Center(child: Text('Error:${state.error}'));
+    }
+
+     
+    if (state.vehicles.isEmpty) {
+      return Center(child: Text('No vehicles found'));
+    }
 
     //acessing everything
     var vehicles = [...state.vehicles];
@@ -68,30 +87,14 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
       }
     });
 
-    //     if (state.showAddForm && state.vehicleToEdit != null) {
-    //   print('🔥 Clearing vehicleToEdit BEFORE building AddVehicleForm');
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     ref.read(vehicleProvider.notifier).clearVehicleToEdit();
-    //   });
-    // }
 
     return Scaffold(
       body: showAddForm
           ? Builder(
               builder: (context) {
-                 final vehicleToEdit =
-              ref.watch(vehicleProvider).vehicleToEdit;
-              debugPrint("📤 vehicleToEdit inside Builder: $vehicleToEdit");
-                //Only reset when you're adding (not editing)
-
-                // WidgetsBinding.instance.addPostFrameCallback((_) {
-                //   debugPrint('>>> vehicleToEdit: ${state.vehicleToEdit}');
-                //   if (state.vehicleToEdit == null) {
-                //      debugPrint('>>> RESETTING form now');
-                //     addFormKey.currentState?.resetFormFields();
-                //   }
-                // });
-                // addFormKey.currentState?.resetFormFields();
+                final vehicleToEdit = ref.watch(vehicleProvider).vehicleToEdit;
+                debugPrint("📤 vehicleToEdit inside Builder: $vehicleToEdit");
+               
                 print(
                   "📤 vehicleToEdit BEFORE building AddVehicleForm: ${state.vehicleToEdit}",
                 );
@@ -145,9 +148,7 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                   labelText: 'Inventory vehicles',
                   hintText: 'Search Vehicles',
                   onChanged: (query) {
-                    // setState(() {
-                    //   // Optional: Add search functionality if you want
-                    // });
+                   
                   },
                 ),
 
@@ -167,44 +168,24 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                     ref.read(vehicleProvider.notifier).setSelectedSort(value!);
                   },
 
+                  onAddPressed: () async {
+                    print('➕ Add New pressed');
+                    final notifier = ref.read(vehicleProvider.notifier);
 
-  //                 onAddPressed: () {
-  //                   print('➕ Add New pressed');
-  //                   // vehicleToEdit = null;
-  //                   ref.read(vehicleProvider.notifier).clearVehicleToEdit();
-  //                     print('🧹 vehicleToEdit cleared');
+                    // 1. Clear edit state
+                    notifier.clearVehicleToEdit();
 
-  //                   // //Reset Form Field Here
-  //                   // addFormKey.currentState?.resetFormFields();
-  //                   //   print('🧼 form reset called');
+                    // 2. WAIT for state propagation
+                    await Future.delayed(Duration.zero);
 
-  //                   // // showAddForm = true;
-  //    // SECOND: Wait for the state to update BEFORE opening the form                
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //    print('🕒 PostFrameCallback: setting showAddForm');
-  //   ref.read(vehicleProvider.notifier).setShowAddForm(true);
-  // });
-  //    },
+                    // 3. Verify state is clear
+                    debugPrint(
+                      '✅ Current state: ${ref.read(vehicleProvider).vehicleToEdit}',
+                    );
 
-  onAddPressed: () async {
-  print('➕ Add New pressed');
-  final notifier = ref.read(vehicleProvider.notifier);
-  
-  // 1. Clear edit state
-  notifier.clearVehicleToEdit();
-  
-  // 2. WAIT for state propagation
-  await Future.delayed(Duration.zero);
-
-  
-  // 3. Verify state is clear
-  debugPrint('✅ Current state: ${ref.read(vehicleProvider).vehicleToEdit}');
-  
-  // 4. Now open form
-  notifier.setShowAddForm(true);
-},
-
-
+                    // 4. Now open form
+                    notifier.setShowAddForm(true);
+                  },
                 ),
 
                 Expanded(
@@ -278,14 +259,6 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
   }
 }
 
-
-
-/*
-
-
-
-
-*/
 
 
 

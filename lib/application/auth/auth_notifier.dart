@@ -103,3 +103,4 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 }
+//handles app state (Riveropod)
