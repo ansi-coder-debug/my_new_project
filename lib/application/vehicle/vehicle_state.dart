@@ -108,7 +108,9 @@ class VehicleState {
       selectedSort: selectedSort ?? this.selectedSort,
       showAddForm: showAddForm ?? this.showAddForm,
       showVehicleDetails: showVehicleDetails ?? this.showVehicleDetails,
-      vehicleToEdit: clearVehicleToEdit ? null : (vehicleToEdit ?? this.vehicleToEdit),
+      vehicleToEdit: clearVehicleToEdit
+       ? null :
+        (vehicleToEdit ?? this.vehicleToEdit),
       selectedVehicle: clearSelectedVehicle ? null : (selectedVehicle ?? this.selectedVehicle),
     );
   }

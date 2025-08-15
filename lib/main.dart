@@ -17,32 +17,35 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-  // 1. FIRST register ALL adapters
-  Hive.registerAdapter(VehicleAdapter());
-  Hive.registerAdapter(PartnershipAdapter());
-  Hive.registerAdapter(EmployeeAdapter());
-  Hive.registerAdapter(ExpenseAdapter());
-  Hive.registerAdapter(PurchaseAdapter());
-  Hive.registerAdapter(SalesAdapter());
-  Hive.registerAdapter(UserAdapter()); // 👈 ADD THIS
+//   // 1. FIRST register ALL adapters
+//   Hive.registerAdapter(VehicleAdapter());
+//   Hive.registerAdapter(PartnershipAdapter());
+//   Hive.registerAdapter(EmployeeAdapter());
+//   Hive.registerAdapter(ExpenseAdapter());
+//   Hive.registerAdapter(PurchaseAdapter());
+//   Hive.registerAdapter(SalesAdapter());
+//   Hive.registerAdapter(UserAdapter()); // 👈 ADD THIS
+
+// //  await Hive.deleteBoxFromDisk('vehicles');
+//   // 2. THEN open boxes
+//   await Hive.openBox<Vehicle>('vehicles');
+//   await Hive.openBox<Employee>('employees');
+//   await Hive.openBox<Expense>('expenses');
+//   await Hive.openBox<Partnership>('partnerships');
+//   await Hive.openBox<Purchase>('purchases');
+//   await Hive.openBox<Sales>('sales');
+//   await Hive.openBox('authBox');
+
+ 
 
 
-  // 2. THEN open boxes
-  await Hive.openBox<Vehicle>('vehicles');
-  await Hive.openBox<Employee>('employees');
-  await Hive.openBox<Expense>('expenses');
-  await Hive.openBox<Partnership>('partnerships');
-  await Hive.openBox<Purchase>('purchases');
-  await Hive.openBox<Sales>('sales');
-  await Hive.openBox('authBox');
-
-  // // 3. Clear boxes if needed (only for development)
-  // await Hive.box<Vehicle>('vehicles').clear();
-  // await Hive.box<Partnership>('partnerships').clear();
-  // await Hive.box<Sales>('sales').clear();
+  // // // 3. Clear boxes if needed (only for development)
+  //  await Hive.box<Vehicle>('vehicles').clear();
+  //  await Hive.box<Partnership>('partnerships').clear();
+  //  await Hive.box<Sales>('sales').clear();
   // await Hive.box<Purchase>('purchases').clear();
 
-  // ⬇️ Create ProviderContainer and load user
+  // only keeping auth setup 
   final container = ProviderContainer();
   await container.read(authNotifierProvider.notifier).loadUserFromHive();
 

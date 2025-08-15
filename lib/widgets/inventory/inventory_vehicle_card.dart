@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:my_new_project/core/constants/constant.dart';
@@ -32,17 +34,56 @@ class InventoryVehicleCard extends StatelessWidget {
     required this.year,
     required this.onDelete,
     required this.onEdit,
-     this.onTap,
+    this.onTap,
   });
+
+  Widget _buildVehicleImage() {
+    if (imageUrl.isEmpty) {
+      return const Placeholder(
+        fallbackHeight: 200,
+        fallbackWidth: double.infinity,
+      );
+    }
+    
+    // Handle network images (HTTP/HTTPS)
+     if (imageUrl.startsWith('http') || imageUrl.startsWith('https')) {
+      return CachedNetworkImage(
+        imageUrl: imageUrl,
+        width: double.infinity,
+        height: 200,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+        errorWidget: (context, url, error) => const Icon(Icons.error),
+      );
+    }
+
+     // Handle local files
+     if (!kIsWeb) {
+      return Image.file(
+        File(imageUrl),
+        width: double.infinity,
+        height: 200,
+        fit: BoxFit.cover,
+      );
+    }
+
+  // Web fallback for local paths
+    return Container(
+      height: 200,
+      width: double.infinity,
+      color: Colors.grey[200],
+      child: const Icon(Icons.car_repair, size: 50),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    
     return InkWell(
       onTap: onTap,
-      
+
       child: Card(
-        
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 4,
         margin: const EdgeInsets.all(16),
@@ -54,20 +95,9 @@ class InventoryVehicleCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: imageUrl.startsWith('/')
-                      ? Image.file(
-                          File(imageUrl),
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.network(
-                          imageUrl,
-                          width: double.infinity,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        ),
+                  child:_buildVehicleImage(),
                 ),
+
                 Positioned(
                   top: 8,
                   left: 8,
@@ -92,11 +122,11 @@ class InventoryVehicleCard extends StatelessWidget {
                 ),
               ],
             ),
-      
+
             Padding(
               //start of padding below texts
               padding: const EdgeInsets.all(16),
-      
+
               child: Column(
                 //stacks all rows
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,34 +142,32 @@ class InventoryVehicleCard extends StatelessWidget {
                           color: Colors.black,
                         ),
                       ),
-      
+
                       Spacer(),
-      
+
                       // Icon(Icons.edit_square),
                       IconButton(
                         onPressed: onEdit,
                         icon: Icon(Icons.edit_square),
                       ),
-      
+
                       KWidth12,
                       // Icon(Icons.delete),
-                      IconButton(
-                        onPressed: onDelete,
-                       icon: Icon(Icons.delete)),
+                      IconButton(onPressed: onDelete, icon: Icon(Icons.delete)),
                     ],
                   ), //end of title row
                   KHeight,
-      
+
                   // Spacer between Title Row and Price
-      
+
                   // Text('year:$year'),
                   Text(
                     '\$$price',
                     style: TextStyle(fontSize: 20, color: Colors.blue),
                   ), //end of price text
-      
+
                   KHeight, //  Spacer between Price and Mileage Row
-      
+
                   Row(
                     children: [
                       Expanded(
@@ -148,9 +176,8 @@ class InventoryVehicleCard extends StatelessWidget {
                           style: TextStyle(color: Colors.black),
                           overflow: TextOverflow.ellipsis,
                         ),
-                        
                       ),
-                        
+
                       SizedBox(width: 20),
                       Expanded(
                         child: Text(
@@ -161,14 +188,17 @@ class InventoryVehicleCard extends StatelessWidget {
                       ),
                     ],
                   ), // end of mileage Row
-      
+
                   Row(
                     // VIN & Tasks Row
                     children: [
                       Text('VIN: $vin', style: TextStyle(color: Colors.black)),
-      
+
                       Spacer(),
-                      Text(' tasks:$task', style: TextStyle(color: Colors.black)),
+                      Text(
+                        ' tasks:$task',
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ],
                   ), //  END of VIN Row
                 ],

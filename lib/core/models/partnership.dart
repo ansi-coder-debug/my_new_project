@@ -40,6 +40,34 @@ class Partnership extends HiveObject {
 
   });
 
-  static fromJson(json) {}
+ 
+  /// ✅ Convert JSON → Partnership object
+  factory Partnership.fromJson(Map<String, dynamic> json) {
+    return Partnership(
+      id: json['id'].toString(),
+      partnerName: json['partner_name'] ?? '',
+      contactPerson: json['contact_person'] ?? '',
+      email: json['email'] ?? '',
+      phone: json['phone'] ?? '',
+      sharePercentage: json['share_percentage']?.toString() ?? '0',
+      vehicleId: json['vehicle_id'].toString(),
+      startDate: json['start_date'] ?? '',
+    );
+  }
+
+  
+  /// ✅ Convert Partnership → JSON (for API request body)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'partner_name': partnerName,
+      'contact_person': contactPerson,
+      'email': email,
+      'phone': phone,
+      'share_percentage': sharePercentage,
+      'vehicle_id': vehicleId,
+      'start_date': startDate,
+    };
+  }
 
 }

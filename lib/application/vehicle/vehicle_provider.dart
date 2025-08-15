@@ -14,8 +14,6 @@
 // class VehicleNotifier extends StateNotifier<VehicleState> {
 //   final Box<Vehicle> _vehicleBox;
 
-  
-
 //   // Constructor gets the vehicleBox from Provider and loads all vehicles
 //   VehicleNotifier(this._vehicleBox) : super(VehicleState(vehicles: [])) {
 //     // Initialize state with existing Hive data
@@ -90,7 +88,7 @@
 //       clearSelectedVehicle: true,
 //     );
 //      // Verify null
-    
+
 //   }
 // }
 
@@ -102,15 +100,18 @@
 //   return VehicleNotifier(box);
 // });
 
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/vehicle/vehicle_state.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
 // import 'package:my_new_project/infrastructure/vehicle/vehicle_repository.dart'; // Fixed import name
 
-final vehicleProvider = StateNotifierProvider<VehicleNotifier, VehicleState>((ref) {
-  final repository = ref.watch(vehicleRepositoryProvider); // Fixed provider name
+final vehicleProvider = StateNotifierProvider<VehicleNotifier, VehicleState>((
+  ref,
+) {
+  final repository = ref.watch(
+    vehicleRepositoryProvider,
+  ); // Fixed provider name
   return VehicleNotifier(repository);
 });
 
@@ -122,16 +123,91 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
   }
 
   Future<void> loadVehicles() async {
-    state = state.copyWith(isLoading: true);
-    try {
+  try {
+      state = state.copyWith(isLoading: true, error: null);
       final vehicles = await _vehicleRepositary.getVehicles();
-      print('✅ Successfully fetched ${vehicles.length} vehicles'); // Debug log
-      state = state.copyWith(vehicles: vehicles, isLoading: false, error: null);
+      state = state.copyWith(
+        vehicles: vehicles,
+        isLoading: false,
+        error: null,
+      );
     } catch (e) {
-      print('❌ Error loading vehicles: $e',); // Debug log
-      state = state.copyWith(isLoading: false, error: e.toString());
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to load vehicles: ${e.toString()}',
+      );
+      rethrow;
+    }
+   
+  }
+
+
+
+    Future<void> addVehicle(Vehicle vehicle) async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+      await _vehicleRepositary.addVehicle(vehicle);
+      
+      // Refresh the list and reset form state
+      await loadVehicles();
+      
+      state = state.copyWith(
+        isLoading: false,
+        showAddForm: false,
+        vehicleToEdit: null,
+        error: null,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to add vehicle: ${e.toString()}',
+      );
+      rethrow;
     }
   }
+
+
+  Future<void> updateVehicle(Vehicle vehicle) async {
+    try {
+      state = state.copyWith(isLoading: true, error: null);
+      await _vehicleRepositary.updateVehicle(vehicle);
+      
+      // Refresh the list and reset form state
+      await loadVehicles();
+      
+      state = state.copyWith(
+        isLoading: false,
+        showAddForm: false,
+        vehicleToEdit: null,
+        error: null,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to update vehicle: ${e.toString()}',
+      );
+      rethrow;
+    }
+  }
+
+    
+  Future<void> deleteVehicle(String id) async {
+   try {
+      state = state.copyWith(isLoading: true, error: null);
+      await _vehicleRepositary.deleteVehicle(id);
+      
+      // Refresh the list
+      await loadVehicles();
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Failed to delete vehicle: ${e.toString()}',
+      );
+      rethrow;
+    }
+  
+  }
+
 
   // Show/hide add vehicle form
   void setShowAddForm(bool value) {
@@ -163,45 +239,10 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
     state = state.copyWith(selectedSort: sort);
   }
 
-  Future<void> addVehicle(Vehicle vehicle) async {
-    state = state.copyWith(isLoading: true);
-    try {
-      await _vehicleRepositary.addVehicle(vehicle);
-      await loadVehicles(); // Refresh list after adding
-      state = state.copyWith(showAddForm: false, vehicleToEdit: null);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
+  
 
-  Future<void> updateVehicle(Vehicle vehicle) async {
-    state = state.copyWith(isLoading: true);
-    try {
-      await _vehicleRepositary.updateVehicle(vehicle);
-      await loadVehicles(); // Refresh list after updating
-      state = state.copyWith(showAddForm: false, vehicleToEdit: null);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
 
-  Future<void> deleteVehicle(String id) async {
-    state = state.copyWith(isLoading: true);
-    try {
-      await _vehicleRepositary.deleteVehicle(id);
-      await loadVehicles(); // Refresh list after deleting
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-    }
-  }
-
-  Vehicle? getVehicleById(String id) {
-    // Find vehicle in current state list
-    return state.vehicles.firstWhere(
-      (vehicle) => vehicle.id == id,
-      // orElse: ()=>null,
-    );
-  }
+// state = state.copyWith(vehicleToEdit: null);
 
   void clearVehicleToEdit() {
     state = state.copyWith(
@@ -211,7 +252,6 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
       selectedVehicle: null,
       // Add flags to ensure clearing
       clearSelectedVehicle: true,
-      
     );
   }
 }

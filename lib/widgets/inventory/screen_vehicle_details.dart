@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:my_new_project/core/constants/constant.dart';
@@ -40,15 +40,23 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
     // Step 2: Replace the vehicle with the same data but no partnership
     final updatedVehicle = Vehicle(
       id: vehicle.id,
-      title: vehicle.title,
-      imageUrl: vehicle.imageUrl,
+      make: vehicle.make,
+      model: vehicle.model,
+      photos: vehicle.photos,
       price: vehicle.price,
       registrationId: vehicle.registrationId,
       color: vehicle.color,
-      vin: vehicle.vin,
-      task: vehicle.task,
       status: vehicle.status,
       year: vehicle.year,
+      purchaseDate: vehicle.purchaseDate,
+      purchaseName: vehicle.purchaseName,
+      purchasePhone: vehicle.purchasePhone,
+      purchaseAddress: vehicle.purchaseAddress,
+      purchasePrice: vehicle.purchasePrice,
+      purchaseMode: vehicle.purchaseMode,
+      purchasePaymentStatus: vehicle.purchasePaymentStatus,
+      mileage: vehicle.mileage,
+      fuelType: vehicle.fuelType
     );
 
     // Step 3: Save updated vehicle to Hive
@@ -86,15 +94,10 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
                     borderRadius: BorderRadius.circular(12),
                     child: AspectRatio(
                       aspectRatio: 16 / 9,
-                      child: Image.file(
-                        File(widget.vehicle.imageUrl),
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Center(
-                          child: Icon(
-                            Icons.car_repair,
-                            size: 50,
-                          ), // in case of no internet it shows car repair image
-                        ),
+                      child: _buildVehicleImage(
+                      widget.vehicle.photos.isNotEmpty
+                          ? widget.vehicle.photos[0]
+                          : '',
                       ),
                     ),
                   ),
@@ -144,7 +147,7 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
               children: [
                 SizedBox(width: 10),
                 Text(
-                  '${widget.vehicle.year} ${widget.vehicle.title}',
+                  '${widget.vehicle.year} ${widget.vehicle.make} ${widget.vehicle.model}',
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 20,
@@ -153,7 +156,7 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'VIN:${widget.vehicle.vin}',
+                  'model:${widget.vehicle.model}',
                   style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               ],
@@ -520,6 +523,28 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
       ),
     );
   }
+  Widget _buildVehicleImage(String path) {
+    if (path.isEmpty) {
+      return Center(child: Icon(Icons.car_repair, size: 50));
+    }
+
+    if (kIsWeb) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            Center(child: Icon(Icons.car_repair, size: 50)),
+      );
+    } else {
+      return Image.file(
+        File(path),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            Center(child: Icon(Icons.car_repair, size: 50)),
+      );
+    }
+  }
+
 }
 
 

@@ -36,7 +36,7 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
   Widget build(BuildContext context) {
     // Watch the vehicle state from Riverpod
     final state = ref.watch(vehicleProvider);
-    // List<Vehicle> vehicles = [...vehicleList];
+    
 
     if (state.isLoading) {
       return Center(child: CircularProgressIndicator());
@@ -45,9 +45,16 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
       return Center(child: Text('Error:${state.error}'));
     }
 
-     
+      // Show empty state if no vehicles
     if (state.vehicles.isEmpty) {
-      return Center(child: Text('No vehicles found'));
+      return Center(child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('No Vehicle Found '),
+          ElevatedButton(onPressed: ()=>ref.read(vehicleProvider.notifier).loadVehicles(),
+           child: Text('Refresh'))
+        ],
+      ));
     }
 
     //acessing everything
@@ -115,8 +122,8 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                   },
                   onAddComplete: () {
                     // showAddForm = false;
-                    ref.read(vehicleProvider.notifier).clearVehicleToEdit();
-                    ref.read(vehicleProvider.notifier).setShowAddForm(false);
+                    // ref.read(vehicleProvider.notifier).clearVehicleToEdit();
+                    // ref.read(vehicleProvider.notifier).setShowAddForm(false);
                   },
                 );
               },
@@ -197,36 +204,35 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                             final vehicle = vehicles[index];
 
                             return InventoryVehicleCard(
-                              title: vehicle.title,
-                              imageUrl: vehicle.imageUrl,
+                              title: '${vehicle.make}${vehicle.model}',
+                              // imageUrl: vehicle.photos.isNotEmpty?vehicle.photos[0]:'',
+                            
+                    imageUrl: vehicle.photos.isNotEmpty?vehicle.photos[0]:'',
+    
                               price: vehicle.price,
                               registrationId: vehicle.registrationId,
                               color: vehicle.color,
-                              vin: vehicle.vin,
-                              task: vehicle.task,
+                              vin: '',
+                              task: '',
                               status: vehicle.status,
                               year: vehicle.year,
 
                               // Delete logic calls provider, not Hive directly
                               onDelete: () async {
-                                final partnershipBox = Hive.box<Partnership>(
-                                  'partnerships',
-                                );
-                                final partnershipId = vehicle.partnership?.id;
+                                // final partnershipBox = Hive.box<Partnership>(
+                                //   'partnerships',
+                                // );
+                                // final partnershipId = vehicle.partnership?.id;
 
-                                // 1. Delete partnership if it exists
+                                // // 1. Delete partnership if it exists
 
-                                if (partnershipId != null &&
-                                    partnershipBox.containsKey(partnershipId)) {
-                                  await partnershipBox.delete(partnershipId);
-                                }
+                                // if (partnershipId != null &&
+                                //     partnershipBox.containsKey(partnershipId)) {
+                                //   await partnershipBox.delete(partnershipId);
+                                // }
 
-                                // using vehicleprovider to delete
-                                await ref
-                                    .read(
-                                      vehicleProvider.notifier,
-                                    ) //read triggering action ,//watch changing state
-                                    .deleteVehicle(vehicle.id);
+                                //keeping only the Api call 
+                                await ref.read(vehicleProvider.notifier).deleteVehicle(vehicle.id);//read triggering action ,//watch changing state
                               },
 
                               onEdit: () {
