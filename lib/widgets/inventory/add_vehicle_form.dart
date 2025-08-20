@@ -1369,6 +1369,16 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
         _status = vehicle.status;
         _mileageController.text = vehicle.mileage.toString();
         _fuelTypeController.text = vehicle.fuelType;
+
+        // Set purchase-related fields
+      _sellerNameController.text = vehicle.purchaseName ?? '';
+      _sellerPhoneController.text = vehicle.purchasePhone ?? '';
+      _sellerAddressController.text = vehicle.purchaseAddress ?? '';
+      _sellerPurchaseAdressController.text = vehicle.purchaseAddress ?? '';
+      _purchaseDateController.text = vehicle.purchaseDate ?? '';
+      _sellerPurchasePriceController.text = vehicle.purchasePrice ?? '';
+      _paymentModeController.text = vehicle.purchaseMode ?? '';
+      _purchasePaymentStatus = vehicle.purchasePaymentStatus ?? 'pending';
         
 
 
@@ -1376,44 +1386,12 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
           _pickedImages = vehicle.photos.toList();
         }
 
-        // Handling purchase info if exists
-        if (vehicle.purchaseName != null) {
-          _sellerNameController.text = vehicle.purchaseName!;
-        }
+       
 
-        if (vehicle.purchaseDate != null) {
-          _purchaseDateController.text = vehicle.purchaseDate!;
-        }
+        
 
-        if (vehicle.purchasePhone != null) {
-          _sellerPhoneController.text = vehicle.purchasePhone!;
-        }
 
-        if (vehicle.purchaseAddress != null) {
-          _sellerPurchaseAdressController.text = vehicle.purchaseAddress!;
-        }
-
-        if (vehicle.purchasePrice != null) {
-          _sellerPurchasePriceController.text = vehicle.purchasePrice!;
-        }
-
-        if (vehicle.purchaseMode != null) {
-          _sellerPurchaseModeController.text = vehicle.purchaseMode!;
-        }
-
-        final purchaseList = Hive.box<Purchase>('purchases').values
-            .cast<Purchase>()
-            .where((p) => p.vehicleId == vehicle.id)
-            .toList();
-
-        if (purchaseList.isNotEmpty) {
-          final purchase = purchaseList.first;
-          _purchaseDateController.text = purchase.date;
-          _sellerNameController.text = purchase.name;
-          _sellerPhoneController.text = purchase.phone;
-          _sellerAddressController.text = purchase.address;
-          _paymentModeController.text = purchase.modeOfPayment;
-        }
+        
       }
     });
   }
@@ -2129,37 +2107,72 @@ InkWell(
                   _buildTextField(_sharePercentageController, 'Share %'),
                   Padding(
                     padding: EdgeInsets.only(top: 4, bottom: 16),
-                    child: InkWell(
-                      onTap: () async {
-                        DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime.now(),
-                        );
-                        if (picked != null) {
-                          setState(() {
-                            _startDate = picked;
-                          });
-                        }
-                      },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'Start Date',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                        ),
-                        child: Text(
-                          _startDate != null
-                              ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
-                              : 'Select Start Date',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ),
-                    ),
+                    child: 
+                    // InkWell(
+                    //   onTap: () async {
+                    //     DateTime? picked = await showDatePicker(
+                    //       context: context,
+                    //       initialDate: DateTime.now(),
+                    //       firstDate: DateTime(2000),
+                    //       lastDate: DateTime.now(),
+                    //     );
+                    //     if (picked != null) {
+                    //       setState(() {
+                    //         _startDate = picked;
+                    //       });
+                    //     }
+                    //   },
+                    //   child: InputDecorator(
+                    //     decoration: InputDecoration(
+                    //       labelText: 'Start Date',
+                    //       border: OutlineInputBorder(),
+                    //       contentPadding: EdgeInsets.symmetric(
+                    //         horizontal: 12,
+                    //         vertical: 8,
+                    //       ),
+                    //     ),
+                    //     child: Text(
+                    //       _startDate != null
+                    //           ? '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}'
+                    //           : 'Select Start Date',
+                    //       style: TextStyle(
+                    //         color: Colors.black,
+                    //         fontSize: 16,
+                    //         fontWeight: FontWeight.w500,
+                    //         ),
+                    //     ),
+                    //   ),
+                    // ),
+
+                    InkWell(
+  onTap: () async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        _purchaseDateController.text = 
+          "${pickedDate.year}-${pickedDate.month.toString().padLeft(2,'0')}-${pickedDate.day.toString().padLeft(2,'0')}";
+      });
+    }
+  },
+  child: InputDecorator(
+    decoration: InputDecoration(
+      labelText: 'Purchase Date',
+      border: OutlineInputBorder(),
+      labelStyle: TextStyle(color: Colors.black), // Add this
+    ),
+    child: Text(
+      _purchaseDateController.text.isEmpty
+        ? 'Select Purchase Date'
+        : _purchaseDateController.text,
+      style: TextStyle(color: Colors.black), // Add this for black text
+    ),
+  ),
+),
                   ),
                 ],
                 KHeight,

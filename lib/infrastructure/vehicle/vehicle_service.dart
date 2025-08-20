@@ -137,32 +137,45 @@ class VehicleService {
       if (vehicle.id.isEmpty)
         throw Exception('Vehicle ID is required for update');
 
-      // ✅ Add here
-      // 1. Create FormData instead of using vehicle.toJson()
-      FormData formData = FormData.fromMap({
-        // Add all regular fields from toJson() but as form fields
-        'make': vehicle.make,
-        'model': vehicle.model,
-        'year': vehicle.year,
-        'reg_no': vehicle.registrationId,
-        'color': vehicle.color,
-        'mileage': vehicle.mileage,
-        'expected_price': vehicle.price.replaceAll(',', ''),
-        'status': vehicle.status,
-        'notes': vehicle.description ?? '',
-        'fuel_type': vehicle.fuelType,
-        'purchase_name': vehicle.purchaseName ?? '',
-        'purchase_phone': vehicle.purchasePhone ?? '',
-        'purchase_address': vehicle.purchaseAddress ?? '',
-        'purchase_date': vehicle.purchaseDate ?? '',
-        'purchase_price': vehicle.purchasePrice?.replaceAll(',', '') ?? '0',
-        'purchase_mode_of_payment': vehicle.purchaseMode ?? '',
-        'purchase_payment_status': vehicle.purchasePaymentStatus ?? 'pending',
-        'is_partnership': vehicle.partnership != null,
+      // Create FormData
+      FormData formData = FormData();
 
-        // 2. Add images as array of files
-        'photos': await _getMultipartFiles(vehicle.photos),
-      });
+      // Add all regular fields
+      formData.fields.addAll([
+        MapEntry('make', vehicle.make),
+        MapEntry('model', vehicle.model),
+        MapEntry('year', vehicle.year),
+        MapEntry('reg_no', vehicle.registrationId),
+        MapEntry('color', vehicle.color),
+        MapEntry('mileage', vehicle.mileage.toString()),
+        MapEntry('expected_price', vehicle.price.replaceAll(',', '')),
+        MapEntry('status', vehicle.status),
+        MapEntry('notes', vehicle.description ?? ''),
+        MapEntry('fuel_type', vehicle.fuelType),
+        MapEntry('purchase_name', vehicle.purchaseName ?? ''),
+        MapEntry('purchase_phone', vehicle.purchasePhone ?? ''),
+        MapEntry('purchase_address', vehicle.purchaseAddress ?? ''),
+        MapEntry('purchase_date', vehicle.purchaseDate ?? ''),
+        MapEntry(
+          'purchase_price',
+          vehicle.purchasePrice?.replaceAll(',', '') ?? '0',
+        ),
+        MapEntry('purchase_mode_of_payment', vehicle.purchaseMode ?? ''),
+        MapEntry(
+          'purchase_payment_status',
+          vehicle.purchasePaymentStatus ?? 'pending',
+        ),
+        MapEntry(
+          'is_partnership',
+          vehicle.partnership != null ? 'true' : 'false',
+        ),
+      ]);
+
+      // Add images as files - use a different approach
+      List<MultipartFile> imageFiles = await _getMultipartFiles(vehicle.photos);
+      for (int i = 0; i < imageFiles.length; i++) {
+        formData.files.add(MapEntry('photos', imageFiles[i]));
+      }
 
       // 3. Add partnership data if exists
       if (vehicle.partnership != null) {
@@ -182,16 +195,14 @@ class VehicleService {
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
-      print('✅ Successfully updated vehicle: ${response.statusCode}');
+      print('✅ Vehicle updated successfully: ${response.statusCode}');
+      print('Response: ${response.data}');
     } on DioException catch (e) {
-      print('❌ Failed to update vehicle: ${e.message}');
+      print('❌ Failed to update  vehicle: ${e.message}');
       if (e.response != null) {
         print('Backend error: ${e.response?.data}');
-        print('Status code: ${e.response?.statusCode}');
       }
-      throw Exception(
-        'Failed to update vehicle: ${e.response?.data ?? e.message}',
-      );
+      rethrow;
     }
   }
 
@@ -256,12 +267,12 @@ class VehicleService {
       }
     }
     // ✅ Add debug prints here
-  print('🔍 Number of image files: ${files.length}');
-  for (var file in files) {
-    // MultipartFile.length is async, so we need to await
-    int size = await file.length;
-    print('🔍 File: ${file.filename}, size: $size bytes');
-  }
+    print('🔍 Number of image files: ${files.length}');
+    for (var file in files) {
+      // MultipartFile.length is async, so we need to await
+      int size = await file.length;
+      print('🔍 File: ${file.filename}, size: $size bytes');
+    }
 
     return files;
   }

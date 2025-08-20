@@ -162,13 +162,20 @@ class Vehicle extends HiveObject {
     description: json['notes'],
 
     // Changed from nested purchase_info to direct fields
-    purchaseDate: json['purchase_date']?.toString(),
-    purchaseName: json['purchase_name'] ?? '',
-    purchasePhone: json['purchase_phone'] ?? '',
-    purchaseAddress: json['purchase_address'] ?? '',
-    purchasePrice: json['purchase_price']?.toString(),
-    purchaseMode: json['purchase_mode_of_payment'],
-    purchasePaymentStatus: json['purchase_payment_status'],
+    // purchaseDate: json['purchase_date']?.toString(),
+    // purchaseName: json['purchase_name'] ?? '',
+    // purchasePhone: json['purchase_phone'] ?? '',
+    // purchaseAddress: json['purchase_address'] ?? '',
+    // purchasePrice: json['purchase_price']?.toString(),
+    // purchaseMode: json['purchase_mode_of_payment'],
+    // purchasePaymentStatus: json['purchase_payment_status'],
+     purchaseDate: json['purchase_info']?['date']?.toString(),
+    purchaseName: json['purchase_info']?['name'] ?? '',
+    purchasePhone: json['purchase_info']?['phone'] ?? '',
+    purchaseAddress: json['purchase_info']?['address'] ?? '',
+    purchasePrice: json['purchase_info']?['price']?.toString(),
+    purchaseMode: json['purchase_info']?['mode_of_payment'],
+    purchasePaymentStatus: json['purchase_info']?['payment_status'],
 
     // Keep existing partnership handling
     partnership: json['partnerships'] != null &&
@@ -183,13 +190,6 @@ class Vehicle extends HiveObject {
     fuelType: json['fuel_type'] ?? 'petrol',
   );
 }
-
-
-
-
-
-
-
 
   /// ✅ toJson for POST/PUT
   Map<String, dynamic> toJson() {

@@ -18,23 +18,23 @@ void main() async {
   await Hive.initFlutter();
 
 //   // 1. FIRST register ALL adapters
-//   Hive.registerAdapter(VehicleAdapter());
-//   Hive.registerAdapter(PartnershipAdapter());
-//   Hive.registerAdapter(EmployeeAdapter());
-//   Hive.registerAdapter(ExpenseAdapter());
-//   Hive.registerAdapter(PurchaseAdapter());
-//   Hive.registerAdapter(SalesAdapter());
-//   Hive.registerAdapter(UserAdapter()); // 👈 ADD THIS
+  // Hive.registerAdapter(VehicleAdapter());
+  // Hive.registerAdapter(PartnershipAdapter());
+  // Hive.registerAdapter(EmployeeAdapter());
+  // Hive.registerAdapter(ExpenseAdapter());
+  // Hive.registerAdapter(PurchaseAdapter());
+  // Hive.registerAdapter(SalesAdapter());
+  // Hive.registerAdapter(UserAdapter()); // 👈 ADD THIS
 
 // //  await Hive.deleteBoxFromDisk('vehicles');
 //   // 2. THEN open boxes
-//   await Hive.openBox<Vehicle>('vehicles');
-//   await Hive.openBox<Employee>('employees');
-//   await Hive.openBox<Expense>('expenses');
-//   await Hive.openBox<Partnership>('partnerships');
-//   await Hive.openBox<Purchase>('purchases');
-//   await Hive.openBox<Sales>('sales');
-//   await Hive.openBox('authBox');
+  // await Hive.openBox<Vehicle>('vehicles');
+  // await Hive.openBox<Employee>('employees');
+  // await Hive.openBox<Expense>('expenses');
+  // await Hive.openBox<Partnership>('partnerships');
+  // await Hive.openBox<Purchase>('purchases');
+  // await Hive.openBox<Sales>('sales');
+  // await Hive.openBox('authBox');
 
  
 
