@@ -1170,6 +1170,7 @@ import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/sales.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:uuid/uuid.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AddVehicleForm extends ConsumerStatefulWidget {
   final Key? formKey;
@@ -1379,15 +1380,19 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
       _sellerPurchasePriceController.text = vehicle.purchasePrice ?? '';
       _paymentModeController.text = vehicle.purchaseMode ?? '';
       _purchasePaymentStatus = vehicle.purchasePaymentStatus ?? 'pending';
+     
+        
         
 
-
+      // Prefill photos - only set this once
         if (vehicle.photos.isNotEmpty) {
-          _pickedImages = vehicle.photos.toList();
+       setState(() {
+          _pickedImages=List<String>.from(widget.vehicleToEdit!.photos);
+       });
+           print("✅ Prefilled photos: $_pickedImages");
         }
 
        
-
         
 
 
@@ -2025,6 +2030,8 @@ InkWell(
                 ),
                 KHeight16,
 
+
+
                 Text('Photos', style: TextStyle(color: Colors.black)),
                 Column(
                   children: [
@@ -2065,6 +2072,10 @@ InkWell(
                   ],
                 ),
                 KHeight,
+
+
+
+                
 
                 GestureDetector(
                   onTap: () {
