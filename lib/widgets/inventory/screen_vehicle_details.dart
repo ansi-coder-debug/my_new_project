@@ -56,7 +56,7 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
       purchaseMode: vehicle.purchaseMode,
       purchasePaymentStatus: vehicle.purchasePaymentStatus,
       mileage: vehicle.mileage,
-      fuelType: vehicle.fuelType
+      fuelType: vehicle.fuelType,
     );
 
     // Step 3: Save updated vehicle to Hive
@@ -94,13 +94,25 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
                     borderRadius: BorderRadius.circular(12),
                     child: AspectRatio(
                       aspectRatio: 16 / 9,
-                      child: _buildVehicleImage(
-                      widget.vehicle.photos.isNotEmpty
-                          ? widget.vehicle.photos[0]
-                          : '',
-                      ),
+
+                      // child: _buildVehicleImage(
+                      // widget.vehicle.photos.isNotEmpty
+                      //     ? widget.vehicle.photos[0]
+                      //     : '',
+                      // ),
+                      child:widget.vehicle.photos.isNotEmpty
+                      ?PageView.builder(
+                        itemCount: widget.vehicle.photos.length,
+                        itemBuilder: (context, index) {
+                          return _buildVehicleImage(
+                            widget.vehicle.photos[index],
+                          );
+                        },
+                      )
+                      :_buildVehicleImage('')
                     ),
                   ),
+
                   Positioned(
                     top: 8,
                     left: 8,
@@ -525,36 +537,31 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
   }
 
   Widget _buildVehicleImage(String path) {
-  if (path.isEmpty) {
-    return Center(child: Icon(Icons.car_repair, size: 50));
-  }
+    if (path.isEmpty) {
+      return Center(child: Icon(Icons.car_repair, size: 50));
+    }
 
-  if (path.startsWith('http') || path.startsWith('https')) {
-    return Image.network(
-      path,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) =>
-          Center(child: Icon(Icons.car_repair, size: 50)),
-    );
-  } else if (kIsWeb) {
-    return Image.network(
-      path,
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) =>
-          Center(child: Icon(Icons.car_repair, size: 50)),
-    );
-  } else {
-    return Image.file(
-      File(path),
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) =>
-          Center(child: Icon(Icons.car_repair, size: 50)),
-    );
+    if (path.startsWith('http') || path.startsWith('https')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            Center(child: Icon(Icons.car_repair, size: 50)),
+      );
+    } else if (kIsWeb) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            Center(child: Icon(Icons.car_repair, size: 50)),
+      );
+    } else {
+      return Image.file(
+        File(path),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) =>
+            Center(child: Icon(Icons.car_repair, size: 50)),
+      );
+    }
   }
 }
-
-}
-
-
-
-

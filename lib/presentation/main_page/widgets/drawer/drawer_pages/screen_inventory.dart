@@ -207,7 +207,9 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                               title: '${vehicle.make}${vehicle.model}',
                               // imageUrl: vehicle.photos.isNotEmpty?vehicle.photos[0]:'',
                             
-                    imageUrl: vehicle.photos.isNotEmpty?vehicle.photos[0]:'',
+                    // imageUrl: vehicle.photos.isNotEmpty?vehicle.photos[0]:'',
+                    imageUrl: vehicle.photos.isNotEmpty ? vehicle.photos.first : '',
+
     
                               price: vehicle.price,
                               registrationId: vehicle.registrationId,
