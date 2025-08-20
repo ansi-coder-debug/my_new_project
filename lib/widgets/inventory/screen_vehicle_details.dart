@@ -523,27 +523,35 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
       ),
     );
   }
-  Widget _buildVehicleImage(String path) {
-    if (path.isEmpty) {
-      return Center(child: Icon(Icons.car_repair, size: 50));
-    }
 
-    if (kIsWeb) {
-      return Image.network(
-        path,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) =>
-            Center(child: Icon(Icons.car_repair, size: 50)),
-      );
-    } else {
-      return Image.file(
-        File(path),
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) =>
-            Center(child: Icon(Icons.car_repair, size: 50)),
-      );
-    }
+  Widget _buildVehicleImage(String path) {
+  if (path.isEmpty) {
+    return Center(child: Icon(Icons.car_repair, size: 50));
   }
+
+  if (path.startsWith('http') || path.startsWith('https')) {
+    return Image.network(
+      path,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) =>
+          Center(child: Icon(Icons.car_repair, size: 50)),
+    );
+  } else if (kIsWeb) {
+    return Image.network(
+      path,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) =>
+          Center(child: Icon(Icons.car_repair, size: 50)),
+    );
+  } else {
+    return Image.file(
+      File(path),
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) =>
+          Center(child: Icon(Icons.car_repair, size: 50)),
+    );
+  }
+}
 
 }
 

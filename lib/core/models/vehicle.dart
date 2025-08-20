@@ -140,12 +140,19 @@ class Vehicle extends HiveObject {
   }
 
  factory Vehicle.fromJson(Map<String, dynamic> json) {
+    const baseUrl = 'http://192.168.29.29:5000'; // Your backend URL
   return Vehicle(
     id: json['id'].toString(),
     make: json['make'] ?? '',
     model: json['model'] ?? '',
     photos: (json['photos'] is List)
-        ? (json['photos'] as List).map((e) => e.toString()).toList()
+        ? (json['photos'] as List).map((e) {
+            if (e.toString().startsWith('http')) {
+              return e.toString();
+            } else {
+              return '$baseUrl/${e.toString()}';
+            }
+          }).toList()
         : [],
     price: json['expected_price']?.toString() ?? '0',
     registrationId: json['reg_no'] ?? '',

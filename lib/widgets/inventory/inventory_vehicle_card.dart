@@ -37,46 +37,46 @@ class InventoryVehicleCard extends StatelessWidget {
     this.onTap,
   });
 
-  Widget _buildVehicleImage() {
-    if (imageUrl.isEmpty) {
-      return const Placeholder(
-        fallbackHeight: 200,
-        fallbackWidth: double.infinity,
-      );
-    }
-    
-    // Handle network images (HTTP/HTTPS)
-     if (imageUrl.startsWith('http') || imageUrl.startsWith('https')) {
-      return CachedNetworkImage(
-        imageUrl: imageUrl,
-        width: double.infinity,
-        height: 200,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        errorWidget: (context, url, error) => const Icon(Icons.error),
-      );
-    }
-
-     // Handle local files
-     if (!kIsWeb) {
-      return Image.file(
-        File(imageUrl),
-        width: double.infinity,
-        height: 200,
-        fit: BoxFit.cover,
-      );
-    }
-
-  // Web fallback for local paths
-    return Container(
-      height: 200,
-      width: double.infinity,
-      color: Colors.grey[200],
-      child: const Icon(Icons.car_repair, size: 50),
+ Widget _buildVehicleImage() {
+  if (imageUrl.isEmpty) {
+    return const Placeholder(
+      fallbackHeight: 200,
+      fallbackWidth: double.infinity,
     );
   }
+  
+  // Handle network images (HTTP/HTTPS)
+  if (imageUrl.startsWith('http') || imageUrl.startsWith('https')) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: double.infinity,
+      height: 200,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+      errorWidget: (context, url, error) => const Icon(Icons.error),
+    );
+  }
+
+  // Handle local files (for when you're adding new images)
+  if (!kIsWeb) {
+    return Image.file(
+      File(imageUrl),
+      width: double.infinity,
+      height: 200,
+      fit: BoxFit.cover,
+    );
+  }
+
+  // Web fallback for local paths
+  return Container(
+    height: 200,
+    width: double.infinity,
+    color: Colors.grey[200],
+    child: const Icon(Icons.car_repair, size: 50),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
