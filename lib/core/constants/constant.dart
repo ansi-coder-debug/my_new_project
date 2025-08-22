@@ -13,5 +13,12 @@ const List<String> vehicleStatues = [
   'In Maintaince',
 ];
 
-// final url = 'http://192.168.29.29:5000/api/';
+//  const base url = 'http://192.168.29.29:5000/api/';
+// const base url = 'http://192.168.29.29:5000/api/;
 // final registration = url + '/register';
+// class ApiConstants {
+//   // static const String KbaseUrl = 'http://192.168.29.29:5000/api/';
+
+// }
+
+const String baseUrl = "http://192.168.29.29:5000/api/";

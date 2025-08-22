@@ -1,0 +1,38 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/core/models/purchase.dart';
+import 'package:my_new_project/infrastructure/purchase/purchase_service.dart';
+
+
+// ✅ Riverpod provider
+final purchaseRepositoryProvider = Provider<PurchaseRepository>((ref) {
+  final purchaseService = ref.watch(purchaseServiceProvider);
+  return PurchaseRepository(purchaseService);
+});
+
+class PurchaseRepository {
+  final PurchaseService _purchaseService;
+
+  PurchaseRepository(this._purchaseService);
+
+  // ✅ Get all purchases
+  Future<List<Purchase>> getPurchases() async {
+    return await _purchaseService.getPurchases();
+  }
+
+  // ✅ Get purchase by id
+  Future<Purchase> getPurchaseById(String id) async {
+    return await _purchaseService.getPurchaseById(id);
+  }
+
+  // ✅ Update purchase
+  Future<Purchase> updatePurchase(String id, Map<String, dynamic> data) async {
+    return await _purchaseService.updatePurchase(id, data);
+  }
+
+  // ✅ Delete purchase
+  Future<void> deletePurchase(String id) async {
+    return await _purchaseService.deletePurchase(id);
+  }
+}
+
+

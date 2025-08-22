@@ -4,22 +4,21 @@ import 'package:my_new_project/core/models/purchase.dart';
 
 class PurchaseDetailsScreen extends StatelessWidget {
   final Purchase purchase;
-   final VoidCallback onBack;
+  final VoidCallback onBack;
   // final VoidCallback onEdit;
 
   const PurchaseDetailsScreen({
     super.key,
     required this.purchase,
     required this.onBack,
+
     // required this.onEdit
-    
-    
-    });
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       body: SingleChildScrollView(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, //align all left
@@ -34,13 +33,12 @@ class PurchaseDetailsScreen extends StatelessWidget {
 
               child: Stack(
                 children: [
-                 Center(
-                   child: Text("Purchase Details",
-                   style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 24
-                   ),),
-                 ),
+                  Center(
+                    child: Text(
+                      "Purchase Details",
+                      style: TextStyle(color: Colors.black, fontSize: 24),
+                    ),
+                  ),
                   Positioned(
                     top: 8,
                     left: 8,
@@ -52,30 +50,6 @@ class PurchaseDetailsScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Positioned(
-                  //   top: 8,
-                  //   right: 8,
-                  //   child: TextButton(
-                  //     onPressed: onEdit,
-                  //     style: TextButton.styleFrom(
-                  //       backgroundColor: Colors.blue,
-                  //       padding: EdgeInsets.symmetric(
-                  //         horizontal: 12,
-                  //         vertical: 8,
-                  //       ),
-                  //       shape: RoundedRectangleBorder(
-                  //         borderRadius: BorderRadius.circular(8),
-                  //       ),
-                  //     ),
-                  //     child: Text(
-                  //       'Edit Purchase',
-                  //       style: TextStyle(
-                  //         color: Colors.white,
-                  //         fontWeight: FontWeight.bold,
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -101,10 +75,6 @@ class PurchaseDetailsScreen extends StatelessWidget {
                 ),
               ],
             ),
-
-            
-            
-          
 
             SizedBox(height: 16),
             Padding(
@@ -143,7 +113,7 @@ class PurchaseDetailsScreen extends StatelessWidget {
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                  purchase.vehicleId ??'No Vehicle Id',
+                                    purchase.vehicleId ?? 'No Vehicle Id',
                                     style: TextStyle(color: Colors.black),
                                   ),
                                 ],
@@ -162,7 +132,7 @@ class PurchaseDetailsScreen extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                   purchase.address,
+                                    purchase.address,
                                     style: TextStyle(color: Colors.black),
                                   ),
                                 ],
@@ -172,35 +142,26 @@ class PurchaseDetailsScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 12),
 
-                        Text(
-                          'Phone',
-                          style: TextStyle(color: Colors.grey),
-                        ),
+                        Text('Phone', style: TextStyle(color: Colors.grey)),
                         SizedBox(height: 4),
                         Text(
                           purchase.phone,
                           style: TextStyle(color: Colors.black),
                         ),
                         SizedBox(height: 12),
-                        Text(
-                          'Price',
-                          style: TextStyle(color: Colors.grey),
-                        ),
+                        Text('Price', style: TextStyle(color: Colors.grey)),
                         SizedBox(height: 4),
                         Text(
-                          purchase.price,
+                          purchase.price.toString(),
                           style: TextStyle(color: Colors.black),
                         ),
 
                         SizedBox(height: 12),
 
-                        Text(
-                          'Date',
-                          style: TextStyle(color: Colors.grey),
-                        ),
+                        Text('Date', style: TextStyle(color: Colors.grey)),
                         SizedBox(height: 4),
                         Text(
-                          purchase.date,
+                          purchase.date.toString(),
                           style: TextStyle(color: Colors.black),
                         ),
                         SizedBox(height: 12),
@@ -284,9 +245,10 @@ class PurchaseDetailsScreen extends StatelessWidget {
                                 color: Colors.blue,
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child:  IconButton(onPressed: (){},
-                                         icon: Icon(Icons.add,
-                                         color: Colors.white,)),
+                              child: IconButton(
+                                onPressed: () {},
+                                icon: Icon(Icons.add, color: Colors.white),
+                              ),
                             ),
                           ),
                         ),
@@ -298,8 +260,7 @@ class PurchaseDetailsScreen extends StatelessWidget {
             ),
           ],
         ),
-      )
-
+      ),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:my_new_project/application/purchase/purchase_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expense.dart';
 import 'package:my_new_project/core/models/partnership.dart';
@@ -396,75 +398,165 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
                 );
               },
             ),
+            
+ Consumer(
 
-            // Purchase Section
-            ValueListenableBuilder(
-              //Listen to changes in the Hive 'purchases' box
-              valueListenable: Hive.box<Purchase>('purchases').listenable(),
+          builder: (context, ref, _) {
+    final purchaseState = ref.watch(purchaseProvider);
+    
+    // Handle loading state
+    if (purchaseState.isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    
+    // Handle error state
+    if (purchaseState.errorMessage != null) {
+      return Text('Error loading purchases: ${purchaseState.errorMessage}');
+    }
+    
+    // Handle data state
+    final vehiclePurchases = purchaseState.purchases
+        .where((purchase) => purchase.vehicleId == widget.vehicle.id)
+        .toList();
 
-              // Find the first purchase whose vehicleId matches the current vehicle
-              builder: (context, box, _) {
-                final purchases = box.values
-                    .where(
-                      (purchase) => purchase.vehicleId == widget.vehicle.id,
-                    )
-                    .toList();
+    if (vehiclePurchases.isEmpty) {
+      return Text('No Purchases Recorded');
+    }
 
-                if (purchases.isEmpty) {
-                  return Text('No Purchases Recorded');
-                }
-                // if purchase found build ui section
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 24),
-                    Text(
-                      'Purchase Details',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    KHeight,
-                    // build one card per purchase
-                    ...purchases.map(
-                      (purchase) => Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            '${purchase.name} - ${purchase.price}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('📞 Phone: ${purchase.phone}'),
-                              Text('📍 Address: ${purchase.address}'),
-                              Text('🗓️ Date: ${purchase.date}'),
-                              Text(
-                                '💳 Payment Mode: ${purchase.modeOfPayment}',
-                              ),
-                            ],
-                          ),
-                          trailing: IconButton(
-                            onPressed: () {
-                              Hive.box<Purchase>(
-                                'purchases',
-                              ).delete(purchase.id);
-                            },
-                            icon: Icon(Icons.delete, color: Colors.red),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 24),
+        Text(
+          'Purchase Details',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        KHeight,
+        ...vehiclePurchases.map(
+          (purchase) => Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
+            child: ListTile(
+              title: Text(
+                '${purchase.name} - ${purchase.price}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('📞 Phone: ${purchase.phone}'),
+                  Text('📍 Address: ${purchase.address}'),
+                  Text('🗓️ Date: ${purchase.date}'),
+                  Text('💳 Payment Mode: ${purchase.modeOfPayment}'),
+                ],
+              ),
+              trailing: IconButton(
+                onPressed: () {
+                  ref
+                      .read(purchaseProvider.notifier)
+                      .deletePurchase(purchase.id);
+                },
+                icon: Icon(Icons.delete, color: Colors.red),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  },
+),
+
+         
+
+            // // Purchase Section
+            // ValueListenableBuilder(
+            //   //Listen to changes in the Hive 'purchases' box
+            //   valueListenable: Hive.box<Purchase>('purchases').listenable(),
+
+            //   // Find the first purchase whose vehicleId matches the current vehicle
+            //   builder: (context, box, _) {
+            //     final purchases = box.values
+            //         .where(
+            //           (purchase) => purchase.vehicleId == widget.vehicle.id,
+            //         )
+            //         .toList();
+
+            //     if (purchases.isEmpty) {
+            //       return Text('No Purchases Recorded');
+            //     }
+            //     // if purchase found build ui section
+            //     return Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         SizedBox(height: 24),
+            //         Text(
+            //           'Purchase Details',
+            //           style: TextStyle(
+            //             fontSize: 18,
+            //             fontWeight: FontWeight.bold,
+            //             color: Colors.black,
+            //           ),
+            //         ),
+            //         KHeight,
+            //         // build one card per purchase
+            //         ...purchases.map(
+            //           (purchase) => Card(
+            //             elevation: 2,
+            //             shape: RoundedRectangleBorder(
+            //               borderRadius: BorderRadius.circular(12),
+            //             ),
+            //             child: ListTile(
+            //               title: Text(
+            //                 '${purchase.name} - ${purchase.price}',
+            //                 style: TextStyle(fontWeight: FontWeight.bold),
+            //               ),
+            //               subtitle: Column(
+            //                 crossAxisAlignment: CrossAxisAlignment.start,
+            //                 children: [
+            //                   Text('📞 Phone: ${purchase.phone}'),
+            //                   Text('📍 Address: ${purchase.address}'),
+            //                   Text('🗓️ Date: ${purchase.date}'),
+            //                   Text(
+            //                     '💳 Payment Mode: ${purchase.modeOfPayment}',
+            //                   ),
+            //                 ],
+            //               ),
+            //               trailing: IconButton(
+            //                 onPressed: () {
+            //                   Hive.box<Purchase>(
+            //                     'purchases',
+            //                   ).delete(purchase.id);
+            //                 },
+            //                 icon: Icon(Icons.delete, color: Colors.red),
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //       ],
+            //     );
+            //   },
+            // ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             // Partnership Section
             if (widget.vehicle.partnership != null) ...[

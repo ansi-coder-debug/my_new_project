@@ -19,35 +19,41 @@ class PurchaseAdapter extends TypeAdapter<Purchase> {
     return Purchase(
       id: fields[0] as String,
       vehicleId: fields[1] as String,
-      name: fields[2] as String,
-      phone: fields[3] as String,
-      address: fields[4] as String,
-      date: fields[5] as String,
-      price: fields[6] as String,
-      modeOfPayment: fields[7] as String,
+      userId: fields[2] as String,
+      name: fields[3] as String,
+      phone: fields[4] as String,
+      address: fields[5] as String,
+      date: fields[6] as DateTime,
+      price: fields[7] as double,
+      modeOfPayment: fields[8] as String,
+      paymentStatus: fields[9] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Purchase obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.vehicleId)
       ..writeByte(2)
-      ..write(obj.name)
+      ..write(obj.userId)
       ..writeByte(3)
-      ..write(obj.phone)
+      ..write(obj.name)
       ..writeByte(4)
-      ..write(obj.address)
+      ..write(obj.phone)
       ..writeByte(5)
-      ..write(obj.date)
+      ..write(obj.address)
       ..writeByte(6)
-      ..write(obj.price)
+      ..write(obj.date)
       ..writeByte(7)
-      ..write(obj.modeOfPayment);
+      ..write(obj.price)
+      ..writeByte(8)
+      ..write(obj.modeOfPayment)
+      ..writeByte(9)
+      ..write(obj.paymentStatus);
   }
 
   @override
