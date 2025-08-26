@@ -35,13 +35,27 @@ class VehicleService {
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
-      if (response.statusCode == 200) {
-        // ✅ Extract the "data" array from the response
-        final responseData = response.data as Map<String, dynamic>;
-        final vehiclesList = responseData['data'] as List; // key is 'data'
+      // if (response.statusCode == 200) {
+      //   // ✅ Extract the "data" array from the response
+      //   final responseData = response.data as Map<String, dynamic>;
+      //   final vehiclesList = responseData['data'] as List; // key is 'data'
 
+      //   return vehiclesList.map((json) => Vehicle.fromJson(json)).toList();
+      // }
+      if (response.statusCode == 200) {
+      final data = response.data;
+
+      if (data is List) {
+        // ✅ Backend returned a raw list
+        return data.map((json) => Vehicle.fromJson(json)).toList();
+      } else if (data is Map<String, dynamic> && data.containsKey('data')) {
+        // ✅ Backend returned { "data": [...] }
+        final vehiclesList = data['data'] as List;
         return vehiclesList.map((json) => Vehicle.fromJson(json)).toList();
+      } else {
+        throw Exception('Unexpected response format: $data');
       }
+    }
       throw Exception('Failed to load vehicles: ${response.statusCode}');
     } on DioException catch (e) {
       throw Exception('Network error: ${e.message}');
@@ -224,6 +238,17 @@ class VehicleService {
       );
     }
   }
+ 
+ //updating status like sold maintance available 
+  Future<void> updateVehicleStatus(String vehicleId, String status) async {
+    await _dio.patch(
+      '/vehicles/$vehicleId/status',
+      data: {"status": status},
+    );
+  }
+
+
+
 
   // HELPER FUNCTION: Convert image paths to MultipartFile objects
   Future<List<MultipartFile>> _getMultipartFiles(

@@ -15,8 +15,9 @@ class VehicleRepository {
   Future<List<Vehicle>> getVehicles() async {
     return await _vehicleService.getVehicles();
   }
-// add these for update delete etcc 
- Future<void> addVehicle(Vehicle vehicle) async {
+
+  // add these for update delete etcc
+  Future<void> addVehicle(Vehicle vehicle) async {
     await _vehicleService.addVehicle(vehicle);
   }
 
@@ -28,4 +29,7 @@ class VehicleRepository {
     await _vehicleService.deleteVehicle(id);
   }
 
+  Future<void> updateVehicleStatus(String vehicleId, String status) async {
+    await _vehicleService.updateVehicleStatus(vehicleId, status);
+  }
 }

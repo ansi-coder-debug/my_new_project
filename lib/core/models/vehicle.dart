@@ -38,19 +38,19 @@ class Vehicle extends HiveObject {
   final String? purchaseDate;
 
   @HiveField(11)
-  final String? purchaseName;
+  final String purchaseName;
 
   @HiveField(12)
-  final String? purchasePhone;
+  final String purchasePhone;
 
   @HiveField(13)
-  final String? purchaseAddress;
+  final String purchaseAddress;
 
   @HiveField(14)
-  final String? purchasePrice;
+  final String purchasePrice;
 
   @HiveField(15)
-  final String? purchaseMode;
+  final String purchaseMode;
 
   @HiveField(16)
   final String? purchasePaymentStatus;
@@ -139,10 +139,53 @@ class Vehicle extends HiveObject {
     );
   }
 
- factory Vehicle.fromJson(Map<String, dynamic> json) {
-    const baseUrl = 'http://192.168.29.29:5000'; // Your backend URL
+//  factory Vehicle.fromJson(Map<String, dynamic> json) {
+//     const baseUrl = 'http://192.168.29.29:5000'; // Your backend URL
+//   return Vehicle(
+//     id: json['id'].toString(),
+//     make: json['make'] ?? '',
+//     model: json['model'] ?? '',
+//     photos: (json['photos'] is List)
+//         ? (json['photos'] as List).map((e) {
+//             if (e.toString().startsWith('http')) {
+//               return e.toString();
+//             } else {
+//               return '$baseUrl/${e.toString()}';
+//             }
+//           }).toList()
+//         : [],
+//     price: json['expected_price']?.toString() ?? '0',
+//     registrationId: json['reg_no'] ?? '',
+//     color: json['color'] ?? '',
+//     status: (json['status'] ?? 'available').toLowerCase(),
+//     year: json['year'].toString(),
+//     description: json['notes'],
+
+//      purchaseDate: json['purchase_info']?['date']?.toString(),
+//     purchaseName: json['purchase_info']?['name'] ?? '',
+//     purchasePhone: json['purchase_info']?['phone'] ?? '',
+//     purchaseAddress: json['purchase_info']?['address'] ?? '',
+//     purchasePrice: json['purchase_info']?['price']??'',
+//     purchaseMode: json['purchase_info']?['mode_of_payment'],
+//     purchasePaymentStatus: json['purchase_info']?['payment_status'],
+
+//     // Keep existing partnership handling
+//     partnership: json['partnerships'] != null &&
+//         json['partnerships'] is List &&
+//         (json['partnerships'] as List).isNotEmpty
+//         ? Partnership.fromJson((json['partnerships'] as List).first)
+//         : null,
+
+//     // Keep existing sale_info handling
+//     salesId: json['sale_info']?['id']?.toString(),
+//     mileage: json['mileage']?.toDouble() ?? 0.0,
+//     fuelType: json['fuel_type'] ?? 'petrol',
+//   );
+// }
+factory Vehicle.fromJson(Map<String, dynamic> json) {
+  const baseUrl = 'http://192.168.29.29:5000'; // Your backend URL
   return Vehicle(
-    id: json['id'].toString(),
+    id: (json['id'] ?? json['_id'] ?? '').toString(),
     make: json['make'] ?? '',
     model: json['model'] ?? '',
     photos: (json['photos'] is List)
@@ -158,38 +201,33 @@ class Vehicle extends HiveObject {
     registrationId: json['reg_no'] ?? '',
     color: json['color'] ?? '',
     status: (json['status'] ?? 'available').toLowerCase(),
-    year: json['year'].toString(),
+    year: (json['year'] ?? '').toString(),
     description: json['notes'],
 
-    // Changed from nested purchase_info to direct fields
-    // purchaseDate: json['purchase_date']?.toString(),
-    // purchaseName: json['purchase_name'] ?? '',
-    // purchasePhone: json['purchase_phone'] ?? '',
-    // purchaseAddress: json['purchase_address'] ?? '',
-    // purchasePrice: json['purchase_price']?.toString(),
-    // purchaseMode: json['purchase_mode_of_payment'],
-    // purchasePaymentStatus: json['purchase_payment_status'],
-     purchaseDate: json['purchase_info']?['date']?.toString(),
+    // ✅ Purchase info safely handled
+    purchaseDate: json['purchase_info']?['date']?.toString() ?? '',
     purchaseName: json['purchase_info']?['name'] ?? '',
     purchasePhone: json['purchase_info']?['phone'] ?? '',
     purchaseAddress: json['purchase_info']?['address'] ?? '',
-    purchasePrice: json['purchase_info']?['price']?.toString(),
-    purchaseMode: json['purchase_info']?['mode_of_payment'],
-    purchasePaymentStatus: json['purchase_info']?['payment_status'],
+    purchasePrice: json['purchase_info']?['price']?.toString() ?? '0',
+    purchaseMode: json['purchase_info']?['mode_of_payment'] ?? '',
+    purchasePaymentStatus: json['purchase_info']?['payment_status'] ?? 'pending',
 
-    // Keep existing partnership handling
+    // ✅ Partnership handling stays the same
     partnership: json['partnerships'] != null &&
-        json['partnerships'] is List &&
-        (json['partnerships'] as List).isNotEmpty
+            json['partnerships'] is List &&
+            (json['partnerships'] as List).isNotEmpty
         ? Partnership.fromJson((json['partnerships'] as List).first)
         : null,
 
-    // Keep existing sale_info handling
     salesId: json['sale_info']?['id']?.toString(),
-    mileage: json['mileage']?.toDouble() ?? 0.0,
+    mileage: (json['mileage'] is num)
+        ? (json['mileage'] as num).toDouble()
+        : 0.0,
     fuelType: json['fuel_type'] ?? 'petrol',
   );
 }
+
 
   /// ✅ toJson for POST/PUT
   Map<String, dynamic> toJson() {

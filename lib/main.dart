@@ -18,23 +18,23 @@ void main() async {
   await Hive.initFlutter();
 
 //   // 1. FIRST register ALL adapters
-  // Hive.registerAdapter(VehicleAdapter());
-  // Hive.registerAdapter(PartnershipAdapter());
-  // Hive.registerAdapter(EmployeeAdapter());
-  // Hive.registerAdapter(ExpenseAdapter());
-  // Hive.registerAdapter(PurchaseAdapter());
-  // Hive.registerAdapter(SalesAdapter());
-  // Hive.registerAdapter(UserAdapter()); // 👈 ADD THIS
+  Hive.registerAdapter(VehicleAdapter());
+  Hive.registerAdapter(PartnershipAdapter());
+  Hive.registerAdapter(EmployeeAdapter());
+  Hive.registerAdapter(ExpenseAdapter());
+  Hive.registerAdapter(PurchaseAdapter());
+  Hive.registerAdapter(SalesAdapter());
+  Hive.registerAdapter(UserAdapter()); // 👈 ADD THIS
 
 // //  await Hive.deleteBoxFromDisk('vehicles');
 //   // 2. THEN open boxes
-  // await Hive.openBox<Vehicle>('vehicles');
-  // await Hive.openBox<Employee>('employees');
-  // await Hive.openBox<Expense>('expenses');
-  // await Hive.openBox<Partnership>('partnerships');
-  // await Hive.openBox<Purchase>('purchases');
-  // await Hive.openBox<Sales>('sales');
-  // await Hive.openBox('authBox');
+  await Hive.openBox<Vehicle>('vehicles');
+  await Hive.openBox<Employee>('employees');
+  await Hive.openBox<Expense>('expenses');
+  await Hive.openBox<Partnership>('partnerships');
+  await Hive.openBox<Purchase>('purchases');
+  await Hive.openBox<Sales>('sales');
+  await Hive.openBox('authBox');
 
  
 
@@ -65,15 +65,40 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Vehicle App',
+
+
+
+
+
+
+
+
+
       theme: ThemeData(
-        appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent),
+        scaffoldBackgroundColor: Colors.white,
+        canvasColor: Colors.white,
+        cardColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          // foregroundColor: Colors.white
+          ),
         primaryColor: Colors.white,
 
         textTheme: TextTheme(
-          bodyMedium: TextStyle(color: Colors.white),
-          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.blue),
+          bodyLarge: TextStyle(color: Colors.lightGreenAccent),
         ),
       ),
+
+
+
+
+
+
+
+
+
+
       // Show login if user is not logged in
       home: authState.user == null ? LoginScreen() : ScreenMainPage(),
     );

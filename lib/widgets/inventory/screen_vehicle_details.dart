@@ -3,31 +3,39 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:intl/intl.dart';
 import 'package:my_new_project/application/purchase/purchase_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expense.dart';
 import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
 import 'package:my_new_project/widgets/expense/add_expense_form_from_vehicle.dart';
+import 'package:my_new_project/widgets/partnerships/add_partnership_form.dart';
 
-class ScreenVehicleDetails extends StatefulWidget {
+class ScreenVehicleDetails extends ConsumerStatefulWidget {
   final Vehicle vehicle;
   final VoidCallback onBack;
-  final VoidCallback onEdit;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
   const ScreenVehicleDetails({
     super.key,
     required this.vehicle,
     required this.onBack,
-    required this.onEdit,
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
-  State<ScreenVehicleDetails> createState() => _ScreenVehicleDetailsState();
+  ConsumerState<ScreenVehicleDetails> createState() =>
+      _ScreenVehicleDetailsState();
 }
 
-class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
+class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
+  String _selectedStatus = "available"; // keep this in your State
+
   void _deletePartnership() async {
     final vehicleBox = Hive.box<Vehicle>('vehicles');
 
@@ -74,6 +82,24 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
 
   bool _showExpenseForm = false;
 
+  // sales inline
+  // Controllers
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  // Dropdown value
+  String? _advancePayment; // 👈 add this line
+  final TextEditingController _dateController = TextEditingController();
+  DateTime? _selectedDate;
+  final DateFormat _dateFormat = DateFormat('dd-MM-yyyy');
+  final List<String> _paymentModes = [
+    "Cash",
+    "Card",
+    "Bank Transfer",
+    "Finance",
+  ];
+  String? _selectedMode;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,543 +108,1011 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start, //align all left
           children: [
-            Container(
-              // height: 220,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.grey,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // First line: Back button
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black54),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: IconButton(
+                    onPressed: widget.onBack,
+                    icon: const Icon(Icons.arrow_back, size: 20),
+                  ),
+                ),
+
+                const SizedBox(height: 20), // spacing between lines
+                // Second line: Edit + Delete buttons (aligned right)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    // Edit button
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.blueAccent),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: widget.onEdit,
+                        icon: const Icon(
+                          Icons.edit,
+                          color: Colors.blue,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+
+                    // Delete button
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.redAccent),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: widget.onDelete,
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.red,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            KHeight16,
+            Text(
+              "${widget.vehicle.make} ${widget.vehicle.model} (${widget.vehicle.model})",
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
-
-              child: Stack(
+            ),
+            KHeight16,
+            Text(
+              widget.vehicle.registrationId,
+              style: const TextStyle(fontSize: 16, color: Colors.black),
+            ),
+            KHeight16,
+            // cost Acquisition Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
+                  begin: Alignment.center,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+              child: Column(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: AspectRatio(
-                      aspectRatio: 16 / 9,
+                  const Text(
+                    "Total Cost of Acquisition",
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                  KHeight,
+                  Text(
+                    "₹${widget.vehicle.purchasePrice}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  KHeight,
+                  Text(
+                    "(Buying Price: ₹${widget.vehicle.purchasePrice} + Total Expenses: ₹0)", //heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeere
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            KHeight20,
 
-                      // child: _buildVehicleImage(
-                      // widget.vehicle.photos.isNotEmpty
-                      //     ? widget.vehicle.photos[0]
-                      //     : '',
-                      // ),
-                      child:widget.vehicle.photos.isNotEmpty
-                      ?PageView.builder(
+            //vehicle image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: widget.vehicle.photos.isNotEmpty
+                    ? PageView.builder(
                         itemCount: widget.vehicle.photos.length,
                         itemBuilder: (context, index) {
-                          return _buildVehicleImage(
+                          return Image.network(
                             widget.vehicle.photos[index],
+                            fit: BoxFit.cover,
                           );
                         },
                       )
-                      :_buildVehicleImage('')
-                    ),
-                  ),
+                    : Image.network(
+                        "https://wallpaperaccess.com/full/472325.jpg", // fallback if no photo
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
 
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: IconButton(
-                        onPressed: widget.onBack,
-                        icon: Icon(Icons.arrow_back, color: Colors.black),
-                      ),
+            KHeight16,
+
+            // ================= Vehicle Info & Status Section =================
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Vehicle Information",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: TextButton(
-                      onPressed: widget.onEdit,
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Edit Vehicle',
+                  const Divider(
+                     color: Colors.grey),
+
+                  const SizedBox(height: 8),
+
+                  // Color
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Color:",
                         style: TextStyle(
-                          color: Colors.white,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
-                    ),
+                      const SizedBox(
+                        height:5,
+                      ), // Add a small space after the label
+                      Text(
+                        widget.vehicle.color,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                KHeight,
+
+                  // Mileage
+                  Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Mileage:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5,),
+                      Text(
+                        "${widget.vehicle.mileage} km",
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                 KHeight,
+
+                  // Fuel Type
+                  Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Fuel Type:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        widget.vehicle.fuelType,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                  KHeight,
+
+                  // Purchase Date
+                  Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Purchase Date:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        widget.vehicle.purchaseDate.toString().split("T").first,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                  KHeight,
+
+                  // Notes
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Notes:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        widget.vehicle.description ?? "No additional notes.",
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ), // Adjust spacing before the status
+
+                  const Divider(
+                    
+                    color: Colors.grey,
+                  ), // Add a divider between sections
+
+                  const SizedBox(height: 12),
+
+                  // Status section (now inside the same container)
+                  Row(
+                    children: [
+                      const Text(
+                        "Status:",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        // Wrap the dropdown button in an expanded widget
+                        child: DropdownButton<String>(
+                          isExpanded:
+                              true, // This helps the dropdown fill available space
+                          value: _selectedStatus,
+                          underline: const SizedBox(),
+                          borderRadius: BorderRadius.circular(8),
+                          items: const [
+                            DropdownMenuItem(
+                              value: "available",
+                              child: Text("Available"),
+                            ),
+                            DropdownMenuItem(
+                              value: "maintenance",
+                              child: Text("Maintenance"),
+                            ),
+                            DropdownMenuItem(
+                              value: "sold",
+                              child: Text("Sold"),
+                            ),
+                          ],
+                          onChanged: (value) async {
+                            if (value == null) return;
+
+                            setState(() {
+                              _selectedStatus = value;
+                            });
+
+                            try {
+                              await ref
+                                  .read(vehicleRepositoryProvider)
+                                  .updateVehicleStatus(
+                                    widget.vehicle.id,
+                                    value,
+                                  );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("Status updated to $value"),
+                                ),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Failed to update status"),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
 
-            SizedBox(height: 12),
-            // Text(vehicle.year, style: TextStyle(color: Colors.black)),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: 10),
-                Text(
-                  '${widget.vehicle.year} ${widget.vehicle.make} ${widget.vehicle.model}',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'model:${widget.vehicle.model}',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ],
-            ),
+            KHeight16,
 
-            SizedBox(height: 12),
-            // Text(vehicle.price, style: TextStyle(color: Colors.black)),
-            Column(
-              children: [
-                Text(
-                  '\$${widget.vehicle.price}',
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                  ),
+            // Now conditionally render when status == "sold"
+            if (_selectedStatus == "sold") ...[
+              const SizedBox(height: 20),
+              //inline
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                SizedBox(height: 8),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.grey.withOpacity(0.1),
-                  ),
-                  child: Text(
-                    widget.vehicle.status,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: Colors.black,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title inside same container
+                    const Text(
+                      "Record New Sale",
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+
+                        decoration: TextDecoration.underline,
+                        // decorationThickness: 30
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            ),
 
-            SizedBox(height: 16),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0),
+                    const SizedBox(height: 16),
+
+                    // Customer Information heading
+                    const Text(
+                      "Customer Information",
+                      style: TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                    // const SizedBox(height: 12),
+                    Divider(color: Colors.black, thickness: 1),
+
+                    // Advance Payment Dropdown
+                    const Text("Select Advance Payment"),
+                    DropdownButtonFormField<String>(
+                      value: _advancePayment,
+                      hint: const Text("Manual Entry / No Advance"),
+                      items:
+                          ["Manual Entry / No Advance", "Bank Transfer", "Cash"]
+                              .map(
+                                (method) => DropdownMenuItem(
+                                  value: method,
+                                  child: Text(method),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _advancePayment = value;
+                        });
+                      },
+                      decoration: InputDecoration(border: OutlineInputBorder()),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Name
+                    const Text(
+                      "Customer Name *",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextFormField(
+                      controller: _nameController,
+                      style: TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
+                        hintText: "Enter customer name",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Phone
+                    const Text(
+                      "Customer Phone *",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextFormField(
+                      controller: _phoneController,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: const InputDecoration(
+                        hintText: "Enter phone number",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Address
+                    const Text(
+                      "Customer Address",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextFormField(
+                      controller: _addressController,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: const InputDecoration(
+                        hintText: "Enter customer address",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    KHeight16,
+                    Text(
+                      "Sale & Payment Details",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    KHeight16,
+                    Divider(color: Colors.black),
+
+                    Text(
+                      "Sale Date*",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextFormField(
+                      controller: _dateController,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        // labelText: "Sale Date*",
+                        hintText: "dd-MM-yyyy",
+                        suffixIcon: Icon(Icons.calendar_today),
+                        border: OutlineInputBorder(),
+                      ),
+                      onTap: () => _pickDate(context),
+                    ),
+                    KHeight16,
+
+                    Text(
+                      "Sale Price(INR)*",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextFormField(
+                      style: TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
+                        hintText: "e.g.500000",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    KHeight16,
+
+                    Text(
+                      "Recieved Amount(INR)*",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextFormField(
+                      style: TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
+                        hintText: "e.g.100000",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    KHeight16,
+
+                    Text(
+                      "Payment Status*",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    TextFormField(
+                      style: TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
+                        hintText: "Pending",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    KHeight16,
+
+                    DropdownButtonFormField<String>(
+                      value: _selectedMode,
+                      decoration: const InputDecoration(
+                        hintText: "Select Payment Mode",
+                        border: OutlineInputBorder(),
+                      ),
+                      items: _paymentModes.map((mode) {
+                        return DropdownMenuItem<String>(
+                          value: mode,
+                          child: Text(mode),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedMode = value;
+                        });
+                      },
+                      validator: (value) =>
+                          value == null ? "Please select a payment mode" : null,
+                    ),
+                    KHeight20,
+                    const Text(
+                      "Brokerage Details",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Divider(color: Colors.black),
+
+                    KHeight20,
+                    TextFormField(
+                      style: TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
+                        hintText: "Select Broker(optional)",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    KHeight20,
+                    Center(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.blue, // button background color
+                          foregroundColor: Colors.white, // text color
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 15,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {
+                          // your submit logic here
+                        },
+                        child: const Text(
+                          "Submit",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
+            // ================= Seller Details Section =================
+            KHeight30,
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                border: Border.all(color: Colors.grey.shade300),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Vehicle Details',
+                  const Text(
+                    "Seller Details",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Color',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    widget.vehicle.color,
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            KWidth12,
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'RegistrationId',
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    widget.vehicle.registrationId,
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12),
+                  const Divider(thickness: 1, color: Colors.black),
 
-                        Text(
-                          'Purchase Date',
-                          style: TextStyle(color: Colors.grey),
+                  const SizedBox(height: 8),
+
+                  // Name
+                  Row(
+                    children: [
+                      const Text(
+                        "Name:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          widget.vehicle.purchaseDate ?? 'N/A',
-                          style: TextStyle(color: Colors.black),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.vehicle.purchaseName,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Phone
+                  Row(
+                    children: [
+                      const Text(
+                        "Phone:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
-                        SizedBox(height: 12),
-                        Text(
-                          'Description',
-                          style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.vehicle.purchasePhone,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Address
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Address:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          widget.vehicle.description ??
-                              'No description available.',
-                          style: TextStyle(color: Colors.black),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          widget.vehicle.purchaseAddress,
+                          style: const TextStyle(color: Colors.black),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Payment Mode
+                  Row(
+                    children: [
+                      const Text(
+                        "Payment Mode:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.vehicle.purchaseMode,
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Buying Price
+                  Row(
+                    children: [
+                      const Text(
+                        "Buying Price:",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.vehicle.purchasePrice.toString(),
+                        style: const TextStyle(color: Colors.black),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
 
-            SizedBox(height: 16),
 
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) {
-                    return Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.85,
-                        ),
-                        padding: EdgeInsets.all(16),
-                        child: SingleChildScrollView(
-                          child: AddExpenseFormFromVehicle(
-                            vehicleId: widget.vehicle.id,
-                            onCancel: () {
-                              Navigator.of(context).pop();
-                            },
-                            onAddComplete: () {
-                              Navigator.of(context).pop();
-                              setState(() {});
-                            },
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // 🔵 Background color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero, // ◼️ No rounded corners
-                ),
-              ),
-              child: Text(
-                'Add Expense',
-                style: TextStyle(color: Colors.white), // ⚪ White text
-              ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            //Expense Section
+            KHeight20,
+
+
+            // Add this section after the Seller Details section and before the ElevatedButton
+
+            // Expenses Section
+            const SizedBox(height: 24),
+            const Text(
+              "Expenses",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-
-            // expense list header
-            Padding(
-              padding: EdgeInsets.only(top: 20, bottom: 8),
-              child: Text(
-                'Expenses',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            const SizedBox(height: 8),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey.shade200,
               ),
-            ),
-            //Expense List
-            ValueListenableBuilder(
-              valueListenable: Hive.box<Expense>('expenses').listenable(),
-              builder: (context, box, _) {
-                final expenses = box.values
-                    .where((expense) => expense.vehicleId == widget.vehicle.id)
-                    .toList();
-
-                if (expenses.isEmpty) {
-                  return Text('No Expenses Recorded');
-                }
-                return Column(
-                  children: expenses
-                      .map(
-                        (expense) => Card(
-                          child: ListTile(
-                            title: Text(
-                              '₹${expense.amount} - ${expense.category}',
-                            ),
-                            subtitle: Text(expense.date),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(expense.paymentMode),
-                                IconButton(
-                                  onPressed: () {
-                                    Hive.box<Expense>(
-                                      'expenses',
-                                    ).delete(expense.id);
-                                  },
-                                  icon: Icon(Icons.delete, color: Colors.red),
-                                ),
-                              ],
-                            ),
-
-                            //
-                          ),
-                        ),
-                      )
-                      .toList(),
-                );
-              },
-            ),
-            
- Consumer(
-
-          builder: (context, ref, _) {
-    final purchaseState = ref.watch(purchaseProvider);
-    
-    // Handle loading state
-    if (purchaseState.isLoading) {
-      return Center(child: CircularProgressIndicator());
-    }
-    
-    // Handle error state
-    if (purchaseState.errorMessage != null) {
-      return Text('Error loading purchases: ${purchaseState.errorMessage}');
-    }
-    
-    // Handle data state
-    final vehiclePurchases = purchaseState.purchases
-        .where((purchase) => purchase.vehicleId == widget.vehicle.id)
-        .toList();
-
-    if (vehiclePurchases.isEmpty) {
-      return Text('No Purchases Recorded');
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 24),
-        Text(
-          'Purchase Details',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        KHeight,
-        ...vehiclePurchases.map(
-          (purchase) => Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ListTile(
-              title: Text(
-                '${purchase.name} - ${purchase.price}',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(
                 children: [
-                  Text('📞 Phone: ${purchase.phone}'),
-                  Text('📍 Address: ${purchase.address}'),
-                  Text('🗓️ Date: ${purchase.date}'),
-                  Text('💳 Payment Mode: ${purchase.modeOfPayment}'),
-                ],
-              ),
-              trailing: IconButton(
-                onPressed: () {
-                  ref
-                      .read(purchaseProvider.notifier)
-                      .deletePurchase(purchase.id);
-                },
-                icon: Icon(Icons.delete, color: Colors.red),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  },
-),
-
-         
-
-            // // Purchase Section
-            // ValueListenableBuilder(
-            //   //Listen to changes in the Hive 'purchases' box
-            //   valueListenable: Hive.box<Purchase>('purchases').listenable(),
-
-            //   // Find the first purchase whose vehicleId matches the current vehicle
-            //   builder: (context, box, _) {
-            //     final purchases = box.values
-            //         .where(
-            //           (purchase) => purchase.vehicleId == widget.vehicle.id,
-            //         )
-            //         .toList();
-
-            //     if (purchases.isEmpty) {
-            //       return Text('No Purchases Recorded');
-            //     }
-            //     // if purchase found build ui section
-            //     return Column(
-            //       crossAxisAlignment: CrossAxisAlignment.start,
-            //       children: [
-            //         SizedBox(height: 24),
-            //         Text(
-            //           'Purchase Details',
-            //           style: TextStyle(
-            //             fontSize: 18,
-            //             fontWeight: FontWeight.bold,
-            //             color: Colors.black,
-            //           ),
-            //         ),
-            //         KHeight,
-            //         // build one card per purchase
-            //         ...purchases.map(
-            //           (purchase) => Card(
-            //             elevation: 2,
-            //             shape: RoundedRectangleBorder(
-            //               borderRadius: BorderRadius.circular(12),
-            //             ),
-            //             child: ListTile(
-            //               title: Text(
-            //                 '${purchase.name} - ${purchase.price}',
-            //                 style: TextStyle(fontWeight: FontWeight.bold),
-            //               ),
-            //               subtitle: Column(
-            //                 crossAxisAlignment: CrossAxisAlignment.start,
-            //                 children: [
-            //                   Text('📞 Phone: ${purchase.phone}'),
-            //                   Text('📍 Address: ${purchase.address}'),
-            //                   Text('🗓️ Date: ${purchase.date}'),
-            //                   Text(
-            //                     '💳 Payment Mode: ${purchase.modeOfPayment}',
-            //                   ),
-            //                 ],
-            //               ),
-            //               trailing: IconButton(
-            //                 onPressed: () {
-            //                   Hive.box<Purchase>(
-            //                     'purchases',
-            //                   ).delete(purchase.id);
-            //                 },
-            //                 icon: Icon(Icons.delete, color: Colors.red),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //       ],
-            //     );
-            //   },
-            // ),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // Partnership Section
-            if (widget.vehicle.partnership != null) ...[
-              SizedBox(height: 24),
-              Text(
-                'Partnership Details',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 8),
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Partner Name :${widget.vehicle.partnership!.partnerName}',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Contact Person :${widget.vehicle.partnership!.contactPerson}',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Share % :${widget.vehicle.partnership!.sharePercentage}',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Phone :${widget.vehicle.partnership!.phone}',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Email:${widget.vehicle.partnership!.email}',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    SizedBox(height: 4),
-                    Row(
+                  // Expenses Header with + Button
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Start Date:${widget.vehicle.partnership!.startDate}',
-                          style: TextStyle(color: Colors.black),
+                        const Text(
+                          "Expenses",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         IconButton(
-                          onPressed: _deletePartnership,
-                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) {
+                                return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Container(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.9,
+                                    constraints: BoxConstraints(
+                                      maxHeight:
+                                          MediaQuery.of(context).size.height *
+                                          0.85,
+                                    ),
+                                    padding: EdgeInsets.all(16),
+                                    child: SingleChildScrollView(
+                                      child: AddExpenseFormFromVehicle(
+                                        onSubmit: (p0) {
+                                          //logic
+                                        },
+                                        vehicle: widget.vehicle,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.add, color: Colors.blue),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 4),
-                  ],
+                  ),
+
+                  // Expenses List or Empty State
+                  Consumer(
+                    builder: (context, ref, child) {
+                      // Get expenses for this vehicle from your state management
+                      // This is a placeholder - replace with your actual expenses provider
+                      final expenses =
+                          <Expense>[]; // Get expenses for this vehicle
+
+                      if (expenses.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            "No expenses have been recorded for this vehicle.",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: expenses.length,
+                        itemBuilder: (context, index) {
+                          final expense = expenses[index];
+                          return ListTile(
+                            title: Text(expense.title),
+                            subtitle: Text(
+                              '₹${expense.amount} - ${expense.date}',
+                            ),
+                            trailing: IconButton(
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                // Delete expense logic
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+            // partnership dialog
+            const SizedBox(height: 20),
+
+            /// Partnerships Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Partnerships",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add, color: Colors.indigo),
+                  onPressed: () {
+                    // 👇 show the dialog we created
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => const AddPartnershipDialog(),
+                    );
+                  },
+                ),
+              ],
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                "No partnerships are associated with this vehicle.",
+                style: TextStyle(color: Colors.black54),
+              ),
+            ),
+
+            // 👇 Only show when status is "sold"
+            if (_selectedStatus == "sold") ...[
+              const SizedBox(height: 20),
+
+              /// Finance Details Section
+              const Text(
+                "Finance Details",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.shade200,
+                ),
+                child: const Text(
+                  "No finance details recorded.",
+                  style: TextStyle(color: Colors.black54),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              /// Brokerage Details Section
+              const Text(
+                "Brokerage Details",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.shade200,
+                ),
+                child: const Text(
+                  "No brokerage details recorded.",
+                  style: TextStyle(color: Colors.black54),
                 ),
               ),
             ],
@@ -654,6 +1148,22 @@ class _ScreenVehicleDetailsState extends State<ScreenVehicleDetails> {
         errorBuilder: (_, __, ___) =>
             Center(child: Icon(Icons.car_repair, size: 50)),
       );
+    }
+  }
+
+  //date format
+  Future<void> _pickDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _dateController.text = _dateFormat.format(picked); // 👈 format applied
+      });
     }
   }
 }
