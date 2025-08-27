@@ -261,8 +261,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       color: Colors.black,
                     ),
                   ),
-                  const Divider(
-                     color: Colors.grey),
+                  const Divider(color: Colors.grey),
 
                   const SizedBox(height: 8),
 
@@ -278,7 +277,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                         ),
                       ),
                       const SizedBox(
-                        height:5,
+                        height: 5,
                       ), // Add a small space after the label
                       Text(
                         widget.vehicle.color,
@@ -286,11 +285,11 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                     ],
                   ),
-                KHeight,
+                  KHeight,
 
                   // Mileage
                   Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Mileage:",
@@ -299,18 +298,18 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(height: 5,),
+                      const SizedBox(height: 5),
                       Text(
                         "${widget.vehicle.mileage} km",
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
-                 KHeight,
+                  KHeight,
 
                   // Fuel Type
                   Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Fuel Type:",
@@ -330,7 +329,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
 
                   // Purchase Date
                   Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Purchase Date:",
@@ -371,7 +370,6 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                   ), // Adjust spacing before the status
 
                   const Divider(
-                    
                     color: Colors.grey,
                   ), // Add a divider between sections
 
@@ -391,58 +389,69 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       const SizedBox(width: 8),
                       Expanded(
                         // Wrap the dropdown button in an expanded widget
-                        child: DropdownButton<String>(
-                          isExpanded:
-                              true, // This helps the dropdown fill available space
-                          value: _selectedStatus,
-                          underline: const SizedBox(),
-                          borderRadius: BorderRadius.circular(8),
-                          items: const [
-                            DropdownMenuItem(
-                              value: "available",
-                              child: Text("Available"),
-                            ),
-                            DropdownMenuItem(
-                              value: "maintenance",
-                              child: Text("Maintenance"),
-                            ),
-                            DropdownMenuItem(
-                              value: "sold",
-                              child: Text("Sold"),
-                            ),
-                          ],
-                          onChanged: (value) async {
-                            if (value == null) return;
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade400),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButton<String>(
+                            isExpanded:
+                                true, // This helps the dropdown fill available space
+                            value: _selectedStatus,
+                            underline: const SizedBox(),
+                            borderRadius: BorderRadius.circular(8),
+                            items: const [
+                              DropdownMenuItem(
+                                value: "available",
+                                child: Text("Available"),
+                              ),
+                              DropdownMenuItem(
+                                value: "maintenance",
+                                child: Text("Maintenance"),
+                              ),
+                              DropdownMenuItem(
+                                value: "sold",
+                                child: Text("Sold"),
+                              ),
+                            ],
+                            onChanged: (value) async {
+                              if (value == null) return;
 
-                            setState(() {
-                              _selectedStatus = value;
-                            });
+                              setState(() {
+                                _selectedStatus = value;
+                              });
 
-                            try {
-                              await ref
-                                  .read(vehicleRepositoryProvider)
-                                  .updateVehicleStatus(
-                                    widget.vehicle.id,
-                                    value,
-                                  );
+                              try {
+                                await ref
+                                    .read(vehicleRepositoryProvider)
+                                    .updateVehicleStatus(
+                                      widget.vehicle.id,
+                                      value,
+                                    );
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text("Status updated to $value"),
-                                ),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Failed to update status"),
-                                ),
-                              );
-                            }
-                          },
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Status updated to $value"),
+                                  ),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Failed to update status"),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
                         ),
                       ),
                     ],
                   ),
+                  //
                 ],
               ),
             ),
@@ -727,17 +736,17 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                   const Text(
                     "Seller Details",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 30,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  const Divider(thickness: 1, color: Colors.black),
+                  const Divider(color: Colors.grey),
 
-                  const SizedBox(height: 8),
+                  KHeight,
 
                   // Name
-                  Row(
+                  Column(
                     children: [
                       const Text(
                         "Name:",
@@ -746,17 +755,18 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(height: 5),
                       Text(
                         widget.vehicle.purchaseName,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  KHeight,
 
                   // Phone
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Phone:",
@@ -765,17 +775,17 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(height: 5),
                       Text(
                         widget.vehicle.purchasePhone,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  KHeight,
 
                   // Address
-                  Row(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
@@ -785,19 +795,18 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          widget.vehicle.purchaseAddress,
-                          style: const TextStyle(color: Colors.black),
-                        ),
+                      const SizedBox(height: 5),
+                      Text(
+                        widget.vehicle.purchaseAddress,
+                        style: const TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  KHeight,
 
                   // Payment Mode
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Payment Mode:",
@@ -806,17 +815,18 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(height: 5),
                       Text(
                         widget.vehicle.purchaseMode,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  KHeight,
 
                   // Buying Price
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
                         "Buying Price:",
@@ -825,7 +835,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           color: Colors.black,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(height: 5),
                       Text(
                         widget.vehicle.purchasePrice.toString(),
                         style: const TextStyle(color: Colors.black),
@@ -836,239 +846,172 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
               ),
             ),
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            //Expense Section
-            KHeight20,
-
-
             // Add this section after the Seller Details section and before the ElevatedButton
 
             // Expenses Section
-            const SizedBox(height: 24),
-            const Text(
-              "Expenses",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+            KHeight30,
+
             Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(
+                20,
+              ), // More generous padding like original
               decoration: BoxDecoration(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                color: Colors.grey.shade200,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Expenses Header with + Button
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Expenses",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Expenses",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                          decoration: TextDecoration.underline,
                         ),
-                        IconButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) {
-                                return Dialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.9,
+                                  constraints: BoxConstraints(
+                                    maxHeight:
+                                        MediaQuery.of(context).size.height *
+                                        0.85,
                                   ),
-                                  child: Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.9,
-                                    constraints: BoxConstraints(
-                                      maxHeight:
-                                          MediaQuery.of(context).size.height *
-                                          0.85,
-                                    ),
-                                    padding: EdgeInsets.all(16),
-                                    child: SingleChildScrollView(
-                                      child: AddExpenseFormFromVehicle(
-                                        onSubmit: (p0) {
-                                          //logic
-                                        },
-                                        vehicle: widget.vehicle,
-                                      ),
+                                  padding: EdgeInsets.all(16),
+                                  child: SingleChildScrollView(
+                                    child: AddExpenseFormFromVehicle(
+                                      onSubmit: (p0) {
+                                        //logic
+                                      },
+                                      vehicle: widget.vehicle,
                                     ),
                                   ),
-                                );
-                              },
-                            );
-                          },
-                          icon: const Icon(Icons.add, color: Colors.blue),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Expenses List or Empty State
-                  Consumer(
-                    builder: (context, ref, child) {
-                      // Get expenses for this vehicle from your state management
-                      // This is a placeholder - replace with your actual expenses provider
-                      final expenses =
-                          <Expense>[]; // Get expenses for this vehicle
-
-                      if (expenses.isEmpty) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text(
-                            "No expenses have been recorded for this vehicle.",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        );
-                      }
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: expenses.length,
-                        itemBuilder: (context, index) {
-                          final expense = expenses[index];
-                          return ListTile(
-                            title: Text(expense.title),
-                            subtitle: Text(
-                              '₹${expense.amount} - ${expense.date}',
-                            ),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              onPressed: () {
-                                // Delete expense logic
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           );
                         },
-                      );
-                    },
+                        icon: const Icon(Icons.add, color: Colors.blue),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 40), // Increased spacing
+                  // Body (empty state)
+                  Center(
+                    child: Text(
+                      "No expenses have been recorded for this vehicle.",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                    ),
                   ),
                 ],
               ),
             ),
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-
             // partnership dialog
-            const SizedBox(height: 20),
-
-            /// Partnerships Section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Partnerships",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.add, color: Colors.indigo),
-                  onPressed: () {
-                    // 👇 show the dialog we created
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => const AddPartnershipDialog(),
-                    );
-                  },
-                ),
-              ],
-            ),
+            KHeight20,
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(
+                20,
+              ), // More generous padding like original
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
-              child: const Text(
-                "No partnerships are associated with this vehicle.",
-                style: TextStyle(color: Colors.black54),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Expenses Header with + Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Partnerships",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const AddPartnershipDialog(),
+                          );
+                        },
+                        icon: const Icon(Icons.add, color: Colors.blue),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 40), // Increased spacing
+                  // Body (empty state)
+                  Center(
+                    child: Text(
+                      "No partnerships have been recorded for this vehicle.",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                      softWrap: true,
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -1077,42 +1020,139 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
               const SizedBox(height: 20),
 
               /// Finance Details Section
-              const Text(
-                "Finance Details",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(
+                  20,
+                ), // More generous padding like original
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  color: Colors.grey.shade200,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: const Text(
-                  "No finance details recorded.",
-                  style: TextStyle(color: Colors.black54),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Expenses Header with + Button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Finance Details",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.blue,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 40), // Increased spacing
+                    // Body (empty state)
+                    Center(
+                      child: Text(
+                        "No Finance  have been recorded for this vehicle.",
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 20),
+              KHeight30,
 
               /// Brokerage Details Section
-              const Text(
-                "Brokerage Details",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(
+                  20,
+                ), // More generous padding like original
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  color: Colors.grey.shade200,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 6,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: const Text(
-                  "No brokerage details recorded.",
-                  style: TextStyle(color: Colors.black54),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Expenses Header with + Button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Brokerage details",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.blue,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 40), // Increased spacing
+                    // Body (empty state)
+                    Center(
+                      child: Text(
+                        "No Brokerage  have been recorded for this vehicle.",
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
