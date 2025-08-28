@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,8 +35,8 @@ class AddVehicleForm extends ConsumerStatefulWidget {
 }
 
 class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
-  // List<File> _pickedImages = [];
-  List<String> _pickedImages = [];
+  List<File> _pickedImages = [];
+  // List<String> _pickedImages = [];
 
   bool _showPartnershipFields = false;
   bool _showSalesForm = false;
@@ -44,6 +45,11 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   bool _formWasReset = false;
   String _status = 'available';
   String? _purchasePaymentStatus = 'pending';
+
+  
+final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
+  String? _selectedPaymentMode;
+
 
   // Controllers
   final TextEditingController _makeController = TextEditingController();
@@ -84,20 +90,38 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
       TextEditingController();
   final TextEditingController _saleDateController = TextEditingController();
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-    );
+  // Future<void> _pickImage() async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(
+  //     source: ImageSource.gallery,
+  //     maxWidth: 1024,
+  //     maxHeight: 1024,
+  //   );
 
-    if (pickedFile != null) {
-      setState(() {
-        _pickedImages.add(pickedFile.path);
-      });
-    }
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _pickedImages.add(pickedFile.path);
+  //     });
+  //   }
+  // }
+
+ 
+
+Future<void> _pickImage() async {
+  final result = await FilePicker.platform.pickFiles(
+    type: FileType.image,
+    allowMultiple: true,
+  );
+
+  if (result != null) {
+    setState(() {
+      _pickedImages.addAll(
+        result.paths.map((path) => File(path!)).toList(),
+      );
+    });
   }
+}
+
 
   void _removeImage(int index) {
     setState(() {
@@ -113,6 +137,7 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
         _sharePercentageController.text.trim().isNotEmpty ||
         _startDate != null;
   }
+
 
   void resetFormFields() {
     setState(() {
@@ -225,31 +250,12 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
 
         if (vehicle.photos.isNotEmpty && !_formWasReset) {
           setState(() {
-            _pickedImages = List<String>.from(vehicle.photos);
+            _pickedImages = List<File>.from(vehicle.photos);// here changed string to file 
             _formWasReset = true; // ensures prefill happens only once
           });
         }
       }
     });
-  }
-
-  Widget _buildTextField(TextEditingController controller, String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(color: Colors.black)),
-        SizedBox(height: 4),
-        TextFormField(
-          controller: controller,
-          style: TextStyle(color: Colors.black),
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            border: OutlineInputBorder(),
-          ),
-        ),
-        SizedBox(height: 16),
-      ],
-    );
   }
 
   Widget _buildImagePreview(dynamic image) {
@@ -276,103 +282,164 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
     final isEditing = vehicleToEdit != null;
 
     return Scaffold(
+      // backgroundColor: Colors.grey.shade200,// background outside container
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              if (!_showSalesForm) ...[
-                Text('Vehicle ID', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _idController,
-                  readOnly: true,
-                  style: TextStyle(color: Colors.black),
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                KHeight16,
 
-                Text('Make', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _makeController,
-                  style: TextStyle(color: Colors.black),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter the make';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                if (!_showSalesForm) ...[
+                  // ✅ Back Arrow + View Report Row
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 🔹 Back Arrow Button (first row, only arrow)
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black54),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: IconButton(
+                          onPressed: widget.onCancel,
+                          icon: Icon(Icons.arrow_back, color: Colors.black),
+                        ),
+                      ),
+                      KHeight,
+                      // 🔹 Row with "Add New Vehicle" and "View Report"
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Add New Vehicle",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: widget.onCancel,
+                            child: Text(
+                              "View Report",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      KHeight16,
+                      // 🔹 Section Title with Underline
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Vehicle Details",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          Divider(thickness: 1, color: Colors.black),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                KHeight16,
+                  KHeight30,
 
-                Text('Model', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _modelController,
-                  style: TextStyle(color: Colors.black),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter the model';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
+                  Text('Vehicle ID', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _idController,
+                    readOnly: true,
+                    style: TextStyle(color: Colors.black),
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      border: OutlineInputBorder(),
                     ),
-                    border: OutlineInputBorder(),
                   ),
-                ),
-                KHeight16,
+               KHeight20,
 
-                Text('Year', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _yearController,
-                  style: TextStyle(color: Colors.black),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter the year';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
+                  Text('Make', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _makeController,
+                    style: TextStyle(color: Colors.black),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter the make';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "Select Make ",
                     ),
-                    border: OutlineInputBorder(),
                   ),
-                ),
-                KHeight16,
+               KHeight20,
 
-                Text('Price', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _priceController,
-                  style: TextStyle(color: Colors.black),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter the price';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
+                  Text('Model', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _modelController,
+                    style: TextStyle(color: Colors.black),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter the model';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "Select Model ",
                     ),
-                    border: OutlineInputBorder(),
                   ),
-                ),
-                KHeight16,
+               KHeight20,
+
+                  Text('Year', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _yearController,
+                    style: TextStyle(color: Colors.black),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter the year';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "Year(e.g.2022) ",
+                    ),
+                  ),
+              KHeight20,
+
+                  Text('Color', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _colorController,
+                    style: TextStyle(color: Colors.black),
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Please enter color';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "color ",
+                    ),
+                  ),
+                ],
+              KHeight20,
 
                 Text(
                   'Registration Number',
@@ -386,15 +453,11 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       return 'Please enter registration';
                     return null;
                   },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
+                  decoration: kCommonInputDecoration.copyWith(
+                    hintText: "registration no ",
                   ),
                 ),
-                KHeight16,
+              KHeight20,
 
                 Text('Mileage', style: TextStyle(color: Colors.black)),
                 TextFormField(
@@ -405,569 +468,449 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                     if (value == null || value.isEmpty) return 'Enter mileage';
                     return null;
                   },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
+                  decoration: kCommonInputDecoration.copyWith(
+                    hintText: "mileage(in Km) ",
                   ),
                 ),
-                KHeight16,
+               KHeight20,
 
                 Text('Fuel Type', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  style: TextStyle(color: Colors.black),
-                  controller: _fuelTypeController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter fuel type';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                KHeight16,
-
-                Text('Color', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _colorController,
-                  style: TextStyle(color: Colors.black),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter color';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-              KHeight16,
-
-              Text('Status', style: TextStyle(color: Colors.black)),
-              DropdownButtonFormField<String>(
-                value: _status,
-                decoration: InputDecoration(border: OutlineInputBorder()),
-                items:
-                    (vehicleToEdit != null
-                            ? [
-                                'available',
-                                'pending sale',
-                                'sold',
-                                'in maintenance',
-                              ]
-                            : ['available', 'pending sale', 'in maintenance'])
-                        .map(
-                          (status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(
-                              status[0].toUpperCase() + status.substring(1),
-                            ), // Capitalize display
-                            // Text(status),
-                          ),
-                        )
-                        .toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _status = value!;
-                    _showSalesForm = _status == 'sold';
-                  });
-                },
-              ),
-
-              if (_showSalesForm) ...[
-                KHeight16,
-                Text('Buyer Name', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _buyerNameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter buyer name';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 3, color: Colors.red),
-                    ),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Buyer Phone', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _buyerPhoneController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter buyer phone';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 3, color: Colors.red),
-                    ),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Buyer Address', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _buyerAddressController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter buyer address';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 3, color: Colors.red),
-                    ),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Mode Of Payment', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _modeOfPaymentController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter payment mode';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 3, color: Colors.red),
-                    ),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Sale Date', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _saleDateController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter sale date';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 3, color: Colors.red),
-                    ),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Row(
-                  children: [
-                    SizedBox(width: 90),
-                    ElevatedButton(
-                      onPressed: () {
-                        widget.onCancel?.call();
-                        resetFormFields();
-                      },
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (!_formKey.currentState!.validate()) return;
-
-                        final vehicle =
-                            ref.read(vehicleProvider).vehicleToEdit ??
-                            widget.vehicle;
-                        if (_status == 'Sold' && vehicle != null) {
-                          final newSale = Sales(
-                            id: Uuid().v4(),
-                            vehicleId: vehicle.id,
-                            buyerName: _buyerNameController.text,
-                            buyerPhone: _buyerPhoneController.text,
-                            buyerAddress: _buyerAddressController.text,
-                            modeOfPayment: _modeOfPaymentController.text,
-                            date: _saleDateController.text,
-                          );
-
-                          await Hive.box<Sales>(
-                            'sales',
-                          ).put(newSale.id, newSale);
-
-                          final updatedVehicle = vehicle.copyWith(
-                            status: 'Sold',
-                            salesId: newSale.id,
-                          );
-
-                          await ref
-                              .read(vehicleProvider.notifier)
-                              .updateVehicle(updatedVehicle);
-
-                          final newPurchase = Purchase(
-                            id: Uuid().v4(),
-                            vehicleId: vehicle.id,
-                            userId: "current_user_id", // Get from your auth system
-                            name: _sellerNameController.text,
-                            phone: _sellerPhoneController.text,
-                            address: _sellerAddressController.text,
-                            date:DateTime.parse(_purchaseDateController.text),
-                            price:  double.parse(_priceController.text),
-                            modeOfPayment: _paymentModeController.text,
-                            paymentStatus: _purchasePaymentStatus??'pending',
-                          );
-
-                          await Hive.box<Purchase>(
-                            'purchases',
-                          ).put(newPurchase.id, newPurchase);
-                        }
-
-                        if (_status == 'Sold') {
-                          widget.onAddComplete();
-                        }
-                      },
-                      child: Text(
-                        'Update Sale',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-
-              if (!_showSalesForm) ...[
-                KHeight16,
-                Text('Seller Name', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _sellerNameController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter seller name';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Seller Phone', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _sellerPhoneController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter seller phone';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Seller Address', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _sellerAddressController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter seller address';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Mode of Payment', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _paymentModeController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Enter payment mode';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Payment Status', style: TextStyle(color: Colors.black)),
                 DropdownButtonFormField<String>(
-                  value: _purchasePaymentStatus,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  items: ['paid', 'partial', 'pending'].map((status) {
-                    return DropdownMenuItem<String>(
-                      value: status,
-                      child: Text(
-                        status[0].toUpperCase() + status.substring(1),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _purchasePaymentStatus = newValue;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select payment status';
+                  value: _fuelTypeController.text.isNotEmpty
+                      ? _fuelTypeController.text
+                      : null,
+                  items: ['Petrol', 'Diesel', 'Hybrid', 'Electric']
+                      .map(
+                        (fuel) => DropdownMenuItem(
+                          value: fuel,
+                          child: Text(
+                            fuel,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      _fuelTypeController.text =
+                          value; // keep using same controller for saving
                     }
+                  },
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Select fuel type'
+                      : null,
+                  decoration: kCommonInputDecoration.copyWith(
+                    hintText: "Select Fuel Type",
+                  ),
+                ),
+              KHeight20,
+
+                Text('Price', style: TextStyle(color: Colors.black)),
+                TextFormField(
+                  controller: _priceController,
+                  style: TextStyle(color: Colors.black),
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return 'Please enter the price';
                     return null;
                   },
+                  decoration: kCommonInputDecoration.copyWith(
+                    hintText: "Expected selling price ",
+                  ),
                 ),
-                KHeight16,
+                KHeight20,
 
-                // Replace the purchase date TextFormField with this:
-                InkWell(
-                  onTap: () async {
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime.now(),
-                    );
-                    if (pickedDate != null) {
-                      _purchaseDateController.text =
-                          "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
-                    }
-                  },
-                  child: InputDecorator(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Text(
+  'Photo Previews',
+  style: TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: Colors.black,
+  ),
+),
+
+KHeight,
+
+
+// Image preview list with delete buttons
+Column(
+  children: _pickedImages.asMap().entries.map((entry) {
+    final index = entry.key;
+    final imageFile = entry.value;
+
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.file(
+                imageFile,
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
+            ),
+          ),
+
+          // Cancel/Delete button
+          Positioned(
+            top: 6,
+            right: 6,
+            child: GestureDetector(
+              onTap: () => _removeImage(index),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                padding: EdgeInsets.all(4),
+                child: Icon(
+                  Icons.close,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }).toList(),
+),
+
+ElevatedButton.icon(
+  onPressed: _pickImage,
+  icon: Icon(Icons.upload_file),
+  label: Text("Choose Files"),
+  style: ElevatedButton.styleFrom(
+    foregroundColor: Colors.white, backgroundColor: Colors.blue.shade700,
+    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+),
+
+KHeight20,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                // Text('Photos', style: TextStyle(color: Colors.black)),
+                // KHeight16,
+                // Column(
+                //   children: [
+                //     Wrap(
+                //       spacing: 8,
+                //       children: _pickedImages.asMap().entries.map((entry) {
+                //         return Stack(
+                //           children: [
+                //             Container(
+                //               width: 100,
+                //               height: 100,
+                //               decoration: BoxDecoration(
+                //                 border: Border.all(color: Colors.grey),
+                //               ),
+                //               child: _buildImagePreview(entry.value),
+                //             ),
+                //             Positioned(
+                //               top: 0,
+                //               right: 0,
+                //               child: IconButton(
+                //                 icon: Icon(Icons.close, size: 20),
+                //                 onPressed: () => _removeImage(entry.key),
+                //               ),
+                //             ),
+                //           ],
+                //         );
+                //       }).toList(),
+                //     ),
+                //     InkWell(
+                //       onTap: _pickImage,
+                //       child: InputDecorator(
+                //         decoration: kCommonInputDecoration.copyWith(
+                //           hintText: "Choose files",
+                //           contentPadding: const EdgeInsets.symmetric(
+                //             horizontal: 12,
+                //             vertical: 14,
+                //           ),
+                //           suffixIcon: Icon(
+                //             Icons.upload_file,
+                //             color: Colors.grey,
+                //           ),
+                //         ),
+                //         child: const Text(
+                //           "Choose Files",
+                //           style: TextStyle(color: Colors.black54),
+                //         ),
+                //       ),
+                //     ),           
+                //   ],
+                // ),
+                // KHeight20,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+                 
+                  TextFormField(
+                    controller: _descriptionController,
+
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "Additional Notes (optional)",
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                KHeight20,
+
+
+
+
+                if (_showSalesForm) ...[
+                  KHeight16,
+                  Text('Buyer Name', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _buyerNameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Enter buyer name';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "buyer name ",
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight16,
+
+                  Text('Buyer Phone', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _buyerPhoneController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Enter buyer phone';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "buyer phone ",
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight16,
+
+                  Text('Buyer Address', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _buyerAddressController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Enter buyer address';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "buyer address ",
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight16,
+
+                  Text(
+                    'Mode Of Payment',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  TextFormField(
+                    controller: _modeOfPaymentController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Enter payment mode';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "mode of payment ",
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight16,
+
+                  Text('Sale Date', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _saleDateController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Enter sale date';
+                      return null;
+                    },
                     decoration: InputDecoration(
-                      labelText: 'Purchase Date',
-                      border: OutlineInputBorder(),
-                    ),
-                    child: Text(
-                      _purchaseDateController.text.isEmpty
-                          ? 'Select Purchase Date'
-                          : _purchaseDateController.text,
-                    ),
-                  ),
-                ),
-
-                Text('Description', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _descriptionController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 8,
-                      horizontal: 12,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  style: TextStyle(color: Colors.black),
-                ),
-                KHeight16,
-
-                Text('Photos', style: TextStyle(color: Colors.black)),
-                Column(
-                  children: [
-                    Wrap(
-                      spacing: 8,
-                      children: _pickedImages.asMap().entries.map((entry) {
-                        return Stack(
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                              ),
-                              child: _buildImagePreview(entry.value),
-                            ),
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: IconButton(
-                                icon: Icon(Icons.close, size: 20),
-                                onPressed: () => _removeImage(entry.key),
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                    ElevatedButton(
-                      onPressed: _pickImage,
-                      child: Text('Add Photo'),
-                    ),
-                    if (_pickedImages.isEmpty)
-                      Text(
-                        'At least one photo is required',
-                        style: TextStyle(color: Colors.red),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
                       ),
-                  ],
-                ),
-                KHeight,
-
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _showPartnershipFields = !_showPartnershipFields;
-                    });
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.black, width: 1),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.group_add, color: Colors.blue),
-                        SizedBox(width: 10),
-                        Text(
-                          'Add Partnership (Optional)',
-                          style: TextStyle(fontSize: 16, color: Colors.black),
-                        ),
-                        Spacer(),
-                        Icon(
-                          _showPartnershipFields
-                              ? Icons.expand_less
-                              : Icons.expand_more,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                if (_showPartnershipFields) ...[
-                  SizedBox(height: 10),
-                  _buildTextField(_partnerNameController, 'Partner Name'),
-                  _buildTextField(_contactPersonController, 'Contact Person'),
-                  _buildTextField(_emailController, 'Email'),
-                  _buildTextField(_phoneController, 'Phone'),
-                  _buildTextField(_sharePercentageController, 'Share %'),
-                  Padding(
-                    padding: EdgeInsets.only(top: 4, bottom: 16),
-                    child: InkWell(
-                      onTap: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime.now(),
-                        );
-                        if (pickedDate != null) {
-                          setState(() {
-                            _purchaseDateController.text =
-                                "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
-                          });
-                        }
-                      },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'Purchase Date',
-                          border: OutlineInputBorder(),
-                          labelStyle: TextStyle(
-                            color: Colors.black,
-                          ), // Add this
-                        ),
-                        child: Text(
-                          _purchaseDateController.text.isEmpty
-                              ? 'Select Purchase Date'
-                              : _purchaseDateController.text,
-                          style: TextStyle(
-                            color: Colors.black,
-                          ), // Add this for black text
-                        ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 3, color: Colors.red),
                       ),
                     ),
+                    style: TextStyle(color: Colors.black),
                   ),
-                ],
-                KHeight,
+                  KHeight16,
 
-                Row(
-                  children: [
-                    SizedBox(width: 90),
-                    Expanded(
-                      child: ElevatedButton(
+                  Row(
+                    children: [
+                      SizedBox(width: 90),
+                      ElevatedButton(
                         onPressed: () {
-                          ref
-                              .read(vehicleProvider.notifier)
-                              .setVehicleToEdit(null);
-                          resetFormFields();
-                          ref
-                              .read(vehicleProvider.notifier)
-                              .clearVehicleToEdit();
-                          ref
-                              .read(vehicleProvider.notifier)
-                              .setShowAddForm(false);
                           widget.onCancel?.call();
+                          resetFormFields();
                         },
                         child: Text(
                           'Cancel',
@@ -980,105 +923,66 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                           ),
                         ),
                       ),
-                    ),
-                    KWidth12,
-                    Expanded(
-                      child: ElevatedButton(
+                      SizedBox(width: 20),
+                      ElevatedButton(
                         onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            if (!mounted) return; //new line added at 13
+                          if (!_formKey.currentState!.validate()) return;
 
-                            try {
-                              // Reset vehicleToEdit so form starts fresh next time
-                              ref
-                                  .read(vehicleProvider.notifier)
-                                  .setVehicleToEdit(null);
+                          final vehicle =
+                              ref.read(vehicleProvider).vehicleToEdit ??
+                              widget.vehicle;
+                          if (_status == 'Sold' && vehicle != null) {
+                            final newSale = Sales(
+                              id: Uuid().v4(),
+                              vehicleId: vehicle.id,
+                              buyerName: _buyerNameController.text,
+                              buyerPhone: _buyerPhoneController.text,
+                              buyerAddress: _buyerAddressController.text,
+                              modeOfPayment: _modeOfPaymentController.text,
+                              date: _saleDateController.text,
+                            );
 
-                              // Create new vehicle object from form data
-                              final newVehicle = Vehicle(
-                                id: _idController.text,
-                                make: _makeController.text,
-                                model: _modelController.text,
-                                photos: _pickedImages.toList(),
+                            await Hive.box<Sales>(
+                              'sales',
+                            ).put(newSale.id, newSale);
 
-                                mileage:
-                                    double.tryParse(_mileageController.text) ??
-                                    0.0,
-                                fuelType: _fuelTypeController.text,
-                                year: _yearController.text,
-                                price: _priceController.text,
-                                registrationId: _registrationIdController.text,
-                                color: _colorController.text,
-                                // vin: _vinController.text,
-                                description: _descriptionController.text,
-                                purchaseDate: _purchaseDateController.text,
-                                // task: '0',
-                                purchaseName: _sellerNameController.text,
-                                purchasePhone: _sellerPhoneController.text,
-                                purchaseAddress: _sellerAddressController.text,
-                                purchasePaymentStatus:
-                                    _purchasePaymentStatus ?? 'pending',
-                                purchasePrice: _priceController.text,
-                                purchaseMode: _paymentModeController.text
-                                    .toLowerCase(),
-                                status: _status.toLowerCase(),
-                                partnership: isPartnershipFilled()
-                                    ? Partnership(
-                                        id: _idController.text,
-                                        partnerName:
-                                            _partnerNameController.text,
-                                        contactPerson:
-                                            _contactPersonController.text,
-                                        email: _emailController.text,
-                                        phone: _phoneController.text,
-                                        sharePercentage:
-                                            _sharePercentageController.text,
-                                        vehicleId: _idController.text,
-                                        startDate:
-                                            (_startDate ?? DateTime.now())
-                                                .toIso8601String(),
-                                      )
-                                    : null,
-                              );
-                              // Add or update vehicle
-                              if (isEditing) {
-                                await ref
-                                    .read(vehicleProvider.notifier)
-                                    .updateVehicle(newVehicle);
-                              } else {
-                                await ref
-                                    .read(vehicleProvider.notifier)
-                                    .addVehicle(newVehicle);
-                              }
+                            final updatedVehicle = vehicle.copyWith(
+                              status: 'Sold',
+                              salesId: newSale.id,
+                            );
 
-                              // Save partnership if it exists
-                              if (newVehicle.partnership != null) {
-                                final partnershipBox = Hive.box<Partnership>(
-                                  'partnerships',
-                                );
-                                await partnershipBox.put(
-                                  newVehicle.partnership!.id,
-                                  newVehicle.partnership!,
-                                );
-                              }
+                            await ref
+                                .read(vehicleProvider.notifier)
+                                .updateVehicle(updatedVehicle);
 
-                              ref
-                                  .read(vehicleProvider.notifier)
-                                  .clearVehicleToEdit();
-                              widget.onAddComplete();
-                            } catch (e) {
-                              // If something goes wrong, show error
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Error: ${e.toString()}'),
-                                ),
-                              );
-                            }
+                            final newPurchase = Purchase(
+                              id: Uuid().v4(),
+                              vehicleId: vehicle.id,
+                              userId:
+                                  "current_user_id", // Get from your auth system
+                              name: _sellerNameController.text,
+                              phone: _sellerPhoneController.text,
+                              address: _sellerAddressController.text,
+                              date: DateTime.parse(
+                                _purchaseDateController.text,
+                              ),
+                              price: double.parse(_priceController.text),
+                              modeOfPayment: _paymentModeController.text,
+                              paymentStatus:
+                                  _purchasePaymentStatus ?? 'pending',
+                            );
+
+                            await Hive.box<Purchase>(
+                              'purchases',
+                            ).put(newPurchase.id, newPurchase);
+                          }
+
+                          if (_status == 'Sold') {
+                            widget.onAddComplete();
                           }
                         },
                         child: Text(
-                          isEditing ? 'Update Vehicle' : 'Add Vehicle',
+                          'Update Sale',
                           style: TextStyle(color: Colors.white),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -1088,11 +992,402 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                ],
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Purchase Details",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
+                    Divider(thickness: 1, color: Colors.black),
                   ],
                 ),
+                KHeight30,
+
+                if (!_showSalesForm) ...[
+                  Text('Seller Name', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _sellerNameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Enter seller name';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "seller name ",
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                 KHeight20,
+
+                  Text('Seller Phone', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _sellerPhoneController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Enter seller phone';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "seller phone",
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight20,
+
+                  Text('Seller Address', style: TextStyle(color: Colors.black)),
+                  TextFormField(
+                    controller: _sellerAddressController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty)
+                        return 'Enter seller address';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "seller address",
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                KHeight20,
+
+
+
+
+                  Text("Purchase Price",style: TextStyle(color: Colors.black),),
+                  TextFormField(
+                    controller: _sellerPurchasePriceController,
+                    validator: (value) {
+                      if(value == null || value.isEmpty)
+                      return 'Enter purchase price';
+                      return null;
+                    },
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "Purchase Price"
+                    ),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  KHeight20,
+
+                  Text(
+                    'Purchase Payment Mode',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: _selectedPaymentMode,
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "Select Payment Mode",
+                    ),
+                    icon: Icon(Icons.arrow_drop_down),
+                    style: TextStyle(color: Colors.black),
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Select a payment mode'
+                        : null,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedPaymentMode = newValue;
+                      });
+                    },
+                    items: _paymentModes.map<DropdownMenuItem<String>>((
+                      String value,
+                    ) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                 KHeight20,
+
+                  Text('Payment Status', style: TextStyle(color: Colors.black)),
+                  DropdownButtonFormField<String>(
+                    value: _purchasePaymentStatus,
+                    decoration: kCommonInputDecoration.copyWith(
+                      hintText: "payment status",
+                    ),
+                    items: ['paid', 'partial', 'pending'].map((status) {
+                      return DropdownMenuItem<String>(
+                        value: status,
+                        child: Text(
+                          status[0].toUpperCase() + status.substring(1),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _purchasePaymentStatus = newValue;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select payment status';
+                      }
+                      return null;
+                    },
+                  ),
+                KHeight20,
+
+                  // Replace the purchase date TextFormField with this:
+                  InkWell(
+                    onTap: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                      );
+                      if (pickedDate != null) {
+                        _purchaseDateController.text =
+                            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                      }
+                    },
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: 'Purchase Date',
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Text(
+                        _purchaseDateController.text.isEmpty
+                            ? 'Select Purchase Date'
+                            : _purchaseDateController.text,
+                      ),
+                    ),
+                  ),
+
+                
+
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showPartnershipFields = !_showPartnershipFields;
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.group_add, color: Colors.blue),
+                          SizedBox(width: 10),
+                          Text(
+                            'Add Partnership (Optional)',
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                          ),
+                          Spacer(),
+                          Icon(
+                            _showPartnershipFields
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  if (_showPartnershipFields) ...[
+                    SizedBox(height: 10),
+                    buildTextField(_partnerNameController, 'Partner Name'),
+                    buildTextField(_contactPersonController, 'Contact Person'),
+                    buildTextField(_emailController, 'Email'),
+                    buildTextField(_phoneController, 'Phone'),
+                    buildTextField(_sharePercentageController, 'Share %'),
+                    Padding(
+                      padding: EdgeInsets.only(top: 4, bottom: 16),
+                      child: InkWell(
+                        onTap: () async {
+                          final pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime.now(),
+                          );
+                          if (pickedDate != null) {
+                            setState(() {
+                              _purchaseDateController.text =
+                                  "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                            });
+                          }
+                        },
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: 'Purchase Date',
+                            border: OutlineInputBorder(),
+                            labelStyle: TextStyle(
+                              color: Colors.black,
+                            ), // Add this
+                          ),
+                          child: Text(
+                            _purchaseDateController.text.isEmpty
+                                ? 'Select Purchase Date'
+                                : _purchaseDateController.text,
+                            style: TextStyle(
+                              color: Colors.black,
+                            ), // Add this for black text
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                 KHeight20,
+
+                  Row(
+                    children: [
+                      SizedBox(width: 90),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            ref
+                                .read(vehicleProvider.notifier)
+                                .setVehicleToEdit(null);
+                            resetFormFields();
+                            ref
+                                .read(vehicleProvider.notifier)
+                                .clearVehicleToEdit();
+                            ref
+                                .read(vehicleProvider.notifier)
+                                .setShowAddForm(false);
+                            widget.onCancel?.call();
+                          },
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
+                        ),
+                      ),
+                      KWidth12,
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              if (!mounted) return; //new line added at 13
+
+                              try {
+                                // Reset vehicleToEdit so form starts fresh next time
+                                ref
+                                    .read(vehicleProvider.notifier)
+                                    .setVehicleToEdit(null);
+
+                                // Create new vehicle object from form data
+                                final newVehicle = Vehicle(
+                                  id: _idController.text,
+                                  make: _makeController.text,
+                                  model: _modelController.text,
+                                  photos: _pickedImages.map((file)=>file.path).toList(),
+
+                                  mileage:
+                                      double.tryParse(
+                                        _mileageController.text,
+                                      ) ??
+                                      0.0,
+                                  fuelType: _fuelTypeController.text,
+                                  year: _yearController.text,
+                                  price: _priceController.text,
+                                  registrationId:
+                                      _registrationIdController.text,
+                                  color: _colorController.text,
+                                  // vin: _vinController.text,
+                                  description: _descriptionController.text,
+                                  purchaseDate: _purchaseDateController.text,
+                                  // task: '0',
+                                  purchaseName: _sellerNameController.text,
+                                  purchasePhone: _sellerPhoneController.text,
+                                  purchaseAddress:
+                                      _sellerAddressController.text,
+                                  purchasePaymentStatus:
+                                      _purchasePaymentStatus ?? 'pending',
+                                  purchasePrice: _priceController.text,
+                                  purchaseMode: _paymentModeController.text
+                                      .toLowerCase(),
+                                  status: _status.toLowerCase(),
+                                  partnership: isPartnershipFilled()
+                                      ? Partnership(
+                                          id: _idController.text,
+                                          partnerName:
+                                              _partnerNameController.text,
+                                          contactPerson:
+                                              _contactPersonController.text,
+                                          email: _emailController.text,
+                                          phone: _phoneController.text,
+                                          sharePercentage:
+                                              _sharePercentageController.text,
+                                          vehicleId: _idController.text,
+                                          startDate:
+                                              (_startDate ?? DateTime.now())
+                                                  .toIso8601String(),
+                                        )
+                                      : null,
+                                );
+                                // Add or update vehicle
+                                if (isEditing) {
+                                  await ref
+                                      .read(vehicleProvider.notifier)
+                                      .updateVehicle(newVehicle);
+                                } else {
+                                  await ref
+                                      .read(vehicleProvider.notifier)
+                                      .addVehicle(newVehicle);
+                                }
+
+                                // Save partnership if it exists
+                                if (newVehicle.partnership != null) {
+                                  final partnershipBox = Hive.box<Partnership>(
+                                    'partnerships',
+                                  );
+                                  await partnershipBox.put(
+                                    newVehicle.partnership!.id,
+                                    newVehicle.partnership!,
+                                  );
+                                }
+
+                                ref
+                                    .read(vehicleProvider.notifier)
+                                    .clearVehicleToEdit();
+                                widget.onAddComplete();
+                              } catch (e) {
+                                // If something goes wrong, show error
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${e.toString()}'),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          child: Text(
+                            isEditing ? 'Update Vehicle' : 'Add Vehicle',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
