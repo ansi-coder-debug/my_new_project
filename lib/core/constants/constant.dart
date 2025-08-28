@@ -58,12 +58,15 @@ const String baseUrl = "http://192.168.29.29:5000/api/";
 
 
 /// Common reusable input decoration
-const InputDecoration kCommonInputDecoration = InputDecoration(
+ InputDecoration kCommonInputDecoration = InputDecoration(
   contentPadding: EdgeInsets.symmetric(
     vertical: 8,
     horizontal: 12,
   ),
-  border: OutlineInputBorder(),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8),
+  borderSide: BorderSide(color: Colors.grey),
+  ),
 );
 
 

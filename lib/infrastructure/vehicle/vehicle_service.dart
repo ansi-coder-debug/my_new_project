@@ -31,7 +31,7 @@ class VehicleService {
       }
 
       final response = await _dio.get(
-        'http://192.168.29.29:5000/api/vehicles',
+        'http://192.168.29.29:5000/api/vehicles/paginated',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
@@ -86,7 +86,7 @@ class VehicleService {
         MapEntry('expected_price', vehicle.price.replaceAll(',', '')),
         MapEntry('status', vehicle.status),
         MapEntry('notes', vehicle.description ?? ''),
-        MapEntry('fuel_type', vehicle.fuelType),
+        MapEntry('fuel_type', vehicle.fuelType.toLowerCase()),
         MapEntry('purchase_name', vehicle.purchaseName ?? ''),
         MapEntry('purchase_phone', vehicle.purchasePhone ?? ''),
         MapEntry('purchase_address', vehicle.purchaseAddress ?? ''),
@@ -125,7 +125,7 @@ class VehicleService {
       print('🔍 Sending FormData with ${vehicle.photos.length} images');
 
       final response = await _dio.post(
-        'http://192.168.29.29:5000/api/vehicles',
+        'http://192.168.29.29:5000/api/vehicles/detailed',
         data: formData,
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
@@ -204,7 +204,7 @@ class VehicleService {
       print('🔍 Sending FormData update with ${vehicle.photos.length} images');
 
       final response = await _dio.put(
-        'http://192.168.29.29:5000/api/vehicles/${vehicle.id}',
+      'http://192.168.29.29:5000/api/vehicles/detailed/${vehicle.id}',
         data: formData,
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
@@ -229,7 +229,7 @@ class VehicleService {
       if (token == null) throw Exception('User not authenticated');
 
       await _dio.delete(
-        'http://192.168.29.29:5000/api/vehicles/$id',
+       'http://192.168.29.29:5000/api/vehicles/$id',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
     } on DioException catch (e) {

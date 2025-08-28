@@ -231,6 +231,7 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
 
   /// ✅ toJson for POST/PUT
   Map<String, dynamic> toJson() {
+    
     // Helper function to clean numeric strings
     dynamic cleanNumeric(String? value) {
       if (value == null) return 0.0;
@@ -255,7 +256,7 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
     'expected_price': cleanNumeric(price),
     'status': status,
     'notes': description ?? '',
-    'fuel_type': fuelType,
+    'fuel_type': fuelType.toLowerCase(),
     'photos': photos,
     'is_partnership': partnership != null,
 

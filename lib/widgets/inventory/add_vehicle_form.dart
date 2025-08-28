@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,8 +34,8 @@ class AddVehicleForm extends ConsumerStatefulWidget {
 }
 
 class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
-  List<File> _pickedImages = [];
-  // List<String> _pickedImages = [];
+  // List<File> _pickedImages = [];
+  List<String> _pickedImages = [];
 
   bool _showPartnershipFields = false;
   bool _showSalesForm = false;
@@ -90,38 +89,20 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
       TextEditingController();
   final TextEditingController _saleDateController = TextEditingController();
 
-  // Future<void> _pickImage() async {
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(
-  //     source: ImageSource.gallery,
-  //     maxWidth: 1024,
-  //     maxHeight: 1024,
-  //   );
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    );
 
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _pickedImages.add(pickedFile.path);
-  //     });
-  //   }
-  // }
-
- 
-
-Future<void> _pickImage() async {
-  final result = await FilePicker.platform.pickFiles(
-    type: FileType.image,
-    allowMultiple: true,
-  );
-
-  if (result != null) {
-    setState(() {
-      _pickedImages.addAll(
-        result.paths.map((path) => File(path!)).toList(),
-      );
-    });
+    if (pickedFile != null) {
+      setState(() {
+        _pickedImages.add(pickedFile.path);
+      });
+    }
   }
-}
-
 
   void _removeImage(int index) {
     setState(() {
@@ -137,7 +118,6 @@ Future<void> _pickImage() async {
         _sharePercentageController.text.trim().isNotEmpty ||
         _startDate != null;
   }
-
 
   void resetFormFields() {
     setState(() {
@@ -250,7 +230,7 @@ Future<void> _pickImage() async {
 
         if (vehicle.photos.isNotEmpty && !_formWasReset) {
           setState(() {
-            _pickedImages = List<File>.from(vehicle.photos);// here changed string to file 
+            _pickedImages = List<String>.from(vehicle.photos);
             _formWasReset = true; // ensures prefill happens only once
           });
         }
@@ -378,7 +358,7 @@ Future<void> _pickImage() async {
                       border: OutlineInputBorder(),
                     ),
                   ),
-               KHeight20,
+                  KHeight16,
 
                   Text('Make', style: TextStyle(color: Colors.black)),
                   TextFormField(
@@ -393,7 +373,7 @@ Future<void> _pickImage() async {
                       hintText: "Select Make ",
                     ),
                   ),
-               KHeight20,
+                  KHeight16,
 
                   Text('Model', style: TextStyle(color: Colors.black)),
                   TextFormField(
@@ -408,7 +388,7 @@ Future<void> _pickImage() async {
                       hintText: "Select Model ",
                     ),
                   ),
-               KHeight20,
+                  KHeight16,
 
                   Text('Year', style: TextStyle(color: Colors.black)),
                   TextFormField(
@@ -423,7 +403,7 @@ Future<void> _pickImage() async {
                       hintText: "Year(e.g.2022) ",
                     ),
                   ),
-              KHeight20,
+                  KHeight16,
 
                   Text('Color', style: TextStyle(color: Colors.black)),
                   TextFormField(
@@ -439,7 +419,7 @@ Future<void> _pickImage() async {
                     ),
                   ),
                 ],
-              KHeight20,
+                KHeight16,
 
                 Text(
                   'Registration Number',
@@ -457,7 +437,7 @@ Future<void> _pickImage() async {
                     hintText: "registration no ",
                   ),
                 ),
-              KHeight20,
+                KHeight16,
 
                 Text('Mileage', style: TextStyle(color: Colors.black)),
                 TextFormField(
@@ -472,7 +452,7 @@ Future<void> _pickImage() async {
                     hintText: "mileage(in Km) ",
                   ),
                 ),
-               KHeight20,
+                KHeight16,
 
                 Text('Fuel Type', style: TextStyle(color: Colors.black)),
                 DropdownButtonFormField<String>(
@@ -503,498 +483,372 @@ Future<void> _pickImage() async {
                     hintText: "Select Fuel Type",
                   ),
                 ),
-              KHeight20,
-
-                Text('Price', style: TextStyle(color: Colors.black)),
-                TextFormField(
-                  controller: _priceController,
-                  style: TextStyle(color: Colors.black),
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Please enter the price';
-                    return null;
-                  },
-                  decoration: kCommonInputDecoration.copyWith(
-                    hintText: "Expected selling price ",
-                  ),
-                ),
-                KHeight20,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Text(
-  'Photo Previews',
-  style: TextStyle(
-    fontSize: 18,
-    fontWeight: FontWeight.bold,
-    color: Colors.black,
-  ),
-),
-
-KHeight,
-
-
-// Image preview list with delete buttons
-Column(
-  children: _pickedImages.asMap().entries.map((entry) {
-    final index = entry.key;
-    final imageFile = entry.value;
-
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          // Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Image.file(
-                imageFile,
-                fit: BoxFit.cover,
-                width: double.infinity,
-              ),
-            ),
-          ),
-
-          // Cancel/Delete button
-          Positioned(
-            top: 6,
-            right: 6,
-            child: GestureDetector(
-              onTap: () => _removeImage(index),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                padding: EdgeInsets.all(4),
-                child: Icon(
-                  Icons.close,
-                  size: 18,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }).toList(),
-),
-
-ElevatedButton.icon(
-  onPressed: _pickImage,
-  icon: Icon(Icons.upload_file),
-  label: Text("Choose Files"),
-  style: ElevatedButton.styleFrom(
-    foregroundColor: Colors.white, backgroundColor: Colors.blue.shade700,
-    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(8),
-    ),
-  ),
-),
-
-KHeight20,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                // Text('Photos', style: TextStyle(color: Colors.black)),
+                KHeight16,
+
+                // Text('Price', style: TextStyle(color: Colors.black)),
+                // TextFormField(
+                //   controller: _priceController,
+                //   style: TextStyle(color: Colors.black),
+                //   validator: (value) {
+                //     if (value == null || value.isEmpty)
+                //       return 'Please enter the price';
+                //     return null;
+                //   },
+                //   decoration: kCommonInputDecoration.copyWith(
+                //     hintText: "Expected selling price ",
+                //   ),
+                // ),
                 // KHeight16,
-                // Column(
-                //   children: [
-                //     Wrap(
-                //       spacing: 8,
-                //       children: _pickedImages.asMap().entries.map((entry) {
-                //         return Stack(
-                //           children: [
-                //             Container(
-                //               width: 100,
-                //               height: 100,
-                //               decoration: BoxDecoration(
-                //                 border: Border.all(color: Colors.grey),
-                //               ),
-                //               child: _buildImagePreview(entry.value),
-                //             ),
-                //             Positioned(
-                //               top: 0,
-                //               right: 0,
-                //               child: IconButton(
-                //                 icon: Icon(Icons.close, size: 20),
-                //                 onPressed: () => _removeImage(entry.key),
-                //               ),
-                //             ),
-                //           ],
-                //         );
-                //       }).toList(),
+
+               Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    // Price Section
+    Text(
+      'Price',
+      style: TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+      ),
+    ),
+    SizedBox(height: 8),
+    TextFormField(
+      controller: _priceController,
+      style: TextStyle(color: Colors.black),
+      validator: (value) {
+        if (value == null || value.isEmpty) return 'Please enter the price';
+        return null;
+      },
+      decoration: kCommonInputDecoration.copyWith(
+        hintText: "Expected selling price",
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      ),
+    ),
+    SizedBox(height: 20),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Photos Section
+    Text(
+      'Photos',
+      style: TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+      ),
+    ),
+    SizedBox(height: 8),
+    Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: _pickedImages.asMap().entries.map((entry) {
+        return Stack(
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: _buildImagePreview(entry.value),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: () => _removeImage(entry.key),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black45,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.close, size: 20, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    ),
+    SizedBox(height: 12),
+    InkWell(
+      onTap: _pickImage,
+      child: InputDecorator(
+        decoration: kCommonInputDecoration.copyWith(
+          hintText: "Choose files",
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+          suffixIcon: Icon(Icons.upload_file, color: Colors.grey),
+        ),
+        child: const Text(
+          "Choose Files",
+          style: TextStyle(color: Colors.black54),
+        ),
+      ),
+    ),
+    SizedBox(height: 20),
+
+    // Additional Notes
+    Text(
+      'Additional Notes',
+      style: TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+      ),
+    ),
+    SizedBox(height: 8),
+    TextFormField(
+      controller: _descriptionController,
+      // maxLines: 3,
+      style: TextStyle(color: Colors.black),
+      decoration: kCommonInputDecoration.copyWith(
+        hintText: "Additional notes",
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      ),
+    ),
+    SizedBox(height: 20),
+  ],
+),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                // if (_showSalesForm) ...[
+                //   KHeight16,
+                //   Text('Buyer Name', style: TextStyle(color: Colors.black)),
+                //   TextFormField(
+                //     controller: _buyerNameController,
+                //     validator: (value) {
+                //       if (value == null || value.isEmpty)
+                //         return 'Enter buyer name';
+                //       return null;
+                //     },
+                //     decoration: kCommonInputDecoration.copyWith(
+                //       hintText: "buyer name ",
                 //     ),
-                //     InkWell(
-                //       onTap: _pickImage,
-                //       child: InputDecorator(
-                //         decoration: kCommonInputDecoration.copyWith(
-                //           hintText: "Choose files",
-                //           contentPadding: const EdgeInsets.symmetric(
-                //             horizontal: 12,
-                //             vertical: 14,
-                //           ),
-                //           suffixIcon: Icon(
-                //             Icons.upload_file,
-                //             color: Colors.grey,
-                //           ),
+                //     style: TextStyle(color: Colors.black),
+                //   ),
+                //   KHeight16,
+
+                //   Text('Buyer Phone', style: TextStyle(color: Colors.black)),
+                //   TextFormField(
+                //     controller: _buyerPhoneController,
+                //     validator: (value) {
+                //       if (value == null || value.isEmpty)
+                //         return 'Enter buyer phone';
+                //       return null;
+                //     },
+                //     decoration: kCommonInputDecoration.copyWith(
+                //       hintText: "buyer phone ",
+                //     ),
+                //     style: TextStyle(color: Colors.black),
+                //   ),
+                //   KHeight16,
+
+                //   Text('Buyer Address', style: TextStyle(color: Colors.black)),
+                //   TextFormField(
+                //     controller: _buyerAddressController,
+                //     validator: (value) {
+                //       if (value == null || value.isEmpty)
+                //         return 'Enter buyer address';
+                //       return null;
+                //     },
+                //     decoration: kCommonInputDecoration.copyWith(
+                //       hintText: "buyer address ",
+                //     ),
+                //     style: TextStyle(color: Colors.black),
+                //   ),
+                //   KHeight16,
+
+                //   Text(
+                //     'Mode Of Payment',
+                //     style: TextStyle(color: Colors.black),
+                //   ),
+                //   TextFormField(
+                //     controller: _modeOfPaymentController,
+                //     validator: (value) {
+                //       if (value == null || value.isEmpty)
+                //         return 'Enter payment mode';
+                //       return null;
+                //     },
+                //     decoration: kCommonInputDecoration.copyWith(
+                //       hintText: "mode of payment ",
+                //     ),
+                //     style: TextStyle(color: Colors.black),
+                //   ),
+                //   KHeight16,
+
+                //   Text('Sale Date', style: TextStyle(color: Colors.black)),
+                //   TextFormField(
+                //     controller: _saleDateController,
+                //     validator: (value) {
+                //       if (value == null || value.isEmpty)
+                //         return 'Enter sale date';
+                //       return null;
+                //     },
+                //     decoration: InputDecoration(
+                //       contentPadding: EdgeInsets.symmetric(
+                //         vertical: 8,
+                //         horizontal: 12,
+                //       ),
+                //       enabledBorder: OutlineInputBorder(
+                //         borderSide: BorderSide(width: 3, color: Colors.red),
+                //       ),
+                //     ),
+                //     style: TextStyle(color: Colors.black),
+                //   ),
+                //   KHeight16,
+
+                //   Row(
+                //     children: [
+                //       SizedBox(width: 90),
+                //       ElevatedButton(
+                //         onPressed: () {
+                //           widget.onCancel?.call();
+                //           resetFormFields();
+                //         },
+                //         child: Text(
+                //           'Cancel',
+                //           style: TextStyle(color: Colors.black),
                 //         ),
-                //         child: const Text(
-                //           "Choose Files",
-                //           style: TextStyle(color: Colors.black54),
+                //         style: ElevatedButton.styleFrom(
+                //           backgroundColor: Colors.white,
+                //           shape: RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.zero,
+                //           ),
                 //         ),
                 //       ),
-                //     ),           
-                //   ],
-                // ),
-                // KHeight20,
+                //       SizedBox(width: 20),
+                //       ElevatedButton(
+                //         onPressed: () async {
+                //           if (!_formKey.currentState!.validate()) return;
 
+                //           final vehicle =
+                //               ref.read(vehicleProvider).vehicleToEdit ??
+                //               widget.vehicle;
+                //           if (_status == 'Sold' && vehicle != null) {
+                //             final newSale = Sales(
+                //               id: Uuid().v4(),
+                //               vehicleId: vehicle.id,
+                //               buyerName: _buyerNameController.text,
+                //               buyerPhone: _buyerPhoneController.text,
+                //               buyerAddress: _buyerAddressController.text,
+                //               modeOfPayment: _modeOfPaymentController.text,
+                //               date: _saleDateController.text,
+                //             );
 
+                //             await Hive.box<Sales>(
+                //               'sales',
+                //             ).put(newSale.id, newSale);
 
+                //             final updatedVehicle = vehicle.copyWith(
+                //               status: 'Sold',
+                //               salesId: newSale.id,
+                //             );
 
+                //             await ref
+                //                 .read(vehicleProvider.notifier)
+                //                 .updateVehicle(updatedVehicle);
 
+                //             final newPurchase = Purchase(
+                //               id: Uuid().v4(),
+                //               vehicleId: vehicle.id,
+                //               userId:
+                //                   "current_user_id", // Get from your auth system
+                //               name: _sellerNameController.text,
+                //               phone: _sellerPhoneController.text,
+                //               address: _sellerAddressController.text,
+                //               date: DateTime.parse(
+                //                 _purchaseDateController.text,
+                //               ),
+                //               price: double.parse(_priceController.text),
+                //               modeOfPayment: _paymentModeController.text,
+                //               paymentStatus:
+                //                   _purchasePaymentStatus ?? 'pending',
+                //             );
 
+                //             await Hive.box<Purchase>(
+                //               'purchases',
+                //             ).put(newPurchase.id, newPurchase);
+                //           }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
-
-
-
-
-                 
-                  TextFormField(
-                    controller: _descriptionController,
-
-                    decoration: kCommonInputDecoration.copyWith(
-                      hintText: "Additional Notes (optional)",
-                    ),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                KHeight20,
-
-
-
-
-                if (_showSalesForm) ...[
-                  KHeight16,
-                  Text('Buyer Name', style: TextStyle(color: Colors.black)),
-                  TextFormField(
-                    controller: _buyerNameController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return 'Enter buyer name';
-                      return null;
-                    },
-                    decoration: kCommonInputDecoration.copyWith(
-                      hintText: "buyer name ",
-                    ),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  KHeight16,
-
-                  Text('Buyer Phone', style: TextStyle(color: Colors.black)),
-                  TextFormField(
-                    controller: _buyerPhoneController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return 'Enter buyer phone';
-                      return null;
-                    },
-                    decoration: kCommonInputDecoration.copyWith(
-                      hintText: "buyer phone ",
-                    ),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  KHeight16,
-
-                  Text('Buyer Address', style: TextStyle(color: Colors.black)),
-                  TextFormField(
-                    controller: _buyerAddressController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return 'Enter buyer address';
-                      return null;
-                    },
-                    decoration: kCommonInputDecoration.copyWith(
-                      hintText: "buyer address ",
-                    ),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  KHeight16,
-
-                  Text(
-                    'Mode Of Payment',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  TextFormField(
-                    controller: _modeOfPaymentController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return 'Enter payment mode';
-                      return null;
-                    },
-                    decoration: kCommonInputDecoration.copyWith(
-                      hintText: "mode of payment ",
-                    ),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  KHeight16,
-
-                  Text('Sale Date', style: TextStyle(color: Colors.black)),
-                  TextFormField(
-                    controller: _saleDateController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return 'Enter sale date';
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 12,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 3, color: Colors.red),
-                      ),
-                    ),
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  KHeight16,
-
-                  Row(
-                    children: [
-                      SizedBox(width: 90),
-                      ElevatedButton(
-                        onPressed: () {
-                          widget.onCancel?.call();
-                          resetFormFields();
-                        },
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (!_formKey.currentState!.validate()) return;
-
-                          final vehicle =
-                              ref.read(vehicleProvider).vehicleToEdit ??
-                              widget.vehicle;
-                          if (_status == 'Sold' && vehicle != null) {
-                            final newSale = Sales(
-                              id: Uuid().v4(),
-                              vehicleId: vehicle.id,
-                              buyerName: _buyerNameController.text,
-                              buyerPhone: _buyerPhoneController.text,
-                              buyerAddress: _buyerAddressController.text,
-                              modeOfPayment: _modeOfPaymentController.text,
-                              date: _saleDateController.text,
-                            );
-
-                            await Hive.box<Sales>(
-                              'sales',
-                            ).put(newSale.id, newSale);
-
-                            final updatedVehicle = vehicle.copyWith(
-                              status: 'Sold',
-                              salesId: newSale.id,
-                            );
-
-                            await ref
-                                .read(vehicleProvider.notifier)
-                                .updateVehicle(updatedVehicle);
-
-                            final newPurchase = Purchase(
-                              id: Uuid().v4(),
-                              vehicleId: vehicle.id,
-                              userId:
-                                  "current_user_id", // Get from your auth system
-                              name: _sellerNameController.text,
-                              phone: _sellerPhoneController.text,
-                              address: _sellerAddressController.text,
-                              date: DateTime.parse(
-                                _purchaseDateController.text,
-                              ),
-                              price: double.parse(_priceController.text),
-                              modeOfPayment: _paymentModeController.text,
-                              paymentStatus:
-                                  _purchasePaymentStatus ?? 'pending',
-                            );
-
-                            await Hive.box<Purchase>(
-                              'purchases',
-                            ).put(newPurchase.id, newPurchase);
-                          }
-
-                          if (_status == 'Sold') {
-                            widget.onAddComplete();
-                          }
-                        },
-                        child: Text(
-                          'Update Sale',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                //           if (_status == 'Sold') {
+                //             widget.onAddComplete();
+                //           }
+                //         },
+                //         child: Text(
+                //           'Update Sale',
+                //           style: TextStyle(color: Colors.white),
+                //         ),
+                //         style: ElevatedButton.styleFrom(
+                //           backgroundColor: Colors.blue,
+                //           shape: RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.zero,
+                //           ),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ],
 
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1076,11 +930,47 @@ KHeight20,
                   ),
                   KHeight20,
 
+                   // Replace the purchase date TextFormField with this:
+                  InkWell(
+                    onTap: () async {
+                      final pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                      );
+                      if (pickedDate != null) {
+                        _purchaseDateController.text =
+                            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                      }
+                    },
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: 'Purchase Date',
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Text(
+                        _purchaseDateController.text.isEmpty
+                            ? 'Select Purchase Date'
+                            : _purchaseDateController.text,
+                      ),
+                    ),
+                  ),
+                  KHeight20,
+
+
+
+
+
+
+                 
+
                   Text(
                     'Purchase Payment Mode',
                     style: TextStyle(color: Colors.black),
                   ),
                   DropdownButtonFormField<String>(
+                    
                     value: _selectedPaymentMode,
                     decoration: kCommonInputDecoration.copyWith(
                       hintText: "Select Payment Mode",
@@ -1093,6 +983,7 @@ KHeight20,
                     onChanged: (String? newValue) {
                       setState(() {
                         _selectedPaymentMode = newValue;
+                         print("Selected Payment Mode: $_selectedPaymentMode"); // 👈 Add this
                       });
                     },
                     items: _paymentModes.map<DropdownMenuItem<String>>((
@@ -1134,32 +1025,7 @@ KHeight20,
                   ),
                 KHeight20,
 
-                  // Replace the purchase date TextFormField with this:
-                  InkWell(
-                    onTap: () async {
-                      final pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime.now(),
-                      );
-                      if (pickedDate != null) {
-                        _purchaseDateController.text =
-                            "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
-                      }
-                    },
-                    child: InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'Purchase Date',
-                        border: OutlineInputBorder(),
-                      ),
-                      child: Text(
-                        _purchaseDateController.text.isEmpty
-                            ? 'Select Purchase Date'
-                            : _purchaseDateController.text,
-                      ),
-                    ),
-                  ),
+                
 
                 
 
@@ -1289,7 +1155,7 @@ KHeight20,
                                   id: _idController.text,
                                   make: _makeController.text,
                                   model: _modelController.text,
-                                  photos: _pickedImages.map((file)=>file.path).toList(),
+                                  photos: _pickedImages.toList(),
 
                                   mileage:
                                       double.tryParse(
@@ -1313,8 +1179,7 @@ KHeight20,
                                   purchasePaymentStatus:
                                       _purchasePaymentStatus ?? 'pending',
                                   purchasePrice: _priceController.text,
-                                  purchaseMode: _paymentModeController.text
-                                      .toLowerCase(),
+                                  purchaseMode: _selectedPaymentMode?.toLowerCase()??'',
                                   status: _status.toLowerCase(),
                                   partnership: isPartnershipFilled()
                                       ? Partnership(
