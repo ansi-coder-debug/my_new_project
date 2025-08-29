@@ -11,7 +11,7 @@ import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
-import 'package:my_new_project/widgets/expense/add_expense_form_from_vehicle.dart';
+import 'package:my_new_project/widgets/expense/add_expense_dialog.dart';
 import 'package:my_new_project/widgets/partnerships/add_partnership_form.dart';
 
 class ScreenVehicleDetails extends ConsumerStatefulWidget {
@@ -883,34 +883,30 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           decoration: TextDecoration.underline,
                         ),
                       ),
+
                       IconButton(
                         onPressed: () {
-                          showDialog(
+                          showModalBottomSheet(
                             context: context,
-                            barrierDismissible: false,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
                             builder: (context) {
-                              return Dialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
-                                  constraints: BoxConstraints(
-                                    maxHeight:
-                                        MediaQuery.of(context).size.height *
-                                        0.85,
-                                  ),
-                                  padding: EdgeInsets.all(16),
-                                  child: SingleChildScrollView(
-                                    child: AddExpenseFormFromVehicle(
-                                      onSubmit: (p0) {
-                                        //logic
-                                      },
+                              return DraggableScrollableSheet(
+                                initialChildSize: 0.8,
+                                minChildSize: 0.4,
+                                maxChildSize: 0.95,
+                                expand: false,
+                                builder: (context, scrollController) {
+                                  return SingleChildScrollView(
+                                    controller: scrollController,
+                                    child: AddExpenseDialog(
                                       vehicle: widget.vehicle,
+                                      onSubmit: (data) {
+                                        // Handle submit logic
+                                      },
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
                               );
                             },
                           );
