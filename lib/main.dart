@@ -66,14 +66,6 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: 'Vehicle App',
 
-
-
-
-
-
-
-
-
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         canvasColor: Colors.white,

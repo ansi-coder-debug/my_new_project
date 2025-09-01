@@ -19,7 +19,7 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
   VehicleNotifier(this._vehicleRepositary) : super(VehicleState(vehicles: [])) {
     loadVehicles(); // Fetch from backend immediately
   }
-
+    
   Future<void> loadVehicles() async {
     try {
       state = state.copyWith(isLoading: true, error: null);

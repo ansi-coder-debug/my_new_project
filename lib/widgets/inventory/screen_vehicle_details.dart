@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
+import 'package:my_new_project/application/expense/expense_provider.dart';
 import 'package:my_new_project/application/purchase/purchase_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expense.dart';
@@ -100,8 +101,24 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
   ];
   String? _selectedMode;
 
+
+  
+
   @override
   Widget build(BuildContext context) {
+    final expenseState = ref.watch(expenseProvider);
+    final expenseForThisVehicle = expenseState.expenses
+        .where((e) => e.vehicleId == widget.vehicle.id)
+        .toList();
+
+        final totalExpenseAmount = expenseForThisVehicle.fold<double>(
+  0.0,
+  (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
+);
+
+
+
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
@@ -208,14 +225,42 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                     ),
                   ),
                   KHeight,
+
+
+
+
+
+
+
                   Text(
-                    "(Buying Price: ₹${widget.vehicle.purchasePrice} + Total Expenses: ₹0)", //heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeere
+                   
+                    "(Buying Price: ₹${widget.vehicle.purchasePrice} + Total Expenses: ₹${totalExpenseAmount.toStringAsFixed(2)})",
+
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ],
               ),
             ),
             KHeight20,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             //vehicle image
             ClipRRect(
@@ -901,9 +946,9 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                                     controller: scrollController,
                                     child: AddExpenseDialog(
                                       vehicle: widget.vehicle,
-                                      onSubmit: (data) {
-                                        // Handle submit logic
-                                      },
+                                      // onSubmit: (data) {
+                                      //   // Handle submit logic
+                                      // },
                                     ),
                                   );
                                 },
@@ -922,23 +967,78 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                     ],
                   ),
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   SizedBox(height: 40), // Increased spacing
                   // Body (empty state)
-                  Center(
-                    child: Text(
-                      "No expenses have been recorded for this vehicle.",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                    ),
-                  ),
+                  
+                 expenseForThisVehicle.isEmpty
+    ? Center(
+        child: Text(
+          "No expenses have been recorded for this vehicle.",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      )
+    : Column(
+        children: expenseForThisVehicle.map((expense) {
+          return ListTile(
+            title: Text("₹${expense.amount}"),
+            subtitle: Text("${expense.description ?? "No description"}"),
+            trailing: Text(expense.date),
+          );
+        }).toList(),
+      ),
+
+
+
+
+
+
+
+
+
+
                 ],
               ),
             ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             // partnership dialog
             KHeight20,
