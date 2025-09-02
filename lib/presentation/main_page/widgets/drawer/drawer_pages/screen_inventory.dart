@@ -390,21 +390,31 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                 "${DateTime.now().millisecondsSinceEpoch}-${state.showAddForm}",
               ),
               formKey: addFormKey,
-              vehicleToEdit: null, // Always adding, not editing
+              vehicleToEdit: state.vehicleToEdit, // Always adding, not editing
               onCancel: () {
                 addFormKey.currentState?.resetFormFields();
+                
+    ref.read(vehicleProvider.notifier).clearVehicleToEdit();
                 ref.read(vehicleProvider.notifier).setShowAddForm(false);
               },
               onAddComplete: () {
+                 ref.read(vehicleProvider.notifier).clearVehicleToEdit();
                 ref.read(vehicleProvider.notifier).setShowAddForm(false);
               },
             )
           : showVehicleDetails && selectedVehicle != null
               ? ScreenVehicleDetails(
+
                   vehicle: selectedVehicle!,
                   onBack: () {
                     ref.read(vehicleProvider.notifier).setShowVehicleDetails(false);
                     ref.read(vehicleProvider.notifier).setSelectedVehicle(null);
+                  },
+
+                  onEdit: () {
+                       ref.read(vehicleProvider.notifier).setVehicleToEdit(selectedVehicle);
+    ref.read(vehicleProvider.notifier).setShowVehicleDetails(false);
+    ref.read(vehicleProvider.notifier).setShowAddForm(true);
                   },
                 )
               : Column(

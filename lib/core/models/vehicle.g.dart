@@ -34,7 +34,7 @@ class VehicleAdapter extends TypeAdapter<Vehicle> {
       purchasePrice: fields[14] as String,
       purchaseMode: fields[15] as String,
       purchasePaymentStatus: fields[16] as String?,
-      partnership: fields[17] as Partnership?,
+      partnerships: (fields[17] as List?)?.cast<Partnership>(),
       salesId: fields[18] as String?,
       mileage: fields[19] as double,
       fuelType: fields[20] as String,
@@ -80,7 +80,7 @@ class VehicleAdapter extends TypeAdapter<Vehicle> {
       ..writeByte(16)
       ..write(obj.purchasePaymentStatus)
       ..writeByte(17)
-      ..write(obj.partnership)
+      ..write(obj.partnerships)
       ..writeByte(18)
       ..write(obj.salesId)
       ..writeByte(19)

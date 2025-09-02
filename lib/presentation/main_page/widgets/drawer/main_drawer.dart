@@ -184,7 +184,7 @@ class MainDrawer extends ConsumerWidget {
               color: selectedIndex == 6 ? Colors.blueAccent : null,
             ),
             title: Text(
-              'Partnerships',
+              'Partners',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 6 ? Colors.blue : null,

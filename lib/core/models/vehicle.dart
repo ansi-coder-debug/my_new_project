@@ -56,7 +56,7 @@ class Vehicle extends HiveObject {
   final String? purchasePaymentStatus;
 
   @HiveField(17)
-  final Partnership? partnership;
+  final List <Partnership>? partnerships;
 
   @HiveField(18)
   final String? salesId;
@@ -85,7 +85,7 @@ class Vehicle extends HiveObject {
     required  this.purchasePrice,
     required  this.purchaseMode,
     required  this.purchasePaymentStatus,
-    this.partnership,
+    this.partnerships,
     this.salesId,
     required this.mileage,
     required this.fuelType,
@@ -132,7 +132,7 @@ class Vehicle extends HiveObject {
       purchaseMode: purchaseMode ?? this.purchaseMode,
       purchasePaymentStatus:
           purchasePaymentStatus ?? this.purchasePaymentStatus,
-      partnership: partnership ?? this.partnership,
+      partnerships: partnerships ?? this.partnerships,
       salesId: salesId ?? this.salesId,
       mileage: mileage ?? this.mileage,
       fuelType: fuelType ?? this.fuelType,
@@ -214,11 +214,12 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
     purchasePaymentStatus: json['purchase_info']?['payment_status'] ?? 'pending',
 
     // ✅ Partnership handling stays the same
-    partnership: json['partnerships'] != null &&
-            json['partnerships'] is List &&
-            (json['partnerships'] as List).isNotEmpty
-        ? Partnership.fromJson((json['partnerships'] as List).first)
-        : null,
+   partnerships: json['partnerships'] != null && json['partnerships'] is List
+    ? (json['partnerships'] as List)
+        .map((e) => Partnership.fromJson(e))
+        .toList()
+    : [],
+
 
     salesId: json['sale_info']?['id']?.toString(),
     mileage: (json['mileage'] is num)
@@ -230,23 +231,72 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
 
 
   /// ✅ toJson for POST/PUT
-  Map<String, dynamic> toJson() {
+  // Map<String, dynamic> toJson() {
     
-    // Helper function to clean numeric strings
-    dynamic cleanNumeric(String? value) {
-      if (value == null) return 0.0;
-       final cleaned = value.replaceAll(',', '');
-      return double.tryParse(cleaned) ?? 0.0;
-    }
+  //   // Helper function to clean numeric strings
+  //   dynamic cleanNumeric(String? value) {
+  //     if (value == null) return 0.0;
+  //      final cleaned = value.replaceAll(',', '');
+  //     return double.tryParse(cleaned) ?? 0.0;
+  //   }
 
-    // Handle date conversion
+  //   // Handle date conversion
+  // String? cleanDate(String? date) {
+  //   if (date == null || date.isEmpty) return null;
+  //   return date;
+  // }
+
+  //   return {
+  //     // Core vehicle fields
+  //   'make': make,
+  //   'model': model,
+  //   'year': int.tryParse(year) ?? 0,
+  //   'reg_no': registrationId,
+  //   'color': color,
+  //   'mileage': mileage,
+  //   'expected_price': cleanNumeric(price),
+  //   'status': status,
+  //   'notes': description ?? '',
+  //   'fuel_type': fuelType.toLowerCase(),
+  //   'photos': photos,
+  //   'is_partnership': partnerships != null,
+
+  //    // Flattened purchase fields
+  //   'purchase_name': purchaseName ?? '',
+  //   'purchase_phone': purchasePhone ?? '',
+  //   'purchase_address': purchaseAddress ?? '',
+  //    'purchase_date': cleanDate(purchaseDate), // Handle empty dates
+  //   'purchase_price': cleanNumeric(purchasePrice),
+  //   'purchase_mode_of_payment': purchaseMode ?? '',
+  //   'purchase_payment_status': purchasePaymentStatus ?? 'pending',
+
+  //   // Partnership data if exists
+  //   // if (partnership != null) ...{
+  //   //   'partnerships': [partnership!.toJson()]
+  //   // }
+     
+  //    if (partnerships != null && partnerships!.isNotEmpty)
+  // 'partnerships': partnerships!.map((p) => p.toJson()).toList(),
+
+
+
+  //   };
+  // }
+
+
+  Map<String, dynamic> toJson() {
+  dynamic cleanNumeric(String? value) {
+    if (value == null) return 0.0;
+    final cleaned = value.replaceAll(',', '');
+    return double.tryParse(cleaned) ?? 0.0;
+  }
+
   String? cleanDate(String? date) {
     if (date == null || date.isEmpty) return null;
     return date;
   }
 
-    return {
-      // Core vehicle fields
+  return {
     'make': make,
     'model': model,
     'year': int.tryParse(year) ?? 0,
@@ -258,21 +308,21 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
     'notes': description ?? '',
     'fuel_type': fuelType.toLowerCase(),
     'photos': photos,
-    'is_partnership': partnership != null,
+    'is_partnership': partnerships != null,
 
-     // Flattened purchase fields
     'purchase_name': purchaseName ?? '',
     'purchase_phone': purchasePhone ?? '',
     'purchase_address': purchaseAddress ?? '',
-     'purchase_date': cleanDate(purchaseDate), // Handle empty dates
+    'purchase_date': cleanDate(purchaseDate),
     'purchase_price': cleanNumeric(purchasePrice),
     'purchase_mode_of_payment': purchaseMode ?? '',
     'purchase_payment_status': purchasePaymentStatus ?? 'pending',
 
-    // Partnership data if exists
-    if (partnership != null) ...{
-      'partnerships': [partnership!.toJson()]
-    }
-    };
-  }
+    if (partnerships != null && partnerships!.isNotEmpty)
+      'partnerships': partnerships!.map((p) => p.toJson()).toList(),
+  };
+}
+
+
+  
 }

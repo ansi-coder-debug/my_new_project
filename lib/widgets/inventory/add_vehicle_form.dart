@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/partnership/partnership_provider.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/sales.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/widgets/partnerships/add_partner_form.dart';
+import 'package:my_new_project/widgets/partnerships/add_partnership_details.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -45,8 +48,7 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   String _status = 'available';
   String? _purchasePaymentStatus = 'pending';
 
-  
-final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
+  final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
   String? _selectedPaymentMode;
 
 
@@ -234,8 +236,17 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
             _formWasReset = true; // ensures prefill happens only once
           });
         }
+
+
+
+     if (vehicle.partnerships != null) {
+  _partnerships = vehicle.partnerships!; // wrap in a list
+}
+
+
       }
     });
+    
   }
 
   Widget _buildImagePreview(dynamic image) {
@@ -256,10 +267,26 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
     }
   }
 
+  bool _isPartnershipEnabled = false;
+  // Partnership? _selectedPartnership;
+  List<Partnership> _partnerships = [];
+
+
+
+ 
+
+  // List<Map<String, dynamic>> _partners = []; // List to store added partners
+  // String? _selectedPartnerId;
+
+
+
+
   @override
   Widget build(BuildContext context) {
     final vehicleToEdit = ref.watch(vehicleProvider).vehicleToEdit;
     final isEditing = vehicleToEdit != null;
+     final partners = ref.watch(partnershipProvider).partnerships;
+    
 
     return Scaffold(
       // backgroundColor: Colors.grey.shade200,// background outside container
@@ -459,7 +486,7 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                   value: _fuelTypeController.text.isNotEmpty
                       ? _fuelTypeController.text
                       : null,
-                  items: ['Petrol', 'Diesel', 'Hybrid', 'Electric']
+                  items: ['petrol', 'diesel', 'hybrid', 'electric']
                       .map(
                         (fuel) => DropdownMenuItem(
                           value: fuel,
@@ -499,178 +526,135 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                 //   ),
                 // ),
                 // KHeight16,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Price Section
+                    Text(
+                      'Price',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    TextFormField(
+                      controller: _priceController,
+                      style: TextStyle(color: Colors.black),
+                      validator: (value) {
+                        if (value == null || value.isEmpty)
+                          return 'Please enter the price';
+                        return null;
+                      },
+                      decoration: kCommonInputDecoration.copyWith(
+                        hintText: "Expected selling price",
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
 
-               Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    // Price Section
-    Text(
-      'Price',
-      style: TextStyle(
-        color: Colors.black,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
-    ),
-    SizedBox(height: 8),
-    TextFormField(
-      controller: _priceController,
-      style: TextStyle(color: Colors.black),
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Please enter the price';
-        return null;
-      },
-      decoration: kCommonInputDecoration.copyWith(
-        hintText: "Expected selling price",
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      ),
-    ),
-    SizedBox(height: 20),
+                    // Photos Section
+                    Text(
+                      'Photos',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _pickedImages.asMap().entries.map((entry) {
+                        return Stack(
+                          children: [
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: _buildImagePreview(entry.value),
+                              ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () => _removeImage(entry.key),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black45,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                    SizedBox(height: 12),
+                    InkWell(
+                      onTap: _pickImage,
+                      child: InputDecorator(
+                        decoration: kCommonInputDecoration.copyWith(
+                          hintText: "Choose files",
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 14,
+                          ),
+                          suffixIcon: Icon(
+                            Icons.upload_file,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        child: const Text(
+                          "Choose Files",
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Photos Section
-    Text(
-      'Photos',
-      style: TextStyle(
-        color: Colors.black,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
-    ),
-    SizedBox(height: 8),
-    Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: _pickedImages.asMap().entries.map((entry) {
-        return Stack(
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: _buildImagePreview(entry.value),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: GestureDetector(
-                onTap: () => _removeImage(entry.key),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black45,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.close, size: 20, color: Colors.white),
+                    // Additional Notes
+                    Text(
+                      'Additional Notes',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    TextFormField(
+                      controller: _descriptionController,
+                      // maxLines: 3,
+                      style: TextStyle(color: Colors.black),
+                      decoration: kCommonInputDecoration.copyWith(
+                        hintText: "Additional notes",
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                  ],
                 ),
-              ),
-            ),
-          ],
-        );
-      }).toList(),
-    ),
-    SizedBox(height: 12),
-    InkWell(
-      onTap: _pickImage,
-      child: InputDecorator(
-        decoration: kCommonInputDecoration.copyWith(
-          hintText: "Choose files",
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          suffixIcon: Icon(Icons.upload_file, color: Colors.grey),
-        ),
-        child: const Text(
-          "Choose Files",
-          style: TextStyle(color: Colors.black54),
-        ),
-      ),
-    ),
-    SizedBox(height: 20),
-
-    // Additional Notes
-    Text(
-      'Additional Notes',
-      style: TextStyle(
-        color: Colors.black,
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
-    ),
-    SizedBox(height: 8),
-    TextFormField(
-      controller: _descriptionController,
-      // maxLines: 3,
-      style: TextStyle(color: Colors.black),
-      decoration: kCommonInputDecoration.copyWith(
-        hintText: "Additional notes",
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      ),
-    ),
-    SizedBox(height: 20),
-  ],
-),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                 // if (_showSalesForm) ...[
                 //   KHeight16,
@@ -849,7 +833,6 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                 //     ],
                 //   ),
                 // ],
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -880,7 +863,7 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
-                 KHeight20,
+                  KHeight20,
 
                   Text('Seller Phone', style: TextStyle(color: Colors.black)),
                   TextFormField(
@@ -910,27 +893,24 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
-                KHeight20,
+                  KHeight20,
 
-
-
-
-                  Text("Purchase Price",style: TextStyle(color: Colors.black),),
+                  Text("Purchase Price", style: TextStyle(color: Colors.black)),
                   TextFormField(
                     controller: _sellerPurchasePriceController,
                     validator: (value) {
-                      if(value == null || value.isEmpty)
-                      return 'Enter purchase price';
+                      if (value == null || value.isEmpty)
+                        return 'Enter purchase price';
                       return null;
                     },
                     decoration: kCommonInputDecoration.copyWith(
-                      hintText: "Purchase Price"
+                      hintText: "Purchase Price",
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
                   KHeight20,
 
-                   // Replace the purchase date TextFormField with this:
+                  // Replace the purchase date TextFormField with this:
                   InkWell(
                     onTap: () async {
                       final pickedDate = await showDatePicker(
@@ -958,19 +938,11 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                   ),
                   KHeight20,
 
-
-
-
-
-
-                 
-
                   Text(
                     'Purchase Payment Mode',
                     style: TextStyle(color: Colors.black),
                   ),
                   DropdownButtonFormField<String>(
-                    
                     value: _selectedPaymentMode,
                     decoration: kCommonInputDecoration.copyWith(
                       hintText: "Select Payment Mode",
@@ -983,7 +955,9 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                     onChanged: (String? newValue) {
                       setState(() {
                         _selectedPaymentMode = newValue;
-                         print("Selected Payment Mode: $_selectedPaymentMode"); // 👈 Add this
+                        print(
+                          "Selected Payment Mode: $_selectedPaymentMode",
+                        ); // 👈 Add this
                       });
                     },
                     items: _paymentModes.map<DropdownMenuItem<String>>((
@@ -995,7 +969,7 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                       );
                     }).toList(),
                   ),
-                 KHeight20,
+                  KHeight20,
 
                   Text('Payment Status', style: TextStyle(color: Colors.black)),
                   DropdownButtonFormField<String>(
@@ -1023,89 +997,326 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                       return null;
                     },
                   ),
-                KHeight20,
+                  KHeight20,
 
+                  //   GestureDetector(
+                  //     onTap: () {
+                  //       setState(() {
+                  //         _showPartnershipFields = !_showPartnershipFields;
+                  //       });
+                  //     },
+                  //     child: Container(
+                  //       padding: EdgeInsets.all(12),
+                  //       decoration: BoxDecoration(
+                  //         color: Colors.white,
+                  //         borderRadius: BorderRadius.circular(8),
+                  //         border: Border.all(color: Colors.black, width: 1),
+                  //       ),
+                  //       child: Row(
+                  //         children: [
+                  //           Icon(Icons.group_add, color: Colors.blue),
+                  //           SizedBox(width: 10),
+                  //           Text(
+                  //             'Add Partnership (Optional)',
+                  //             style: TextStyle(fontSize: 16, color: Colors.black),
+                  //           ),
+                  //           Spacer(),
+                  //           Icon(
+                  //             _showPartnershipFields
+                  //                 ? Icons.expand_less
+                  //                 : Icons.expand_more,
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //   ),
+
+                  //   if (_showPartnershipFields) ...[
+                  //     SizedBox(height: 10),
+                  //     buildTextField(_partnerNameController, 'Partner Name'),
+                  //     buildTextField(_contactPersonController, 'Contact Person'),
+                  //     buildTextField(_emailController, 'Email'),
+                  //     buildTextField(_phoneController, 'Phone'),
+                  //     buildTextField(_sharePercentageController, 'Share %'),
+                  //     Padding(
+                  //       padding: EdgeInsets.only(top: 4, bottom: 16),
+                  //       child: InkWell(
+                  //         onTap: () async {
+                  //           final pickedDate = await showDatePicker(
+                  //             context: context,
+                  //             initialDate: DateTime.now(),
+                  //             firstDate: DateTime(2000),
+                  //             lastDate: DateTime.now(),
+                  //           );
+                  //           if (pickedDate != null) {
+                  //             setState(() {
+                  //               _purchaseDateController.text =
+                  //                   "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+                  //             });
+                  //           }
+                  //         },
+                  //         child: InputDecorator(
+                  //           decoration: InputDecoration(
+                  //             labelText: 'Purchase Date',
+                  //             border: OutlineInputBorder(),
+                  //             labelStyle: TextStyle(
+                  //               color: Colors.black,
+                  //             ), // Add this
+                  //           ),
+                  //           child: Text(
+                  //             _purchaseDateController.text.isEmpty
+                  //                 ? 'Select Purchase Date'
+                  //                 : _purchaseDateController.text,
+                  //             style: TextStyle(
+                  //               color: Colors.black,
+                  //             ), // Add this for black text
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  //  KHeight20,
+                
+                
                 
 
-                
 
-                  GestureDetector(
-                    onTap: () {
+
+                  SwitchListTile(
+                    title: Text(
+                      "Enable Partnership",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+
+                    value: _isPartnershipEnabled,
+                    onChanged: (value) {
                       setState(() {
-                        _showPartnershipFields = !_showPartnershipFields;
+                        _isPartnershipEnabled = value;
                       });
                     },
-                    child: Container(
+                  ),
+
+                  if (_isPartnershipEnabled)
+                    Container(
+                      width: double.infinity,
                       padding: EdgeInsets.all(12),
+                      margin: EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
                         color: Colors.white,
+                        border: Border.all(color: Colors.grey.shade300),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.black, width: 1),
                       ),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.group_add, color: Colors.blue),
-                          SizedBox(width: 10),
                           Text(
-                            'Add Partnership (Optional)',
-                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            "Partners",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          Spacer(),
-                          Icon(
-                            _showPartnershipFields
-                                ? Icons.expand_less
-                                : Icons.expand_more,
+                        KHeight16,
+
+
+       if (_partnerships.isEmpty)
+  Padding(
+    padding: const EdgeInsets.symmetric(vertical: 12),
+    child: Text("No partners have been added yet."),
+  )
+else
+  Column(
+    children: _partnerships.map((partnership) {
+      return Container(
+        padding: EdgeInsets.all(12),
+        margin: EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "${partnership.partner}: ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: "Contribution ₹${partnership.contribution}",
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.clear, color: Colors.red),
+              onPressed: () {
+                setState(() {
+                  _partnerships.remove(partnership);
+                });
+              },
+            ),
+          ],
+        ),
+      );
+    }).toList(),
+  ),
+
+
+
+//                         if (_selectedPartnership != null)
+//   Container(
+//     padding: EdgeInsets.all(12),
+//     margin: EdgeInsets.only(top: 12),
+//     decoration: BoxDecoration(
+//       color: Colors.grey.shade100,
+//       borderRadius: BorderRadius.circular(8),
+//     ),
+//     child: Row(
+//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//       children: [
+//         Expanded(
+//           child: Text.rich(
+//             TextSpan(
+//               children: [
+//                 TextSpan(
+//                   text: "${_selectedPartnership!.partner}: ",
+//                   style: TextStyle(fontWeight: FontWeight.bold),
+//                 ),
+//                 TextSpan(
+//                   text: "Contribution ₹${_selectedPartnership!.contribution}",
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//         IconButton(
+//           icon: Icon(Icons.clear, color: Colors.red),
+//           onPressed: () {
+//             setState(() {
+//               _selectedPartnership = null;
+//             });
+//           },
+//         ),
+//       ],
+//     ),
+//   )
+// else
+//   Padding(
+//     padding: const EdgeInsets.symmetric(vertical: 12),
+//     child: Text("No partners have been added yet."),
+//   ),
+
+
+
+                        
+
+
+
+
+                          // if (_partners.isEmpty)
+                          //   Text(
+                          //     "No partners have been added yet.",
+                          //     style: TextStyle(color: Colors.grey.shade600),
+                          //   )
+                          // else
+                          //   ..._partners.map(
+                          //     (p) => Text("- ${p['name']}"),
+                          //   ), // simple list view
+                           
+                          
+
+// if (partners.isEmpty)
+//   Text("No partners have been added yet.")
+// else
+//   DropdownButtonFormField<String>(
+//     value: _selectedPartnerId,
+//     decoration: InputDecoration(
+//       labelText: "Select a Partner",
+//       border: OutlineInputBorder(),
+//     ),
+//     items: partners.map((partner) {
+//       return DropdownMenuItem<String>(
+//         value: partner.id,
+//         child: Text(partner.partner ??''),
+//       );
+//     }).toList(),
+//     onChanged: (value) {
+//       setState(() {
+//         _selectedPartnerId = value;
+//       });
+//     },
+//   ),
+
+
+
+
+
+                          SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () async {
+
+final selectedPartnership = await showModalBottomSheet<Partnership>(
+  context: context,
+  isScrollControlled: true,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  ),
+  builder: (context) => Padding(
+    padding: EdgeInsets.only(
+      bottom: MediaQuery.of(context).viewInsets.bottom,
+    ),
+    child: AddPartnershipDetails(),
+  ),
+);
+
+if (selectedPartnership != null) {
+  setState(() {
+     _partnerships.add(selectedPartnership);
+  });
+}
+
+
+
+
+
+},
+
+                              // onPressed: () {
+                              //   showModalBottomSheet(
+                              //     context: context,
+                              //     isScrollControlled: true,
+                              //     shape: RoundedRectangleBorder(
+                              //       borderRadius: BorderRadius.vertical(
+                              //         top: Radius.circular(20),
+                              //       ),
+                              //     ),
+                              //     builder: (context) => Padding(
+                              //       padding: EdgeInsets.only(
+                              //         bottom: MediaQuery.of(
+                              //           context,
+                              //         ).viewInsets.bottom,
+                              //       ),
+                              //       child: AddPartnerForm(),
+                              //     ),
+                              //   );
+                              // },
+                              child: Text("Add Partner"),//partnership details
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-
-                  if (_showPartnershipFields) ...[
-                    SizedBox(height: 10),
-                    buildTextField(_partnerNameController, 'Partner Name'),
-                    buildTextField(_contactPersonController, 'Contact Person'),
-                    buildTextField(_emailController, 'Email'),
-                    buildTextField(_phoneController, 'Phone'),
-                    buildTextField(_sharePercentageController, 'Share %'),
-                    Padding(
-                      padding: EdgeInsets.only(top: 4, bottom: 16),
-                      child: InkWell(
-                        onTap: () async {
-                          final pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now(),
-                          );
-                          if (pickedDate != null) {
-                            setState(() {
-                              _purchaseDateController.text =
-                                  "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
-                            });
-                          }
-                        },
-                        child: InputDecorator(
-                          decoration: InputDecoration(
-                            labelText: 'Purchase Date',
-                            border: OutlineInputBorder(),
-                            labelStyle: TextStyle(
-                              color: Colors.black,
-                            ), // Add this
-                          ),
-                          child: Text(
-                            _purchaseDateController.text.isEmpty
-                                ? 'Select Purchase Date'
-                                : _purchaseDateController.text,
-                            style: TextStyle(
-                              color: Colors.black,
-                            ), // Add this for black text
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                 KHeight20,
 
                   Row(
                     children: [
@@ -1150,6 +1361,11 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                                     .read(vehicleProvider.notifier)
                                     .setVehicleToEdit(null);
 
+
+
+                                       Partnership? selectedPartner;
+
+
                                 // Create new vehicle object from form data
                                 final newVehicle = Vehicle(
                                   id: _idController.text,
@@ -1179,25 +1395,38 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                                   purchasePaymentStatus:
                                       _purchasePaymentStatus ?? 'pending',
                                   purchasePrice: _priceController.text,
-                                  purchaseMode: _selectedPaymentMode?.toLowerCase()??'',
+                                  purchaseMode:
+                                      _selectedPaymentMode?.toLowerCase() ?? '',
                                   status: _status.toLowerCase(),
-                                  partnership: isPartnershipFilled()
-                                      ? Partnership(
-                                          id: _idController.text,
-                                          partnerName:
-                                              _partnerNameController.text,
-                                          contactPerson:
-                                              _contactPersonController.text,
-                                          email: _emailController.text,
-                                          phone: _phoneController.text,
-                                          sharePercentage:
-                                              _sharePercentageController.text,
-                                          vehicleId: _idController.text,
-                                          startDate:
-                                              (_startDate ?? DateTime.now())
-                                                  .toIso8601String(),
-                                        )
-                                      : null,
+
+                               partnerships: _isPartnershipEnabled ? _partnerships :[],
+
+                                  
+
+
+
+
+                                  // partnership: isPartnershipFilled()
+                                  //     ? Partnership(
+                                  //         id: _idController.text,
+                                  //         partnerName:
+                                  //             _partnerNameController.text,
+                                  //         contactPerson:
+                                  //             _contactPersonController.text,
+                                  //         email: _emailController.text,
+                                  //         phone: _phoneController.text,
+                                  //         sharePercentage:
+                                  //             _sharePercentageController.text,
+                                  //         vehicleId: _idController.text,
+                                  //         startDate:
+                                  //             (_startDate ?? DateTime.now())
+                                  //                 .toIso8601String(),
+                                  //       )
+                                  //     : null,
+
+
+                               
+
                                 );
                                 // Add or update vehicle
                                 if (isEditing) {
@@ -1210,16 +1439,16 @@ final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
                                       .addVehicle(newVehicle);
                                 }
 
-                                // Save partnership if it exists
-                                if (newVehicle.partnership != null) {
-                                  final partnershipBox = Hive.box<Partnership>(
-                                    'partnerships',
-                                  );
-                                  await partnershipBox.put(
-                                    newVehicle.partnership!.id,
-                                    newVehicle.partnership!,
-                                  );
-                                }
+                                // // Save partnership if it exists
+                                // if (newVehicle.partnership != null) {
+                                //   final partnershipBox = Hive.box<Partnership>(
+                                //     'partnerships',
+                                //   );
+                                //   await partnershipBox.put(
+                                //     newVehicle.partnership!.id,
+                                //     newVehicle.partnership!,
+                                //   );
+                                // }
 
                                 ref
                                     .read(vehicleProvider.notifier)

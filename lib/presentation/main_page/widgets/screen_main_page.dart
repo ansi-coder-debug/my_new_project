@@ -7,7 +7,7 @@ import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_page
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_employees.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_expense.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_inventory.dart';
-import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_partnerships.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_partners.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_purchase.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_report.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_sales.dart';
@@ -34,7 +34,7 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
     ScreenSales(),
     ScreenEmployees(),
     ScreenExpense(),
-    ScreenPartnerships(),
+    PartnersPage(),
     ScreenReport(),
     ScreenSettings(),
   ];

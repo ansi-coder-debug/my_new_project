@@ -17,14 +17,14 @@ class PartnershipAdapter extends TypeAdapter<Partnership> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Partnership(
-      id: fields[0] as String,
-      partnerName: fields[1] as String,
-      contactPerson: fields[2] as String,
-      email: fields[3] as String,
-      phone: fields[4] as String,
-      sharePercentage: fields[5] as String,
-      vehicleId: fields[6] as String,
-      startDate: fields[7] as String,
+      id: fields[0] as String?,
+      partnerName: fields[1] as String?,
+      contactPerson: fields[2] as String?,
+      email: fields[3] as String?,
+      phone: fields[4] as String?,
+      sharePercentage: fields[5] as String?,
+      vehicleId: fields[6] as String?,
+      startDate: fields[7] as String?,
     );
   }
 

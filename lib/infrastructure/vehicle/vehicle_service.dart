@@ -102,7 +102,7 @@ class VehicleService {
         ),
         MapEntry(
           'is_partnership',
-          vehicle.partnership != null ? 'true' : 'false',
+          vehicle.partnerships != null ? 'true' : 'false',
         ),
       ]);
 
@@ -112,15 +112,29 @@ class VehicleService {
         formData.files.add(MapEntry('photos', imageFiles[i]));
       }
 
-      // Add partnership data if it exists
-      if (vehicle.partnership != null) {
-        formData.fields.add(
-          MapEntry(
-            'partnerships',
-            json.encode([vehicle.partnership!.toJson()]),
-          ),
-        );
-      }
+      // // Add partnership data if it exists
+      // if (vehicle.partnerships != null) {
+      //   formData.fields.add(
+      //     MapEntry(
+      //       'partnerships',
+      //       json.encode([vehicle.partnership!.toJson()]),
+      //     ),
+      //   );
+      // }
+
+         
+         if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
+  formData.fields.add(
+    MapEntry(
+      'partnerships',
+      json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList()),
+    ),
+  );
+}
+
+
+
+
 
       print('🔍 Sending FormData with ${vehicle.photos.length} images');
 
@@ -181,7 +195,7 @@ class VehicleService {
         ),
         MapEntry(
           'is_partnership',
-          vehicle.partnership != null ? 'true' : 'false',
+          vehicle.partnerships != null ? 'true' : 'false',
         ),
       ]);
 
@@ -192,14 +206,25 @@ class VehicleService {
       }
 
       // 3. Add partnership data if exists
-      if (vehicle.partnership != null) {
-        formData.fields.add(
-          MapEntry(
-            'partnerships',
-            json.encode([vehicle.partnership!.toJson()]),
-          ),
-        );
-      }
+      // if (vehicle.partnerships != null) {
+      //   formData.fields.add(
+      //     MapEntry(
+      //       'partnerships',
+      //       json.encode([vehicle.partnership!.toJson()]),
+      //     ),
+      //   );
+      // }
+
+
+      if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
+  formData.fields.add(
+    MapEntry(
+      'partnerships',
+      json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList()),
+    ),
+  );
+}
+
 
       print('🔍 Sending FormData update with ${vehicle.photos.length} images');
 

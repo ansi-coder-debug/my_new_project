@@ -6,6 +6,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/expense/expense_provider.dart';
 import 'package:my_new_project/application/purchase/purchase_provider.dart';
+import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expense.dart';
 import 'package:my_new_project/core/models/partnership.dart';
@@ -13,7 +14,8 @@ import 'package:my_new_project/core/models/purchase.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
 import 'package:my_new_project/widgets/expense/add_expense_dialog.dart';
-import 'package:my_new_project/widgets/partnerships/add_partnership_form.dart';
+import 'package:my_new_project/widgets/partnerships/add_partnership_details.dart';
+import 'package:my_new_project/widgets/partnerships/add_partner_form.dart';
 
 class ScreenVehicleDetails extends ConsumerStatefulWidget {
   final Vehicle vehicle;
@@ -44,10 +46,10 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
 
     final vehicle = widget.vehicle;
 
-    // delete the actual partnership from the box
-    if (vehicle.partnership != null) {
-      await partnershipBox.delete(vehicle.partnership!.id);
-    }
+    // // delete the actual partnership from the box
+    // if (vehicle.partnership != null) {
+    //   await partnershipBox.delete(vehicle.partnership!.id);
+    // }
     // Step 2: Replace the vehicle with the same data but no partnership
     final updatedVehicle = Vehicle(
       id: vehicle.id,
@@ -101,9 +103,6 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
   ];
   String? _selectedMode;
 
-
-  
-
   @override
   Widget build(BuildContext context) {
     final expenseState = ref.watch(expenseProvider);
@@ -111,13 +110,10 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
         .where((e) => e.vehicleId == widget.vehicle.id)
         .toList();
 
-        final totalExpenseAmount = expenseForThisVehicle.fold<double>(
-  0.0,
-  (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
-);
-
-
-
+    final totalExpenseAmount = expenseForThisVehicle.fold<double>(
+      0.0,
+      (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
+    );
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -153,7 +149,16 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        onPressed: widget.onEdit,
+                        onPressed: () {
+                             print('IconButton pressed');
+                          ref.read(vehicleProvider.notifier).setVehicleToEdit(widget.vehicle);
+                          
+  // Notify parent widget about edit action (optional)
+  if (widget.onEdit != null) {
+    widget.onEdit!();
+  }
+                          
+                        },
                         icon: const Icon(
                           Icons.edit,
                           color: Colors.blue,
@@ -226,14 +231,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                   ),
                   KHeight,
 
-
-
-
-
-
-
                   Text(
-                   
                     "(Buying Price: ₹${widget.vehicle.purchasePrice} + Total Expenses: ₹${totalExpenseAmount.toStringAsFixed(2)})",
 
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
@@ -242,25 +240,6 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
               ),
             ),
             KHeight20,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             //vehicle image
             ClipRRect(
@@ -967,78 +946,35 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                     ],
                   ),
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                   SizedBox(height: 40), // Increased spacing
+
                   // Body (empty state)
-                  
-                 expenseForThisVehicle.isEmpty
-    ? Center(
-        child: Text(
-          "No expenses have been recorded for this vehicle.",
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      )
-    : Column(
-        children: expenseForThisVehicle.map((expense) {
-          return ListTile(
-            title: Text("₹${expense.amount}"),
-            subtitle: Text("${expense.description ?? "No description"}"),
-            trailing: Text(expense.date),
-          );
-        }).toList(),
-      ),
-
-
-
-
-
-
-
-
-
-
+                  expenseForThisVehicle.isEmpty
+                      ? Center(
+                          child: Text(
+                            "No expenses have been recorded for this vehicle.",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      : Column(
+                          children: expenseForThisVehicle.map((expense) {
+                            return ListTile(
+                              title: Text("₹${expense.amount}"),
+                              subtitle: Text(
+                                "${expense.description ?? "No description"}",
+                              ),
+                              trailing: Text(expense.date),
+                            );
+                          }).toList(),
+                        ),
                 ],
               ),
             ),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             // partnership dialog
             KHeight20,
@@ -1074,22 +1010,22 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           decoration: TextDecoration.underline,
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => const AddPartnershipDialog(),
-                          );
-                        },
-                        icon: const Icon(Icons.add, color: Colors.blue),
-                        style: IconButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
+                      // IconButton(
+                      //   onPressed: () {
+                      //     showDialog(
+                      //       context: context,
+                      //       barrierDismissible: false,
+                      //       builder: (context) => const AddPartnershipDetails(),
+                      //     );
+                      //   },
+                      //   icon: const Icon(Icons.add, color: Colors.blue),
+                      //   style: IconButton.styleFrom(
+                      //     backgroundColor: Colors.white,
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(8),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
 

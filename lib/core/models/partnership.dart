@@ -1,42 +1,60 @@
 import 'package:hive_flutter/adapters.dart';
+import 'package:my_new_project/core/models/partner.dart';
 part 'partnership.g.dart';
 
 
 @HiveType(typeId: 3)
 class Partnership extends HiveObject {
   @HiveField(0)
-  final String id;
+  final String ? id;
 
   @HiveField(1)
-  final String partnerName;
+  final String ?partnerName;
 
   @HiveField(2)
-  final String contactPerson;
+  final String ?contactPerson;
 
   @HiveField(3)
-  final String email;
+  final String ?email;
 
   @HiveField(4)
-  final String phone;
+  final String ?phone;
 
   @HiveField(5)
-  final String sharePercentage;
+  final String ?sharePercentage;
 
   @HiveField(6)
-  final String vehicleId;
+  final String ?vehicleId;
 
   @HiveField(7)
-  final String startDate;
+  final String ?startDate;
+
+   final String ? partner;
+  final String ?contribution;
+  final String ?profitShare;
+  final String ?paymentMode;
+  final String ?contributionStatus;
+  final String ?profitShareStatus;
 
   Partnership({
-    required this.id,
-    required this.partnerName,
-    required this.contactPerson,
-    required this.email,
-    required this.phone,
-    required this.sharePercentage,
-    required this.vehicleId,
-    required this.startDate
+    this.id,
+    this.partnerName,
+     this.contactPerson,
+    this.email,
+     this.phone,
+    this.sharePercentage,
+     this.vehicleId,
+    this.startDate,
+
+     this.partner,
+     this.contribution,
+     this.profitShare,
+     this.paymentMode,
+    this.contributionStatus,
+     this.profitShareStatus,
+
+
+
 
   });
 
@@ -69,5 +87,40 @@ class Partnership extends HiveObject {
       'start_date': startDate,
     };
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // new model we going to use 
+
+// class Partnership {
+//   final String partner;
+//   final String contribution;
+//   final String profitShare;
+//   final String paymentMode;
+//   final String contributionStatus;
+//   final String profitShareStatus;
+
+//   Partnership({
+//     required this.partner,
+//     required this.contribution,
+//     required this.profitShare,
+//     required this.paymentMode,
+//     required this.contributionStatus,
+//     required this.profitShareStatus,
+//   });
+// }
+
 
 }
