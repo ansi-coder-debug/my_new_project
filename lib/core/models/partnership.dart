@@ -1,126 +1,99 @@
-import 'package:hive_flutter/adapters.dart';
 import 'package:my_new_project/core/models/partner.dart';
-part 'partnership.g.dart';
 
-
-@HiveType(typeId: 3)
-class Partnership extends HiveObject {
-  @HiveField(0)
-  final String ? id;
-
-  @HiveField(1)
-  final String ?partnerName;
-
-  @HiveField(2)
-  final String ?contactPerson;
-
-  @HiveField(3)
-  final String ?email;
-
-  @HiveField(4)
-  final String ?phone;
-
-  @HiveField(5)
-  final String ?sharePercentage;
-
-  @HiveField(6)
-  final String ?vehicleId;
-
-  @HiveField(7)
-  final String ?startDate;
-
-   final String ? partner;
-  final String ?contribution;
-  final String ?profitShare;
-  final String ?paymentMode;
-  final String ?contributionStatus;
-  final String ?profitShareStatus;
+class Partnership {
+  final String? id;
+  final String? partnerName;
+  final String? contactPerson;
+  final String? email;
+  final String? phone;
+  final String? sharePercentage;
+  final String? vehicleId;
+  final String? startDate;
+  final Partner? partner;
+  final String? contribution;
+  final String? paymentMode;
+  final String? contributionStatus;
 
   Partnership({
     this.id,
     this.partnerName,
-     this.contactPerson,
+    this.contactPerson,
     this.email,
-     this.phone,
+    this.phone,
     this.sharePercentage,
-     this.vehicleId,
+    this.vehicleId,
     this.startDate,
-
-     this.partner,
-     this.contribution,
-     this.profitShare,
-     this.paymentMode,
+    this.partner,
+    this.contribution,
+    this.paymentMode,
     this.contributionStatus,
-     this.profitShareStatus,
-
-
-
-
   });
 
- 
-  /// ✅ Convert JSON → Partnership object
   factory Partnership.fromJson(Map<String, dynamic> json) {
     return Partnership(
-      id: json['id'].toString(),
+      id: json['id']?.toString(),
       partnerName: json['partner_name'] ?? '',
       contactPerson: json['contact_person'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       sharePercentage: json['share_percentage']?.toString() ?? '0',
-      vehicleId: json['vehicle_id'].toString(),
+      vehicleId: json['vehicle_id']?.toString(),
       startDate: json['start_date'] ?? '',
+      partner: json['partner'] != null && json['partner'] is Map<String, dynamic>
+          ? Partner.fromJson(json['partner'])
+          : null,
+      contribution: json['contribution']?.toString(),
+      paymentMode: json['payment_mode'],
+      contributionStatus: json['contribution_status'],
     );
   }
 
-  
-  /// ✅ Convert Partnership → JSON (for API request body)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'partner_name': partnerName,
+      'partner_id': partner?.id,
+      'partner_name': partner?.name,
+      'address': partner?.address,
       'contact_person': contactPerson,
       'email': email,
-      'phone': phone,
+      'phone': partner?.phone,
       'share_percentage': sharePercentage,
       'vehicle_id': vehicleId,
       'start_date': startDate,
+      'contribution': contribution,
+      'payment_mode': paymentMode,
+      'contribution_status': contributionStatus,
     };
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // new model we going to use 
-
-// class Partnership {
-//   final String partner;
-//   final String contribution;
-//   final String profitShare;
-//   final String paymentMode;
-//   final String contributionStatus;
-//   final String profitShareStatus;
-
-//   Partnership({
-//     required this.partner,
-//     required this.contribution,
-//     required this.profitShare,
-//     required this.paymentMode,
-//     required this.contributionStatus,
-//     required this.profitShareStatus,
-//   });
-// }
-
-
+  /// ✅ CopyWith for Partnership
+  Partnership copyWith({
+    String? id,
+    String? partnerName,
+    String? contactPerson,
+    String? email,
+    String? phone,
+    String? sharePercentage,
+    String? vehicleId,
+    String? startDate,
+    Partner? partner,
+    String? contribution,
+    String? paymentMode,
+    String? contributionStatus,
+  }) {
+    return Partnership(
+      id: id ?? this.id,
+      partnerName: partnerName ?? this.partnerName,
+      contactPerson: contactPerson ?? this.contactPerson,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      sharePercentage: sharePercentage ?? this.sharePercentage,
+      vehicleId: vehicleId ?? this.vehicleId,
+      startDate: startDate ?? this.startDate,
+      partner: partner ?? this.partner,
+      contribution: contribution ?? this.contribution,
+      paymentMode: paymentMode ?? this.paymentMode,
+      contributionStatus: contributionStatus ?? this.contributionStatus,
+    );
+  }
 }

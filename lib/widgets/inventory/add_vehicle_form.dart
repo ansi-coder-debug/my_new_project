@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_new_project/application/partnership/partnership_provider.dart';
+
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 import 'package:flutter/material.dart';
@@ -48,9 +48,8 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   String _status = 'available';
   String? _purchasePaymentStatus = 'pending';
 
-  final List<String> _paymentModes = ['Cash', 'Card', 'Cheque', 'Finance'];
+  final List<String> _paymentModes = ['cash', 'card', 'cheque', 'finance'];
   String? _selectedPaymentMode;
-
 
   // Controllers
   final TextEditingController _makeController = TextEditingController();
@@ -227,7 +226,7 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
         _sellerPurchaseAdressController.text = vehicle.purchaseAddress ?? '';
         _purchaseDateController.text = vehicle.purchaseDate ?? '';
         _sellerPurchasePriceController.text = vehicle.purchasePrice ?? '';
-        _paymentModeController.text = vehicle.purchaseMode ?? '';
+        _selectedPaymentMode = vehicle.purchaseMode ?? '';
         _purchasePaymentStatus = vehicle.purchasePaymentStatus ?? 'pending';
 
         if (vehicle.photos.isNotEmpty && !_formWasReset) {
@@ -237,16 +236,11 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
           });
         }
 
-
-
-     if (vehicle.partnerships != null) {
-  _partnerships = vehicle.partnerships!; // wrap in a list
-}
-
-
+        if (vehicle.partnerships != null) {
+          _partnerships = vehicle.partnerships!; // wrap in a list
+        }
       }
     });
-    
   }
 
   Widget _buildImagePreview(dynamic image) {
@@ -268,24 +262,13 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   }
 
   bool _isPartnershipEnabled = false;
-  // Partnership? _selectedPartnership;
+
   List<Partnership> _partnerships = [];
-
-
-
- 
-
-  // List<Map<String, dynamic>> _partners = []; // List to store added partners
-  // String? _selectedPartnerId;
-
-
-
 
   @override
   Widget build(BuildContext context) {
     final vehicleToEdit = ref.watch(vehicleProvider).vehicleToEdit;
     final isEditing = vehicleToEdit != null;
-     final partners = ref.watch(partnershipProvider).partnerships;
     
 
     return Scaffold(
@@ -512,20 +495,6 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                 ),
                 KHeight16,
 
-                // Text('Price', style: TextStyle(color: Colors.black)),
-                // TextFormField(
-                //   controller: _priceController,
-                //   style: TextStyle(color: Colors.black),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty)
-                //       return 'Please enter the price';
-                //     return null;
-                //   },
-                //   decoration: kCommonInputDecoration.copyWith(
-                //     hintText: "Expected selling price ",
-                //   ),
-                // ),
-                // KHeight16,
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -656,183 +625,6 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                   ],
                 ),
 
-                // if (_showSalesForm) ...[
-                //   KHeight16,
-                //   Text('Buyer Name', style: TextStyle(color: Colors.black)),
-                //   TextFormField(
-                //     controller: _buyerNameController,
-                //     validator: (value) {
-                //       if (value == null || value.isEmpty)
-                //         return 'Enter buyer name';
-                //       return null;
-                //     },
-                //     decoration: kCommonInputDecoration.copyWith(
-                //       hintText: "buyer name ",
-                //     ),
-                //     style: TextStyle(color: Colors.black),
-                //   ),
-                //   KHeight16,
-
-                //   Text('Buyer Phone', style: TextStyle(color: Colors.black)),
-                //   TextFormField(
-                //     controller: _buyerPhoneController,
-                //     validator: (value) {
-                //       if (value == null || value.isEmpty)
-                //         return 'Enter buyer phone';
-                //       return null;
-                //     },
-                //     decoration: kCommonInputDecoration.copyWith(
-                //       hintText: "buyer phone ",
-                //     ),
-                //     style: TextStyle(color: Colors.black),
-                //   ),
-                //   KHeight16,
-
-                //   Text('Buyer Address', style: TextStyle(color: Colors.black)),
-                //   TextFormField(
-                //     controller: _buyerAddressController,
-                //     validator: (value) {
-                //       if (value == null || value.isEmpty)
-                //         return 'Enter buyer address';
-                //       return null;
-                //     },
-                //     decoration: kCommonInputDecoration.copyWith(
-                //       hintText: "buyer address ",
-                //     ),
-                //     style: TextStyle(color: Colors.black),
-                //   ),
-                //   KHeight16,
-
-                //   Text(
-                //     'Mode Of Payment',
-                //     style: TextStyle(color: Colors.black),
-                //   ),
-                //   TextFormField(
-                //     controller: _modeOfPaymentController,
-                //     validator: (value) {
-                //       if (value == null || value.isEmpty)
-                //         return 'Enter payment mode';
-                //       return null;
-                //     },
-                //     decoration: kCommonInputDecoration.copyWith(
-                //       hintText: "mode of payment ",
-                //     ),
-                //     style: TextStyle(color: Colors.black),
-                //   ),
-                //   KHeight16,
-
-                //   Text('Sale Date', style: TextStyle(color: Colors.black)),
-                //   TextFormField(
-                //     controller: _saleDateController,
-                //     validator: (value) {
-                //       if (value == null || value.isEmpty)
-                //         return 'Enter sale date';
-                //       return null;
-                //     },
-                //     decoration: InputDecoration(
-                //       contentPadding: EdgeInsets.symmetric(
-                //         vertical: 8,
-                //         horizontal: 12,
-                //       ),
-                //       enabledBorder: OutlineInputBorder(
-                //         borderSide: BorderSide(width: 3, color: Colors.red),
-                //       ),
-                //     ),
-                //     style: TextStyle(color: Colors.black),
-                //   ),
-                //   KHeight16,
-
-                //   Row(
-                //     children: [
-                //       SizedBox(width: 90),
-                //       ElevatedButton(
-                //         onPressed: () {
-                //           widget.onCancel?.call();
-                //           resetFormFields();
-                //         },
-                //         child: Text(
-                //           'Cancel',
-                //           style: TextStyle(color: Colors.black),
-                //         ),
-                //         style: ElevatedButton.styleFrom(
-                //           backgroundColor: Colors.white,
-                //           shape: RoundedRectangleBorder(
-                //             borderRadius: BorderRadius.zero,
-                //           ),
-                //         ),
-                //       ),
-                //       SizedBox(width: 20),
-                //       ElevatedButton(
-                //         onPressed: () async {
-                //           if (!_formKey.currentState!.validate()) return;
-
-                //           final vehicle =
-                //               ref.read(vehicleProvider).vehicleToEdit ??
-                //               widget.vehicle;
-                //           if (_status == 'Sold' && vehicle != null) {
-                //             final newSale = Sales(
-                //               id: Uuid().v4(),
-                //               vehicleId: vehicle.id,
-                //               buyerName: _buyerNameController.text,
-                //               buyerPhone: _buyerPhoneController.text,
-                //               buyerAddress: _buyerAddressController.text,
-                //               modeOfPayment: _modeOfPaymentController.text,
-                //               date: _saleDateController.text,
-                //             );
-
-                //             await Hive.box<Sales>(
-                //               'sales',
-                //             ).put(newSale.id, newSale);
-
-                //             final updatedVehicle = vehicle.copyWith(
-                //               status: 'Sold',
-                //               salesId: newSale.id,
-                //             );
-
-                //             await ref
-                //                 .read(vehicleProvider.notifier)
-                //                 .updateVehicle(updatedVehicle);
-
-                //             final newPurchase = Purchase(
-                //               id: Uuid().v4(),
-                //               vehicleId: vehicle.id,
-                //               userId:
-                //                   "current_user_id", // Get from your auth system
-                //               name: _sellerNameController.text,
-                //               phone: _sellerPhoneController.text,
-                //               address: _sellerAddressController.text,
-                //               date: DateTime.parse(
-                //                 _purchaseDateController.text,
-                //               ),
-                //               price: double.parse(_priceController.text),
-                //               modeOfPayment: _paymentModeController.text,
-                //               paymentStatus:
-                //                   _purchasePaymentStatus ?? 'pending',
-                //             );
-
-                //             await Hive.box<Purchase>(
-                //               'purchases',
-                //             ).put(newPurchase.id, newPurchase);
-                //           }
-
-                //           if (_status == 'Sold') {
-                //             widget.onAddComplete();
-                //           }
-                //         },
-                //         child: Text(
-                //           'Update Sale',
-                //           style: TextStyle(color: Colors.white),
-                //         ),
-                //         style: ElevatedButton.styleFrom(
-                //           backgroundColor: Colors.blue,
-                //           shape: RoundedRectangleBorder(
-                //             borderRadius: BorderRadius.zero,
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ],
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -999,89 +791,6 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                   ),
                   KHeight20,
 
-                  //   GestureDetector(
-                  //     onTap: () {
-                  //       setState(() {
-                  //         _showPartnershipFields = !_showPartnershipFields;
-                  //       });
-                  //     },
-                  //     child: Container(
-                  //       padding: EdgeInsets.all(12),
-                  //       decoration: BoxDecoration(
-                  //         color: Colors.white,
-                  //         borderRadius: BorderRadius.circular(8),
-                  //         border: Border.all(color: Colors.black, width: 1),
-                  //       ),
-                  //       child: Row(
-                  //         children: [
-                  //           Icon(Icons.group_add, color: Colors.blue),
-                  //           SizedBox(width: 10),
-                  //           Text(
-                  //             'Add Partnership (Optional)',
-                  //             style: TextStyle(fontSize: 16, color: Colors.black),
-                  //           ),
-                  //           Spacer(),
-                  //           Icon(
-                  //             _showPartnershipFields
-                  //                 ? Icons.expand_less
-                  //                 : Icons.expand_more,
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ),
-
-                  //   if (_showPartnershipFields) ...[
-                  //     SizedBox(height: 10),
-                  //     buildTextField(_partnerNameController, 'Partner Name'),
-                  //     buildTextField(_contactPersonController, 'Contact Person'),
-                  //     buildTextField(_emailController, 'Email'),
-                  //     buildTextField(_phoneController, 'Phone'),
-                  //     buildTextField(_sharePercentageController, 'Share %'),
-                  //     Padding(
-                  //       padding: EdgeInsets.only(top: 4, bottom: 16),
-                  //       child: InkWell(
-                  //         onTap: () async {
-                  //           final pickedDate = await showDatePicker(
-                  //             context: context,
-                  //             initialDate: DateTime.now(),
-                  //             firstDate: DateTime(2000),
-                  //             lastDate: DateTime.now(),
-                  //           );
-                  //           if (pickedDate != null) {
-                  //             setState(() {
-                  //               _purchaseDateController.text =
-                  //                   "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
-                  //             });
-                  //           }
-                  //         },
-                  //         child: InputDecorator(
-                  //           decoration: InputDecoration(
-                  //             labelText: 'Purchase Date',
-                  //             border: OutlineInputBorder(),
-                  //             labelStyle: TextStyle(
-                  //               color: Colors.black,
-                  //             ), // Add this
-                  //           ),
-                  //           child: Text(
-                  //             _purchaseDateController.text.isEmpty
-                  //                 ? 'Select Purchase Date'
-                  //                 : _purchaseDateController.text,
-                  //             style: TextStyle(
-                  //               color: Colors.black,
-                  //             ), // Add this for black text
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  //  KHeight20,
-                
-                
-                
-
-
-
                   SwitchListTile(
                     title: Text(
                       "Enable Partnership",
@@ -1116,145 +825,62 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        KHeight16,
+                          KHeight16,
 
-
-       if (_partnerships.isEmpty)
-  Padding(
-    padding: const EdgeInsets.symmetric(vertical: 12),
-    child: Text("No partners have been added yet."),
-  )
-else
-  Column(
-    children: _partnerships.map((partnership) {
-      return Container(
-        padding: EdgeInsets.all(12),
-        margin: EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "${partnership.partner}: ",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: "Contribution ₹${partnership.contribution}",
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.clear, color: Colors.red),
-              onPressed: () {
-                setState(() {
-                  _partnerships.remove(partnership);
-                });
-              },
-            ),
-          ],
-        ),
-      );
-    }).toList(),
-  ),
-
-
-
-//                         if (_selectedPartnership != null)
-//   Container(
-//     padding: EdgeInsets.all(12),
-//     margin: EdgeInsets.only(top: 12),
-//     decoration: BoxDecoration(
-//       color: Colors.grey.shade100,
-//       borderRadius: BorderRadius.circular(8),
-//     ),
-//     child: Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       children: [
-//         Expanded(
-//           child: Text.rich(
-//             TextSpan(
-//               children: [
-//                 TextSpan(
-//                   text: "${_selectedPartnership!.partner}: ",
-//                   style: TextStyle(fontWeight: FontWeight.bold),
-//                 ),
-//                 TextSpan(
-//                   text: "Contribution ₹${_selectedPartnership!.contribution}",
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//         IconButton(
-//           icon: Icon(Icons.clear, color: Colors.red),
-//           onPressed: () {
-//             setState(() {
-//               _selectedPartnership = null;
-//             });
-//           },
-//         ),
-//       ],
-//     ),
-//   )
-// else
-//   Padding(
-//     padding: const EdgeInsets.symmetric(vertical: 12),
-//     child: Text("No partners have been added yet."),
-//   ),
-
-
-
-                        
-
-
-
-
-                          // if (_partners.isEmpty)
-                          //   Text(
-                          //     "No partners have been added yet.",
-                          //     style: TextStyle(color: Colors.grey.shade600),
-                          //   )
-                          // else
-                          //   ..._partners.map(
-                          //     (p) => Text("- ${p['name']}"),
-                          //   ), // simple list view
-                           
-                          
-
-// if (partners.isEmpty)
-//   Text("No partners have been added yet.")
-// else
-//   DropdownButtonFormField<String>(
-//     value: _selectedPartnerId,
-//     decoration: InputDecoration(
-//       labelText: "Select a Partner",
-//       border: OutlineInputBorder(),
-//     ),
-//     items: partners.map((partner) {
-//       return DropdownMenuItem<String>(
-//         value: partner.id,
-//         child: Text(partner.partner ??''),
-//       );
-//     }).toList(),
-//     onChanged: (value) {
-//       setState(() {
-//         _selectedPartnerId = value;
-//       });
-//     },
-//   ),
-
-
-
-
+                          if (_partnerships.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Text("No partners have been added yet."),
+                            )
+                          else
+                            Column(
+                              children: _partnerships.map((partnership) {
+                                return Container(
+                                  padding: EdgeInsets.all(12),
+                                  margin: EdgeInsets.only(bottom: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text.rich(
+                                          TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text:
+                                                    "${partnership.partner}: ",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    "Contribution ₹${partnership.contribution}",
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(
+                                          Icons.clear,
+                                          color: Colors.red,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _partnerships.remove(partnership);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
 
                           SizedBox(height: 12),
                           SizedBox(
@@ -1265,53 +891,35 @@ else
                                 foregroundColor: Colors.white,
                               ),
                               onPressed: () async {
+                                final selectedPartnership =
+                                    await showModalBottomSheet<Partnership>(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(20),
+                                        ),
+                                      ),
+                                      builder: (context) => Padding(
+                                        padding: EdgeInsets.only(
+                                          bottom: MediaQuery.of(
+                                            context,
+                                          ).viewInsets.bottom,
+                                        ),
+                                        child: AddPartnershipDetails(
+                                          vehicleId:_idController.text ,
+                                        ),
+                                      ),
+                                    );
 
-final selectedPartnership = await showModalBottomSheet<Partnership>(
-  context: context,
-  isScrollControlled: true,
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-  ),
-  builder: (context) => Padding(
-    padding: EdgeInsets.only(
-      bottom: MediaQuery.of(context).viewInsets.bottom,
-    ),
-    child: AddPartnershipDetails(),
-  ),
-);
+                                if (selectedPartnership != null) {
+                                  setState(() {
+                                    _partnerships.add(selectedPartnership);
+                                  });
+                                }
+                              },
 
-if (selectedPartnership != null) {
-  setState(() {
-     _partnerships.add(selectedPartnership);
-  });
-}
-
-
-
-
-
-},
-
-                              // onPressed: () {
-                              //   showModalBottomSheet(
-                              //     context: context,
-                              //     isScrollControlled: true,
-                              //     shape: RoundedRectangleBorder(
-                              //       borderRadius: BorderRadius.vertical(
-                              //         top: Radius.circular(20),
-                              //       ),
-                              //     ),
-                              //     builder: (context) => Padding(
-                              //       padding: EdgeInsets.only(
-                              //         bottom: MediaQuery.of(
-                              //           context,
-                              //         ).viewInsets.bottom,
-                              //       ),
-                              //       child: AddPartnerForm(),
-                              //     ),
-                              //   );
-                              // },
-                              child: Text("Add Partner"),//partnership details
+                              child: Text("Add Partner"), //partnership details
                             ),
                           ),
                         ],
@@ -1361,10 +969,7 @@ if (selectedPartnership != null) {
                                     .read(vehicleProvider.notifier)
                                     .setVehicleToEdit(null);
 
-
-
-                                       Partnership? selectedPartner;
-
+                                Partnership? selectedPartner;
 
                                 // Create new vehicle object from form data
                                 final newVehicle = Vehicle(
@@ -1399,34 +1004,9 @@ if (selectedPartnership != null) {
                                       _selectedPaymentMode?.toLowerCase() ?? '',
                                   status: _status.toLowerCase(),
 
-                               partnerships: _isPartnershipEnabled ? _partnerships :[],
-
-                                  
-
-
-
-
-                                  // partnership: isPartnershipFilled()
-                                  //     ? Partnership(
-                                  //         id: _idController.text,
-                                  //         partnerName:
-                                  //             _partnerNameController.text,
-                                  //         contactPerson:
-                                  //             _contactPersonController.text,
-                                  //         email: _emailController.text,
-                                  //         phone: _phoneController.text,
-                                  //         sharePercentage:
-                                  //             _sharePercentageController.text,
-                                  //         vehicleId: _idController.text,
-                                  //         startDate:
-                                  //             (_startDate ?? DateTime.now())
-                                  //                 .toIso8601String(),
-                                  //       )
-                                  //     : null,
-
-
-                               
-
+                                  partnerships: _isPartnershipEnabled
+                                      ? _partnerships
+                                      : [],
                                 );
                                 // Add or update vehicle
                                 if (isEditing) {
@@ -1438,17 +1018,6 @@ if (selectedPartnership != null) {
                                       .read(vehicleProvider.notifier)
                                       .addVehicle(newVehicle);
                                 }
-
-                                // // Save partnership if it exists
-                                // if (newVehicle.partnership != null) {
-                                //   final partnershipBox = Hive.box<Partnership>(
-                                //     'partnerships',
-                                //   );
-                                //   await partnershipBox.put(
-                                //     newVehicle.partnership!.id,
-                                //     newVehicle.partnership!,
-                                //   );
-                                // }
 
                                 ref
                                     .read(vehicleProvider.notifier)

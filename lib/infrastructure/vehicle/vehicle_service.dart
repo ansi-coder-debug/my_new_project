@@ -157,6 +157,7 @@ class VehicleService {
 
   //  UPDATE VEHICLE CONECCTING TO BACKEND
   Future<void> updateVehicle(Vehicle vehicle) async {
+    
     try {
       final authstate = _ref.read(authNotifierProvider);
       final token = authstate.user?.accessToken;
@@ -216,13 +217,15 @@ class VehicleService {
       // }
 
 
-      if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
-  formData.fields.add(
-    MapEntry(
-      'partnerships',
-      json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList()),
-    ),
-  );
+       if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
+        print('🧩 Partnership JSON: ${jsonEncode(vehicle.partnerships!.map((p) => p.toJson()).toList())}');
+  
+      formData.fields.add(
+        MapEntry(
+          'partnerships',
+          json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList()),
+        ),
+      );
 }
 
 

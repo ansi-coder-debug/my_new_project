@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/vehicle/vehicle_state.dart';
+import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
 // import 'package:my_new_project/infrastructure/vehicle/vehicle_repository.dart'; // Fixed import name
@@ -138,4 +139,31 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
       clearSelectedVehicle: true,
     );
   }
+
+
+  //partnership 
+  Future<void> addPartnership(String vehicleId, Partnership partnership) async {
+  try {
+    // Find the target vehicle
+    final vehicle = state.vehicles.firstWhere((v) => v.id == vehicleId);
+
+    // Create an updated vehicle with the new partnership
+    final updatedVehicle = vehicle.copyWith(
+      partnerships: [...(vehicle.partnerships ?? []), partnership],
+    );
+
+    // Update in backend
+    await _vehicleRepositary.updateVehicle(updatedVehicle);
+
+    // Refresh local state
+    await loadVehicles();
+  } catch (e) {
+    state = state.copyWith(
+      isLoading: false,
+      error: 'Failed to add partnership: ${e.toString()}',
+    );
+    rethrow;
+  }
+}
+
 }
