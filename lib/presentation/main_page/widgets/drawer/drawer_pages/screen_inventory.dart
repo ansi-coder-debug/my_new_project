@@ -405,7 +405,7 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
           : showVehicleDetails && selectedVehicle != null
               ? ScreenVehicleDetails(
 
-                  vehicle: selectedVehicle!,
+                  vehicleId: selectedVehicle!.id,
                   onBack: () {
                     ref.read(vehicleProvider.notifier).setShowVehicleDetails(false);
                     ref.read(vehicleProvider.notifier).setSelectedVehicle(null);

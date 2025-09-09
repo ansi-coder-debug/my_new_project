@@ -18,14 +18,14 @@ import 'package:my_new_project/widgets/partnerships/add_partnership_details.dart
 import 'package:my_new_project/widgets/partnerships/add_partner_form.dart';
 
 class ScreenVehicleDetails extends ConsumerStatefulWidget {
-  final Vehicle vehicle;
+  final String vehicleId;
   final VoidCallback onBack;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   const ScreenVehicleDetails({
     super.key,
-    required this.vehicle,
+    required this.vehicleId,
     required this.onBack,
     this.onEdit,
     this.onDelete,
@@ -37,51 +37,40 @@ class ScreenVehicleDetails extends ConsumerStatefulWidget {
 }
 
 class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
-  String _selectedStatus = "available"; // keep this in your State
+  String _selectedStatus = "available";
 
-  void _deletePartnership() async {
-    final vehicleBox = Hive.box<Vehicle>('vehicles');
+ void _deletePartnership(Partnership partnership) async {
+  final vehicle = ref
+      .read(vehicleProvider)
+      .vehicles
+      .firstWhere((v) => v.id == widget.vehicleId);
 
-    final partnershipBox = Hive.box<Partnership>('partnerships');
+  final updatedPartnerships = List<Partnership>.from(vehicle.partnerships ?? [])
+    ..removeWhere((p) =>
+        p.partnerName == partnership.partnerName &&
+        p.contribution == partnership.contribution &&
+        p.sharePercentage == partnership.sharePercentage);
 
-    final vehicle = widget.vehicle;
+  final updatedVehicle = vehicle.copyWith(partnerships: updatedPartnerships);
 
-    // // delete the actual partnership from the box
-    // if (vehicle.partnership != null) {
-    //   await partnershipBox.delete(vehicle.partnership!.id);
-    // }
-    // Step 2: Replace the vehicle with the same data but no partnership
-    final updatedVehicle = Vehicle(
-      id: vehicle.id,
-      make: vehicle.make,
-      model: vehicle.model,
-      photos: vehicle.photos,
-      price: vehicle.price,
-      registrationId: vehicle.registrationId,
-      color: vehicle.color,
-      status: vehicle.status,
-      year: vehicle.year,
-      purchaseDate: vehicle.purchaseDate,
-      purchaseName: vehicle.purchaseName,
-      purchasePhone: vehicle.purchasePhone,
-      purchaseAddress: vehicle.purchaseAddress,
-      purchasePrice: vehicle.purchasePrice,
-      purchaseMode: vehicle.purchaseMode,
-      purchasePaymentStatus: vehicle.purchasePaymentStatus,
-      mileage: vehicle.mileage,
-      fuelType: vehicle.fuelType,
+  try {
+    await ref.read(vehicleRepositoryProvider).updateVehicle( updatedVehicle );
+
+    // Refresh local state
+    await ref.read(vehicleProvider.notifier).loadVehicles();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Partnership deleted')),
     );
-
-    // Step 3: Save updated vehicle to Hive
-    await vehicleBox.put(vehicle.id, updatedVehicle);
-
-    //step 4 rebuild ui
-    setState(() {});
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Partnership Deleted')));
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to delete partnership')),
+    );
   }
+}
+
+
+  // keep this in your State
 
   bool _showExpenseForm = false;
 
@@ -105,15 +94,32 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final expenseState = ref.watch(expenseProvider);
-    final expenseForThisVehicle = expenseState.expenses
-        .where((e) => e.vehicleId == widget.vehicle.id)
-        .toList();
+    final vehicleState = ref.watch(vehicleProvider);
+    
+// Promote to non-nullable by assigning and returning early
+final vehicle = vehicleState.vehicles.firstWhere(
+  (v) => v.id == widget.vehicleId,
+  // orElse: () => ,
+);
 
-    final totalExpenseAmount = expenseForThisVehicle.fold<double>(
-      0.0,
-      (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
-    );
+if (vehicle == null) {
+  return const Center(child: Text("Vehicle not found"));
+}
+
+
+
+  
+
+  final expenseState = ref.watch(expenseProvider);
+  final expenseForThisVehicle = expenseState.expenses
+      .where((e) => e.vehicleId == vehicle!.id)
+      .toList();
+
+  final totalExpenseAmount = expenseForThisVehicle.fold<double>(
+    0.0,
+    (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
+  );
+    
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -148,16 +154,18 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                         border: Border.all(color: Colors.blueAccent),
                         borderRadius: BorderRadius.circular(8),
                       ),
+
                       child: IconButton(
                         onPressed: () {
-                             print('IconButton pressed');
-                          ref.read(vehicleProvider.notifier).setVehicleToEdit(widget.vehicle);
-                          
-  // Notify parent widget about edit action (optional)
-  if (widget.onEdit != null) {
-    widget.onEdit!();
-  }
-                          
+                          print('IconButton pressed');
+                          ref
+                              .read(vehicleProvider.notifier)
+                              .setVehicleToEdit(vehicle);
+
+                          // Notify parent widget about edit action (optional)
+                          if (widget.onEdit != null) {
+                            widget.onEdit!();
+                          }
                         },
                         icon: const Icon(
                           Icons.edit,
@@ -189,7 +197,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
 
             KHeight16,
             Text(
-              "${widget.vehicle.make} ${widget.vehicle.model} (${widget.vehicle.model})",
+              "${vehicle.make} ${vehicle.model} (${vehicle.model})",
               style: const TextStyle(
                 color: Colors.black,
                 fontSize: 20,
@@ -198,7 +206,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
             ),
             KHeight16,
             Text(
-              widget.vehicle.registrationId,
+              vehicle.registrationId,
               style: const TextStyle(fontSize: 16, color: Colors.black),
             ),
             KHeight16,
@@ -222,7 +230,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                   ),
                   KHeight,
                   Text(
-                    "₹${widget.vehicle.purchasePrice}",
+                    "₹${vehicle.purchasePrice}",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 26,
@@ -232,7 +240,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                   KHeight,
 
                   Text(
-                    "(Buying Price: ₹${widget.vehicle.purchasePrice} + Total Expenses: ₹${totalExpenseAmount.toStringAsFixed(2)})",
+                    "(Buying Price: ₹${vehicle.purchasePrice} + Total Expenses: ₹${totalExpenseAmount.toStringAsFixed(2)})",
 
                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
@@ -246,12 +254,12 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
               borderRadius: BorderRadius.circular(12),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
-                child: widget.vehicle.photos.isNotEmpty
+                child: vehicle.photos.isNotEmpty
                     ? PageView.builder(
-                        itemCount: widget.vehicle.photos.length,
+                        itemCount: vehicle.photos.length,
                         itemBuilder: (context, index) {
                           return Image.network(
-                            widget.vehicle.photos[index],
+                         vehicle.photos [index],
                             fit: BoxFit.cover,
                           );
                         },
@@ -304,7 +312,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                         height: 5,
                       ), // Add a small space after the label
                       Text(
-                        widget.vehicle.color,
+                        vehicle.color,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -324,7 +332,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        "${widget.vehicle.mileage} km",
+                        "${vehicle.mileage} km",
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -344,7 +352,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        widget.vehicle.fuelType,
+                        vehicle.fuelType,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -364,7 +372,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        widget.vehicle.purchaseDate.toString().split("T").first,
+                        vehicle.purchaseDate.toString().split("T").first,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -384,7 +392,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        widget.vehicle.description ?? "No additional notes.",
+                        vehicle.description ?? "No additional notes.",
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -452,10 +460,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                               try {
                                 await ref
                                     .read(vehicleRepositoryProvider)
-                                    .updateVehicleStatus(
-                                      widget.vehicle.id,
-                                      value,
-                                    );
+                                    .updateVehicleStatus(vehicle.id, value);
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -781,7 +786,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        widget.vehicle.purchaseName,
+                        vehicle.purchaseName,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -801,7 +806,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        widget.vehicle.purchasePhone,
+                        vehicle.purchasePhone,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -821,7 +826,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        widget.vehicle.purchaseAddress,
+                        vehicle.purchaseAddress,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -841,7 +846,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        widget.vehicle.purchaseMode,
+                        vehicle.purchaseMode,
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -861,7 +866,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        widget.vehicle.purchasePrice.toString(),
+                        vehicle.purchasePrice.toString(),
                         style: const TextStyle(color: Colors.black),
                       ),
                     ],
@@ -924,7 +929,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                                   return SingleChildScrollView(
                                     controller: scrollController,
                                     child: AddExpenseDialog(
-                                      vehicle: widget.vehicle,
+                                      vehicle: vehicle,
                                       // onSubmit: (data) {
                                       //   // Handle submit logic
                                       // },
@@ -947,7 +952,6 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                   ),
 
                   SizedBox(height: 40), // Increased spacing
-
                   // Body (empty state)
                   expenseForThisVehicle.isEmpty
                       ? Center(
@@ -1010,39 +1014,67 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           decoration: TextDecoration.underline,
                         ),
                       ),
-                      // IconButton(
-                      //   onPressed: () {
-                      //     showDialog(
-                      //       context: context,
-                      //       barrierDismissible: false,
-                      //       builder: (context) => const AddPartnershipDetails(),
-                      //     );
-                      //   },
-                      //   icon: const Icon(Icons.add, color: Colors.blue),
-                      //   style: IconButton.styleFrom(
-                      //     backgroundColor: Colors.white,
-                      //     shape: RoundedRectangleBorder(
-                      //       borderRadius: BorderRadius.circular(8),
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
 
                   SizedBox(height: 40), // Increased spacing
                   // Body (empty state)
-                  Center(
-                    child: Text(
-                      "No partnerships have been recorded for this vehicle.",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                    ),
-                  ),
+                  vehicle.partnerships != null &&
+                          vehicle.partnerships!.isNotEmpty
+                      ? ListView.separated(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: vehicle.partnerships!.length,
+                          separatorBuilder: (_, __) => Divider(),
+                          itemBuilder: (context, index) {
+                            final partnership = vehicle.partnerships![index];
+                            return ListTile(
+                              title: Text(
+                                partnership.partnerName ?? 'Unnamed Partner',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (partnership.contribution != null)
+                                    Text(
+                                      'Contribution: ₹${partnership.contribution}',
+                                    ),
+                                  if (partnership.sharePercentage != null)
+                                    Text(
+                                      'Profit Share: ${partnership.sharePercentage}%',
+                                    ),
+                                  if (partnership.paymentMode != null)
+                                    Text(
+                                      'Payment Mode: ${partnership.paymentMode}',
+                                    ),
+                                  if (partnership.contributionStatus != null)
+                                    Text(
+                                      'Status: ${partnership.contributionStatus}',
+                                    ),
+                                ],
+                              ),
+                              trailing: IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  _deletePartnership(partnership);
+                                },
+                              ),
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            "No partnerships have been recorded for this vehicle.",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                            softWrap: true,
+                          ),
+                        ),
                 ],
               ),
             ),

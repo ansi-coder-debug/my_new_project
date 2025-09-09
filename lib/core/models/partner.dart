@@ -43,4 +43,5 @@ class Partner {
       phone: phone ?? this.phone,
     );
   }
+
 }

@@ -19,10 +19,7 @@ class PartnerNotifier extends StateNotifier<PartnerState> {
         errorMessage: null,
       );
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e.toString(),
-      );
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
 
@@ -32,12 +29,13 @@ class PartnerNotifier extends StateNotifier<PartnerState> {
       print("Before add → partners count: ${state.partners.length}");
       final created = await _repository.addPartner(partner);
 
- print("Repository returned: $created (${created.runtimeType})");
-      state = state.copyWith(partners: [...state.partners, created]);
+      print("Repository returned: $created (${created.runtimeType})");
+      // state = state.copyWith(partners: [...state.partners, created]);
+      await loadPartners();
       print("After add → partners count: ${state.partners.length}");
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
-       print("Error while adding partner: $e");
+      print("Error while adding partner: $e");
     }
   }
 
@@ -48,7 +46,8 @@ class PartnerNotifier extends StateNotifier<PartnerState> {
       final updatedList = state.partners.map((p) {
         return p.id == updated.id ? updated : p;
       }).toList();
-      state = state.copyWith(partners: updatedList);
+      // state = state.copyWith(partners: updatedList);
+      await loadPartners();
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
     }
@@ -59,7 +58,8 @@ class PartnerNotifier extends StateNotifier<PartnerState> {
     try {
       await _repository.deletePartner(id);
       final filtered = state.partners.where((p) => p.id != id).toList();
-      state = state.copyWith(partners: filtered);
+      // state = state.copyWith(partners: filtered);
+      await loadPartners();
     } catch (e) {
       state = state.copyWith(errorMessage: e.toString());
     }
@@ -67,8 +67,9 @@ class PartnerNotifier extends StateNotifier<PartnerState> {
 }
 
 // ✅ Provider
-final partnerProvider =
-    StateNotifierProvider<PartnerNotifier, PartnerState>((ref) {
+final partnerProvider = StateNotifierProvider<PartnerNotifier, PartnerState>((
+  ref,
+) {
   final repository = ref.watch(partnerRepositoryProvider);
   return PartnerNotifier(repository);
 });

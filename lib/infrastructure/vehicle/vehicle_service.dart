@@ -43,19 +43,19 @@ class VehicleService {
       //   return vehiclesList.map((json) => Vehicle.fromJson(json)).toList();
       // }
       if (response.statusCode == 200) {
-      final data = response.data;
+        final data = response.data;
 
-      if (data is List) {
-        // ✅ Backend returned a raw list
-        return data.map((json) => Vehicle.fromJson(json)).toList();
-      } else if (data is Map<String, dynamic> && data.containsKey('data')) {
-        // ✅ Backend returned { "data": [...] }
-        final vehiclesList = data['data'] as List;
-        return vehiclesList.map((json) => Vehicle.fromJson(json)).toList();
-      } else {
-        throw Exception('Unexpected response format: $data');
+        if (data is List) {
+          // ✅ Backend returned a raw list
+          return data.map((json) => Vehicle.fromJson(json)).toList();
+        } else if (data is Map<String, dynamic> && data.containsKey('data')) {
+          // ✅ Backend returned { "data": [...] }
+          final vehiclesList = data['data'] as List;
+          return vehiclesList.map((json) => Vehicle.fromJson(json)).toList();
+        } else {
+          throw Exception('Unexpected response format: $data');
+        }
       }
-    }
       throw Exception('Failed to load vehicles: ${response.statusCode}');
     } on DioException catch (e) {
       throw Exception('Network error: ${e.message}');
@@ -64,8 +64,55 @@ class VehicleService {
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //ADD VEHICLE CONECCTING TO BACKEND
   Future<void> addVehicle(Vehicle vehicle) async {
+    print("Sending Payload: ${vehicle.toJson()}");
+
+    print(
+      '🔥 Partnership payload: ${json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList())}',
+    );
+
     try {
       final authState = _ref.read(authNotifierProvider);
       final token = authState.user?.accessToken;
@@ -100,9 +147,10 @@ class VehicleService {
           'purchase_payment_status',
           vehicle.purchasePaymentStatus ?? 'pending',
         ),
+
         MapEntry(
           'is_partnership',
-          vehicle.partnerships != null ? 'true' : 'false',
+          (vehicle.partnerships?.isNotEmpty ?? false).toString(),
         ),
       ]);
 
@@ -112,29 +160,51 @@ class VehicleService {
         formData.files.add(MapEntry('photos', imageFiles[i]));
       }
 
-      // // Add partnership data if it exists
-      // if (vehicle.partnerships != null) {
+      // if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
       //   formData.fields.add(
       //     MapEntry(
-      //       'partnerships',
-      //       json.encode([vehicle.partnership!.toJson()]),
+      //       'partnerships_info',
+      //       json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList()),
       //     ),
       //   );
       // }
+      if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
+  for (int i = 0; i < vehicle.partnerships!.length; i++) {
+    final partner = vehicle.partnerships![i];
 
-         
-         if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
-  formData.fields.add(
-    MapEntry(
-      'partnerships',
-      json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList()),
-    ),
-  );
+    // Safely extract partner ID and name
+    final partnerId = partner.partner?.id ?? '0';
+    final partnerName = partner.partnerName ?? partner.partner?.name ?? '';
+
+    formData.fields.addAll([
+      MapEntry('partnerships[$i][partner_id]', partnerId),
+      MapEntry('partnerships[$i][partner_name]', partnerName),
+      MapEntry('partnerships[$i][contribution]', partner.contribution ?? '0'),
+      MapEntry('partnerships[$i][mode_of_payment]', partner.paymentMode ?? 'cash'),
+      MapEntry('partnerships[$i][contribution_payment_status]', partner.contributionStatus ?? 'pending'),
+      MapEntry('partnerships[$i][profit_share]', partner.sharePercentage ?? '0'),
+      MapEntry('partnerships[$i][profit_share_payment_status]', 'pending'),
+    ]);
+
+    if (vehicle.id.isNotEmpty) {
+      formData.fields.add(
+        MapEntry('partnerships[$i][vehicle_id]', vehicle.id),
+      );
+    }
+  }
 }
 
 
-
-
+      // ✅ ADD DEBUG LOGGING HERE
+      print('🔍 All FormData fields being sent:');
+      for (var field in formData.fields) {
+        if (field.key == 'partnerships_info') {
+          print('   ${field.key}: ${field.value}'); // This will show the JSON
+        } else {
+          print('   ${field.key}: ${field.value}');
+        }
+      }
+      print('🔍 Number of files: ${formData.files.length}');
 
       print('🔍 Sending FormData with ${vehicle.photos.length} images');
 
@@ -155,9 +225,42 @@ class VehicleService {
     }
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //  UPDATE VEHICLE CONECCTING TO BACKEND
   Future<void> updateVehicle(Vehicle vehicle) async {
-    
+    print("Sending Payload: ${vehicle.toJson()}");
+
+    print(
+      '🔥 Partnership payload: ${json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList())}',
+    );
+
     try {
       final authstate = _ref.read(authNotifierProvider);
       final token = authstate.user?.accessToken;
@@ -196,9 +299,49 @@ class VehicleService {
         ),
         MapEntry(
           'is_partnership',
-          vehicle.partnerships != null ? 'true' : 'false',
+          // vehicle.partnerships != null ? 'true' : 'false',
+          (vehicle.partnerships?.isNotEmpty ?? false).toString(),
         ),
       ]);
+
+      // if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
+      //   print(
+      //     '🧩 Partnership JSON: ${jsonEncode(vehicle.partnerships!.map((p) => p.toJson()).toList())}',
+      //   );
+
+      //   formData.fields.add(
+      //     MapEntry(
+      //       'partnerships_info',
+      //       json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList()),
+      //     ),
+      //   );
+      // }
+      if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
+  for (int i = 0; i < vehicle.partnerships!.length; i++) {
+    final partner = vehicle.partnerships![i];
+
+    // Safely extract partner ID and name
+    final partnerId = partner.partner?.id ?? '0';
+    final partnerName = partner.partnerName ?? partner.partner?.name ?? '';
+
+    formData.fields.addAll([
+      MapEntry('partnerships[$i][partner_id]', partnerId),
+      MapEntry('partnerships[$i][partner_name]', partnerName),
+      MapEntry('partnerships[$i][contribution]', partner.contribution ?? '0'),
+      MapEntry('partnerships[$i][mode_of_payment]', partner.paymentMode ?? 'cash'),
+      MapEntry('partnerships[$i][contribution_payment_status]', partner.contributionStatus ?? 'pending'),
+      MapEntry('partnerships[$i][profit_share]', partner.sharePercentage ?? '0'),
+      MapEntry('partnerships[$i][profit_share_payment_status]', 'pending'),
+    ]);
+
+    if (vehicle.id.isNotEmpty) {
+      formData.fields.add(
+        MapEntry('partnerships[$i][vehicle_id]', vehicle.id),
+      );
+    }
+  }
+}
+
 
       // Add images as files - use a different approach
       List<MultipartFile> imageFiles = await _getMultipartFiles(vehicle.photos);
@@ -206,33 +349,21 @@ class VehicleService {
         formData.files.add(MapEntry('photos', imageFiles[i]));
       }
 
-      // 3. Add partnership data if exists
-      // if (vehicle.partnerships != null) {
-      //   formData.fields.add(
-      //     MapEntry(
-      //       'partnerships',
-      //       json.encode([vehicle.partnership!.toJson()]),
-      //     ),
-      //   );
-      // }
-
-
-       if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
-        print('🧩 Partnership JSON: ${jsonEncode(vehicle.partnerships!.map((p) => p.toJson()).toList())}');
-  
-      formData.fields.add(
-        MapEntry(
-          'partnerships',
-          json.encode(vehicle.partnerships!.map((p) => p.toJson()).toList()),
-        ),
-      );
-}
-
+      // ✅ ADD DEBUG LOGGING HERE
+      print('🔍 All FormData fields being sent:');
+      for (var field in formData.fields) {
+        if (field.key == 'partnerships_info') {
+          print('   ${field.key}: ${field.value}'); // This will show the JSON
+        } else {
+          print('   ${field.key}: ${field.value}');
+        }
+      }
+      print('🔍 Number of files: ${formData.files.length}');
 
       print('🔍 Sending FormData update with ${vehicle.photos.length} images');
 
       final response = await _dio.put(
-      'http://192.168.29.29:5000/api/vehicles/detailed/${vehicle.id}',
+        'http://192.168.29.29:5000/api/vehicles/detailed/${vehicle.id}',
         data: formData,
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
@@ -257,7 +388,7 @@ class VehicleService {
       if (token == null) throw Exception('User not authenticated');
 
       await _dio.delete(
-       'http://192.168.29.29:5000/api/vehicles/$id',
+        'http://192.168.29.29:5000/api/vehicles/$id',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
     } on DioException catch (e) {
@@ -266,17 +397,11 @@ class VehicleService {
       );
     }
   }
- 
- //updating status like sold maintance available 
+
+  //updating status like sold maintance available
   Future<void> updateVehicleStatus(String vehicleId, String status) async {
-    await _dio.patch(
-      '/vehicles/$vehicleId/status',
-      data: {"status": status},
-    );
+    await _dio.patch('/vehicles/$vehicleId/status', data: {"status": status});
   }
-
-
-
 
   // HELPER FUNCTION: Convert image paths to MultipartFile objects
   Future<List<MultipartFile>> _getMultipartFiles(

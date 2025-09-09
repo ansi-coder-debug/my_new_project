@@ -37,7 +37,7 @@ class Partnership {
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       sharePercentage: json['share_percentage']?.toString() ?? '0',
-      vehicleId: json['vehicle_id']?.toString(),
+      // vehicleId: json['vehicle_id']?.toString(),
       startDate: json['start_date'] ?? '',
       partner: json['partner'] != null && json['partner'] is Map<String, dynamic>
           ? Partner.fromJson(json['partner'])
@@ -48,23 +48,38 @@ class Partnership {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'partner_id': partner?.id,
-      'partner_name': partner?.name,
-      'address': partner?.address,
-      'contact_person': contactPerson,
-      'email': email,
-      'phone': partner?.phone,
-      'share_percentage': sharePercentage,
-      'vehicle_id': vehicleId,
-      'start_date': startDate,
-      'contribution': contribution,
-      'payment_mode': paymentMode,
-      'contribution_status': contributionStatus,
-    };
-  }
+  // Map<String, dynamic> toJson() {
+  //   return {
+  //     'id': id,
+  //     'partner_id': partner?.id,
+  //     'partner_name': partner?.name,
+  //     'address': partner?.address,
+  //     'contact_person': contactPerson,
+  //     'email': email,
+  //     'phone': partner?.phone,
+  //     'share_percentage': sharePercentage,
+  //     'vehicle_id': vehicleId,
+  //     'start_date': startDate,
+  //     'contribution': contribution,
+  //     'payment_mode': paymentMode,
+  //     'contribution_status': contributionStatus,
+  //   };
+  // }
+Map<String, dynamic> toJson() {
+  return {
+    
+    'partner_id': int.tryParse(partner?.id ?? '0') ?? 0,
+    'partner_name': partnerName ?? partner?.name ?? '',
+    'contribution':double.tryParse(contribution ?? '0') ?? 0.0,
+    'profit_share': double.tryParse(sharePercentage ?? '0') ?? 0.0, 
+    'mode_of_payment': paymentMode ?? 'cash', // Backend expects mode_of_payment
+    'contribution_payment_status': contributionStatus ?? 'pending',
+    'profit_share_payment_status': 'pending', // Backend requires this field
+     'vehicle_id': int.tryParse(vehicleId ?? '0') ?? 0, 
+  };
+}
+
+
 
   /// ✅ CopyWith for Partnership
   Partnership copyWith({
@@ -74,7 +89,7 @@ class Partnership {
     String? email,
     String? phone,
     String? sharePercentage,
-    String? vehicleId,
+     String? vehicleId,
     String? startDate,
     Partner? partner,
     String? contribution,
@@ -88,7 +103,7 @@ class Partnership {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       sharePercentage: sharePercentage ?? this.sharePercentage,
-      vehicleId: vehicleId ?? this.vehicleId,
+       vehicleId: vehicleId ?? this.vehicleId,
       startDate: startDate ?? this.startDate,
       partner: partner ?? this.partner,
       contribution: contribution ?? this.contribution,

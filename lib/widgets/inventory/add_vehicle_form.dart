@@ -791,6 +791,21 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                   ),
                   KHeight20,
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                   SwitchListTile(
                     title: Text(
                       "Enable Partnership",
@@ -852,7 +867,7 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                                             children: [
                                               TextSpan(
                                                 text:
-                                                    "${partnership.partner}: ",
+                                                    "${partnership.partnerName}: ",
                                                 style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -925,7 +940,6 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                         ],
                       ),
                     ),
-
                   Row(
                     children: [
                       SizedBox(width: 90),

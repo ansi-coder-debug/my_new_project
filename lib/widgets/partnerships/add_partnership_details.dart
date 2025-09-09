@@ -33,6 +33,15 @@ class _AddPartnershipDetailsState extends ConsumerState<AddPartnershipDetails> {
   final List<String> profitShareStatuses = ['Paid', 'Pending', 'Partial'];
 
   @override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    ref.read(partnerProvider.notifier).loadPartners();
+  });
+}
+
+
+  @override
   Widget build(BuildContext context) {
     final partners = ref.watch(partnerProvider).partners;
     print('Partners List: $partners');
@@ -177,17 +186,18 @@ class _AddPartnershipDetailsState extends ConsumerState<AddPartnershipDetails> {
                         if (_formKey.currentState!.validate()) {
                           final newPartnership = Partnership(
                             id: const Uuid().v4(),
+                            partnerName: selectedPartner?.name??'',
                             partner: selectedPartner,
                             contribution: contributionController.text.trim(),
-                            vehicleId: widget.vehicleId,
+                             vehicleId: widget.vehicleId,
                             paymentMode: paymentMode!,
                             contributionStatus: contributionStatus!,
                           );
 
                           // Add to provider
-                          ref
-                              .read(vehicleProvider.notifier)
-                              .addPartnership(widget.vehicleId, newPartnership);
+                          // ref
+                          //     .read(vehicleProvider.notifier)
+                          //     .addPartnership(widget.vehicleId, newPartnership);
 
                           // Return the new partnership to the parent screen
                           Navigator.of(context).pop(newPartnership);

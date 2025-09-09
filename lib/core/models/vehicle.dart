@@ -177,11 +177,14 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
   //         .toList(),
 
  // 🔥 CHANGED → safe partnerships handling
-      partnerships: json['partnerships'] != null
-          ? (json['partnerships'] as List<dynamic>)
+      partnerships: json['partnerships_info'] != null
+          ? (json['partnerships_info'] as List<dynamic>)
               .map((p) => Partnership.fromJson(p))
               .toList()
           : [],
+
+
+
 
     salesId: json['sale_info']?['id']?.toString(),
     mileage: (json['mileage'] is num)
@@ -222,9 +225,7 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
       // 'partnerships': partnerships?.map((p) => p.toJson()).toList(),
     
       // 🔥 CHANGED → only include if non-empty
-      if (partnerships != null && partnerships!.isNotEmpty)
-        'partnerships': partnerships!.map((p) => p.toJson()).toList(),
-
+      'partnerships_info':partnerships!.map((p)=>p.toJson()).toList(),
 
 
 
