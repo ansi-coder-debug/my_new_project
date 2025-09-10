@@ -81,6 +81,43 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
     }
   }
 
+  Future<void> markVehicleAsSold({
+  required String vehicleId,
+  required Map<String, dynamic> saleData,
+}) async {
+  try {
+    state = state.copyWith(isLoading: true, error: null);
+
+    // Call the repository method to mark as sold with saleData
+    await _vehicleRepositary.markVehicleAsSold(vehicleId, saleData);
+
+    // Reload vehicles list to reflect changes
+    await loadVehicles();
+
+    state = state.copyWith(isLoading: false);
+  } catch (e) {
+    state = state.copyWith(
+      isLoading: false,
+      error: 'Failed to mark vehicle as sold: $e',
+    );
+    rethrow;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   Future<void> deleteVehicle(String id) async {
     try {
       state = state.copyWith(isLoading: true, error: null);

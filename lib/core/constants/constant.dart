@@ -6,6 +6,7 @@ const KHeight20 = SizedBox(height: 20);
 const KWidth12 = SizedBox(width: 12);
 const KHeight30 = SizedBox(height: 30);
 const KHeight16 = SizedBox(height: 16);
+const Kblack = TextStyle(color: Colors.black);
 
 const List<String> vehicleStatues = [
   'Available',
@@ -55,39 +56,31 @@ const String baseUrl = "http://192.168.29.29:5000/api/";
 //                 },
 //               ),
 
-
-
 /// Common reusable input decoration
- InputDecoration kCommonInputDecoration = InputDecoration(
-  contentPadding: EdgeInsets.symmetric(
-    vertical: 8,
-    horizontal: 12,
-  ),
+InputDecoration kCommonInputDecoration = InputDecoration(
+  contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
   border: OutlineInputBorder(
     borderRadius: BorderRadius.circular(8),
-  borderSide: BorderSide(color: Colors.grey),
+    borderSide: BorderSide(color: Colors.grey),
   ),
 );
 
-
-
 //add partnership
 Widget buildTextField(TextEditingController controller, String label) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(color: Colors.black)),
-        SizedBox(height: 4),
-        TextFormField(
-          
-          controller: controller,
-          style: TextStyle(color: Colors.black),
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            border: OutlineInputBorder(),
-          ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: TextStyle(color: Colors.black)),
+      SizedBox(height: 4),
+      TextFormField(
+        controller: controller,
+        style: TextStyle(color: Colors.black),
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          border: OutlineInputBorder(),
         ),
-        SizedBox(height: 16),
-      ],
-    );
-  }
+      ),
+      SizedBox(height: 16),
+    ],
+  );
+}

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:my_new_project/core/models/employee.dart';
 
-import 'package:my_new_project/widgets/common_search_bar.dart';
+
 import 'package:my_new_project/widgets/employee/add_employee_form.dart';
 import 'package:my_new_project/widgets/employee/employee_card.dart';
 import 'package:my_new_project/widgets/employee/employee_details_screen.dart';
@@ -119,11 +119,11 @@ class _ScreenEmployeesState extends State<ScreenEmployees> {
 
                 return Column(
                   children: [
-                    CommonSearchBar(
-                      labelText: 'Employees Page',
-                      hintText: 'Employees',
-                      onChanged: (p0) {},
-                    ),
+                    // CommonSearchBar(
+                    //   labelText: 'Employees Page',
+                    //   hintText: 'Employees',
+                    //   onChanged: (p0) {},
+                    // ),
                     EmployeeFilterRow(
                       selectedStatus: selectedStatus,
                       selectedSort: selectedSort,

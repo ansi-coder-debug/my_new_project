@@ -70,7 +70,8 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
       final emp = widget.employeeToEdit!;
       _nameController.text = emp.name;
       _designationController.text = emp.designation;
-      _joiningYearController.text = emp.joiningYear;  //for existing details pre editing 
+      _joiningYearController.text =
+          emp.joiningYear; //for existing details pre editing
       _phoneController.text = emp.phoneNumber;
       _salaryController.text = emp.salary;
       _imageUrlController.text = emp.imageUrl;
@@ -211,7 +212,7 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
               value: selectedStatus,
               decoration: InputDecoration(border: OutlineInputBorder()),
 
-              items: ['Active','Inactive','Onleave'].map((status) {
+              items: ['Active', 'Inactive', 'Onleave'].map((status) {
                 return DropdownMenuItem(value: status, child: Text(status));
               }).toList(),
               onChanged: (value) {
@@ -315,7 +316,8 @@ class _AddEmployeeFormState extends State<AddEmployeeForm> {
                     );
 
                     if (widget.employeeToEdit != null) {
-                      final Key = widget.employeeToEdit!.key;
+                      final Key = widget.employeeToEdit!;
+                      // .key;
                       await box.put(Key, newEmployee);
                       print('Employee Updated');
                     } else {

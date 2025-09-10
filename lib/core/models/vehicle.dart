@@ -1,70 +1,70 @@
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:my_new_project/core/models/partnership.dart';
-part 'vehicle.g.dart';
 
-@HiveType(typeId: 0)
-class Vehicle extends HiveObject {
-  @HiveField(0)
+import 'package:my_new_project/core/models/partnership.dart';
+import 'package:my_new_project/core/models/sales.dart';
+
+
+
+class Vehicle {
+  
   final String id;
 
-  @HiveField(1)
+ 
   final String make;
 
-  @HiveField(2)
+ 
   final String model;
 
-  @HiveField(3)
+
   final List<String> photos;
 
-  @HiveField(4)
+
   final String price;
 
-  @HiveField(5)
+
   final String registrationId;
 
-  @HiveField(6)
+
   final String color;
 
-  @HiveField(7)
+ 
   final String status;
 
-  @HiveField(8)
+ 
   final String year;
 
-  @HiveField(9)
+ 
   final String? description;
 
-  @HiveField(10)
+  
   final String? purchaseDate;
 
-  @HiveField(11)
+
   final String purchaseName;
 
-  @HiveField(12)
+ 
   final String purchasePhone;
 
-  @HiveField(13)
+ 
   final String purchaseAddress;
 
-  @HiveField(14)
+ 
   final String purchasePrice;
 
-  @HiveField(15)
   final String purchaseMode;
 
-  @HiveField(16)
+  
   final String? purchasePaymentStatus;
 
-  @HiveField(17)
+ 
   final List <Partnership>? partnerships;
 
-  @HiveField(18)
-  final String? salesId;
 
-  @HiveField(19)
+  final SaleInfo? saleInfo;
+
+
   final double mileage; //required by backend
 
-  @HiveField(20)
+
   final String fuelType;
 
   Vehicle({
@@ -86,7 +86,7 @@ class Vehicle extends HiveObject {
     required  this.purchaseMode,
     required  this.purchasePaymentStatus,
     this.partnerships,
-    this.salesId,
+    this.saleInfo,
     required this.mileage,
     required this.fuelType,
   });
@@ -109,7 +109,7 @@ class Vehicle extends HiveObject {
   String? purchaseMode,
   String? purchasePaymentStatus,
   List<Partnership>? partnerships, // ✅ FIXED (was Partnership?)
-  String? salesId,
+  SaleInfo?saleInfo,
   double? mileage,
   String? fuelType,
 }) {
@@ -133,7 +133,7 @@ class Vehicle extends HiveObject {
     purchasePaymentStatus:
         purchasePaymentStatus ?? this.purchasePaymentStatus,
     partnerships: partnerships ?? this.partnerships, // ✅ now types match
-    salesId: salesId ?? this.salesId,
+    saleInfo:saleInfo?? this.saleInfo,
     mileage: mileage ?? this.mileage,
     fuelType: fuelType ?? this.fuelType,
   );
@@ -186,7 +186,10 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
 
 
 
-    salesId: json['sale_info']?['id']?.toString(),
+   saleInfo: json['sale_info'] != null
+    ? SaleInfo.fromJson(json['sale_info'])
+    : null,
+
     mileage: (json['mileage'] is num)
         ? (json['mileage'] as num).toDouble()
         : 0.0,
@@ -236,6 +239,9 @@ factory Vehicle.fromJson(Map<String, dynamic> json) {
     'purchase_price': cleanNumeric(purchasePrice),
     'purchase_mode_of_payment': purchaseMode ?? '',
     'purchase_payment_status': purchasePaymentStatus ?? 'pending',
+
+    if (saleInfo != null) 'sale_info': saleInfo!.toJson(),
+
 
     // if (partnerships != null && partnerships!.isNotEmpty)
     //   'partnerships': partnerships!.map((p) => p.toJson()).toList(),

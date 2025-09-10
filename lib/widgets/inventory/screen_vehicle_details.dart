@@ -2,20 +2,19 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/adapters.dart';
+
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/expense/expense_provider.dart';
-import 'package:my_new_project/application/purchase/purchase_provider.dart';
+
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
-import 'package:my_new_project/core/models/expense.dart';
+
 import 'package:my_new_project/core/models/partnership.dart';
-import 'package:my_new_project/core/models/purchase.dart';
-import 'package:my_new_project/core/models/vehicle.dart';
+
 import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
 import 'package:my_new_project/widgets/expense/add_expense_dialog.dart';
-import 'package:my_new_project/widgets/partnerships/add_partnership_details.dart';
-import 'package:my_new_project/widgets/partnerships/add_partner_form.dart';
+import 'package:my_new_project/widgets/sales/profit_summary_card.dart';
+import 'package:my_new_project/widgets/sales/sale_form.dart';
 
 class ScreenVehicleDetails extends ConsumerStatefulWidget {
   final String vehicleId;
@@ -37,38 +36,56 @@ class ScreenVehicleDetails extends ConsumerStatefulWidget {
 }
 
 class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
+  //  String? _selectedPaymentMode;
+
+  // final List<String> _paymentModes = [
+  //   'Cash',
+  //   'Card',
+  //   'Bank Transfer',
+  //   'Finance',
+  // ];
+
   String _selectedStatus = "available";
 
- void _deletePartnership(Partnership partnership) async {
-  final vehicle = ref
-      .read(vehicleProvider)
-      .vehicles
-      .firstWhere((v) => v.id == widget.vehicleId);
+  final List<String> _paymentModes = [
+    "Cash",
+    "Card",
+    "Bank Transfer",
+    "Finance",
+  ];
+  String? _selectedMode;
 
-  final updatedPartnerships = List<Partnership>.from(vehicle.partnerships ?? [])
-    ..removeWhere((p) =>
-        p.partnerName == partnership.partnerName &&
-        p.contribution == partnership.contribution &&
-        p.sharePercentage == partnership.sharePercentage);
+  void _deletePartnership(Partnership partnership) async {
+    final vehicle = ref
+        .read(vehicleProvider)
+        .vehicles
+        .firstWhere((v) => v.id == widget.vehicleId);
 
-  final updatedVehicle = vehicle.copyWith(partnerships: updatedPartnerships);
+    final updatedPartnerships =
+        List<Partnership>.from(vehicle.partnerships ?? [])..removeWhere(
+          (p) =>
+              p.partnerName == partnership.partnerName &&
+              p.contribution == partnership.contribution &&
+              p.sharePercentage == partnership.sharePercentage,
+        );
 
-  try {
-    await ref.read(vehicleRepositoryProvider).updateVehicle( updatedVehicle );
+    final updatedVehicle = vehicle.copyWith(partnerships: updatedPartnerships);
 
-    // Refresh local state
-    await ref.read(vehicleProvider.notifier).loadVehicles();
+    try {
+      await ref.read(vehicleRepositoryProvider).updateVehicle(updatedVehicle);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Partnership deleted')),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to delete partnership')),
-    );
+      // Refresh local state
+      await ref.read(vehicleProvider.notifier).loadVehicles();
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Partnership deleted')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to delete partnership')),
+      );
+    }
   }
-}
-
 
   // keep this in your State
 
@@ -84,41 +101,32 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
   final TextEditingController _dateController = TextEditingController();
   DateTime? _selectedDate;
   final DateFormat _dateFormat = DateFormat('dd-MM-yyyy');
-  final List<String> _paymentModes = [
-    "Cash",
-    "Card",
-    "Bank Transfer",
-    "Finance",
-  ];
-  String? _selectedMode;
 
   @override
   Widget build(BuildContext context) {
     final vehicleState = ref.watch(vehicleProvider);
-    
-// Promote to non-nullable by assigning and returning early
-final vehicle = vehicleState.vehicles.firstWhere(
-  (v) => v.id == widget.vehicleId,
-  // orElse: () => ,
-);
 
-if (vehicle == null) {
-  return const Center(child: Text("Vehicle not found"));
-}
+    // Promote to non-nullable by assigning and returning early
+    final vehicle = vehicleState.vehicles.firstWhere(
+      (v) => v.id == widget.vehicleId,
+      // orElse: () => ,
+    );
 
+    if (vehicle == null) {
+      return const Center(child: Text("Vehicle not found"));
+    }
 
+    final expenseState = ref.watch(expenseProvider);
+    final expenseForThisVehicle = expenseState.expenses
+        .where((e) => e.vehicleId == vehicle!.id)
+        .toList();
 
-  
+    final totalExpenseAmount = expenseForThisVehicle.fold<double>(
+      0.0,
+      (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
+    );
 
-  final expenseState = ref.watch(expenseProvider);
-  final expenseForThisVehicle = expenseState.expenses
-      .where((e) => e.vehicleId == vehicle!.id)
-      .toList();
-
-  final totalExpenseAmount = expenseForThisVehicle.fold<double>(
-    0.0,
-    (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
-  );
+    //sold green card
     
 
     return Scaffold(
@@ -249,6 +257,50 @@ if (vehicle == null) {
             ),
             KHeight20,
 
+            //total profit
+            if (vehicle.status.toLowerCase() == "sold") ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF43A047), Color(0xFF2E7D32)],
+                    begin: Alignment.center,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      "Total Profit",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "total profit",
+                      // "₹${totalProfit.toStringAsFixed(0)}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                     "ownera profit",
+                      // "(Owner Profit: ₹${ownerProfit.toStringAsFixed(0)} + Partners Profit: ₹${partnersProfit.toStringAsFixed(0)})",
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+            ],
+
             //vehicle image
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -259,7 +311,7 @@ if (vehicle == null) {
                         itemCount: vehicle.photos.length,
                         itemBuilder: (context, index) {
                           return Image.network(
-                         vehicle.photos [index],
+                            vehicle.photos[index],
                             fit: BoxFit.cover,
                           );
                         },
@@ -487,267 +539,28 @@ if (vehicle == null) {
 
             KHeight16,
 
-            // Now conditionally render when status == "sold"
-            if (_selectedStatus == "sold") ...[
-              const SizedBox(height: 20),
-              //inline
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title inside same container
-                    const Text(
-                      "Record New Sale",
-                      style: TextStyle(
-                        fontSize: 30,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
+            // // Now conditionally render when status == "sold"
+            // if (_selectedStatus == "sold") ...[
+            // SaleForm(vehicle: vehicle,)
+            // ],
 
-                        decoration: TextDecoration.underline,
-                        // decorationThickness: 30
-                      ),
-                    ),
+            // ✅ Instead of this
+            // if (_selectedStatus == "sold") ...[
+            //   SaleForm(vehicle: vehicle,)
+            // ],
 
-                    const SizedBox(height: 16),
+            // ✅ Do this
+if (vehicle.status.toLowerCase() == "sold") ...[
+  ProfitSummaryCard(
+    vehicle: vehicle,
+    expenses: expenseForThisVehicle, // Make sure this is a List<Expense>
+  ),
+] else if (_selectedStatus == "sold") ...[
+  SaleForm(vehicle: vehicle),
+],
 
-                    // Customer Information heading
-                    const Text(
-                      "Customer Information",
-                      style: TextStyle(fontSize: 15, color: Colors.black),
-                    ),
-                    // const SizedBox(height: 12),
-                    Divider(color: Colors.black, thickness: 1),
 
-                    // Advance Payment Dropdown
-                    const Text("Select Advance Payment"),
-                    DropdownButtonFormField<String>(
-                      value: _advancePayment,
-                      hint: const Text("Manual Entry / No Advance"),
-                      items:
-                          ["Manual Entry / No Advance", "Bank Transfer", "Cash"]
-                              .map(
-                                (method) => DropdownMenuItem(
-                                  value: method,
-                                  child: Text(method),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _advancePayment = value;
-                        });
-                      },
-                      decoration: InputDecoration(border: OutlineInputBorder()),
-                    ),
-                    const SizedBox(height: 16),
 
-                    // Name
-                    const Text(
-                      "Customer Name *",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _nameController,
-                      style: TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        hintText: "Enter customer name",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Phone
-                    const Text(
-                      "Customer Phone *",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _phoneController,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: "Enter phone number",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Address
-                    const Text(
-                      "Customer Address",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _addressController,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: "Enter customer address",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    KHeight16,
-                    Text(
-                      "Sale & Payment Details",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    KHeight16,
-                    Divider(color: Colors.black),
-
-                    Text(
-                      "Sale Date*",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _dateController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        // labelText: "Sale Date*",
-                        hintText: "dd-MM-yyyy",
-                        suffixIcon: Icon(Icons.calendar_today),
-                        border: OutlineInputBorder(),
-                      ),
-                      onTap: () => _pickDate(context),
-                    ),
-                    KHeight16,
-
-                    Text(
-                      "Sale Price(INR)*",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextFormField(
-                      style: TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        hintText: "e.g.500000",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    KHeight16,
-
-                    Text(
-                      "Recieved Amount(INR)*",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextFormField(
-                      style: TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        hintText: "e.g.100000",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    KHeight16,
-
-                    Text(
-                      "Payment Status*",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    TextFormField(
-                      style: TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        hintText: "Pending",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    KHeight16,
-
-                    DropdownButtonFormField<String>(
-                      value: _selectedMode,
-                      decoration: const InputDecoration(
-                        hintText: "Select Payment Mode",
-                        border: OutlineInputBorder(),
-                      ),
-                      items: _paymentModes.map((mode) {
-                        return DropdownMenuItem<String>(
-                          value: mode,
-                          child: Text(mode),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedMode = value;
-                        });
-                      },
-                      validator: (value) =>
-                          value == null ? "Please select a payment mode" : null,
-                    ),
-                    KHeight20,
-                    const Text(
-                      "Brokerage Details",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Divider(color: Colors.black),
-
-                    KHeight20,
-                    TextFormField(
-                      style: TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        hintText: "Select Broker(optional)",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    KHeight20,
-                    Center(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Colors.blue, // button background color
-                          foregroundColor: Colors.white, // text color
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 30,
-                            vertical: 15,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () {
-                          // your submit logic here
-                        },
-                        child: const Text(
-                          "Submit",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
 
             // ================= Seller Details Section =================
             KHeight30,

@@ -29,9 +29,9 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
 
   final List<Widget> _drawerPages = [
     ScreenDashboard(),
-    ScreenInventory(),
-    ScreenPurchase(),
+    ScreenInventory(), 
     ScreenSales(),
+     ScreenPurchase(),
     ScreenEmployees(),
     ScreenExpense(),
     PartnersPage(),

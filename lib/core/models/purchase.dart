@@ -1,36 +1,35 @@
-import 'package:hive_flutter/hive_flutter.dart';
-part 'purchase.g.dart';
 
-@HiveType(typeId: 4)
-class Purchase extends HiveObject {
-  @HiveField(0)
+
+
+class Purchase  {
+  
   final String id;
 
-  @HiveField(1)
+  
   final String vehicleId;
 
-  @HiveField(2)
+  
   final String userId;
 
-  @HiveField(3)
+
   final String name;
 
-  @HiveField(4)
+  
   final String phone;
 
-  @HiveField(5)
+ 
   final String address;
 
-  @HiveField(6)
+
   final DateTime date;
 
-  @HiveField(7)
+ 
   final double price;
 
-  @HiveField(8)
+
   final String modeOfPayment;
 
-  @HiveField(9)
+
   final String paymentStatus;
 
   Purchase({

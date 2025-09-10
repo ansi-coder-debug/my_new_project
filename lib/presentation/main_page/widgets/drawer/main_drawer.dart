@@ -100,11 +100,8 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(1),
           ),
+
           ListTile(
-            // leading: Icon(Icons.task),
-            // splashColor: Colors.blue,
-            // onTap: () => delayedNavigate(ScreenTasks()),
-            // title: Text('Tasks', style: TextStyle(fontWeight: FontWeight.bold)),
             selected: selectedIndex == 2,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -112,7 +109,7 @@ class MainDrawer extends ConsumerWidget {
               color: selectedIndex == 2 ? Colors.blue : null,
             ),
             title: Text(
-              'Purchase',
+              'Sales',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 2 ? Colors.blue : null,
@@ -120,19 +117,16 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(2),
           ),
+
           ListTile(
-            // leading: Icon(Icons.attach_money),
-            // splashColor: Colors.blue,
-            // onTap: () => delayedNavigate(ScreenSales()),
-            // title: Text('Sales', style: TextStyle(fontWeight: FontWeight.bold)),
             selected: selectedIndex == 3,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.attach_money,
+              Icons.shopping_bag,
               color: selectedIndex == 3 ? Colors.blue : null,
             ),
             title: Text(
-              'Sales',
+              'Purchase',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 3 ? Colors.blue : null,

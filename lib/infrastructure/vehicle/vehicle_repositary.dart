@@ -25,6 +25,11 @@ class VehicleRepository {
     await _vehicleService.updateVehicle(vehicle);
   }
 
+  Future<void> markVehicleAsSold(String vehicleId, Map<String, dynamic> saleData) async {
+  await _vehicleService.markVehicleAsSold(vehicleId, saleData);
+}
+
+
   Future<void> deleteVehicle(String id) async {
     await _vehicleService.deleteVehicle(id);
   }

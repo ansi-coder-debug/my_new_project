@@ -1,70 +1,82 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 
-// import 'package:my_new_project/core/constants/constant.dart';
-import 'package:my_new_project/core/models/sales.dart';
-// import 'package:my_new_project/widgets/common_search_bar.dart';
-import 'package:my_new_project/widgets/sales/sales_card.dart';
-import 'package:my_new_project/widgets/sales/sales_details_screen.dart';
-
-class ScreenSales extends StatefulWidget {
-  const ScreenSales({super.key});
+class ScreenSales extends ConsumerWidget {
+  const ScreenSales({Key? key}) : super(key: key);
 
   @override
-  State<ScreenSales> createState() => _ScreenSalesState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final vehicleState = ref.watch(vehicleProvider);
 
-class _ScreenSalesState extends State<ScreenSales> {
-  final Box<Sales> salesBox = Hive.box<Sales>('sales');
-  bool showSalesDetails = false;
+    // Filter only sold vehicles (those with saleInfo)
+    final soldVehicles = vehicleState.vehicles
+        .where((vehicle) => vehicle.saleInfo != null)
+        .toList();
 
-  Sales? selectedSales;
+    if (soldVehicles.isEmpty) {
+      return const Center(child: Text("No sale information available."));
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: showSalesDetails && selectedSales != null
-          ? SalesDetailsScreen(
-              sales: selectedSales!,
-              onBack: () {
-                setState(() {
-                  showSalesDetails = false;
-                  selectedSales = null;
-                });
-              },
-            )
-          : ValueListenableBuilder(
-              valueListenable: salesBox.listenable(),
-              builder: (context, Box<Sales> box, _) {
-                final saless = box.values.toList();
-                if (box.values.isEmpty) {
-                  return Center(child: Text('No Sales Found'));
-                }
-                return ListView.builder(
-                  itemCount: saless.length,
-                  itemBuilder: (context, index) {
-                    final sales = saless[index];
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedSales = sales;
-                          showSalesDetails = true;
-                        });
-                      },
-                      child: SalesCard(
-                         date: sales.date,
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: soldVehicles.length,
+      itemBuilder: (context, index) {
+        final vehicle = soldVehicles[index];
+        final saleInfo = vehicle.saleInfo!;
 
-                         name: sales.buyerName,
-                          phone:sales.buyerPhone ,
-                           address:sales.buyerAddress ,
-                            modeOfPayment: sales.modeOfPayment, 
-                            vehicleId:sales.vehicleId ,
-                            ),
-                    );
-                  },
-                );
-              },
+        return Card(
+          elevation: 3,
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Customer name and price
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      saleInfo.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    Text(
+                      "₹${saleInfo.price}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  "${vehicle.make} ${vehicle.model} (${vehicle.year})",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Text("Phone: ${saleInfo.phone}"),
+                Text("Address: ${saleInfo.address}"),
+                Text("Date: ${saleInfo.date}"),
+                Text("Payment: ${saleInfo.paymentStatus} (${saleInfo.modeOfPayment})"),
+                Text("Received: ₹${saleInfo.receivedPrice}"),
+              ],
             ),
+          ),
+        );
+      },
     );
   }
 }

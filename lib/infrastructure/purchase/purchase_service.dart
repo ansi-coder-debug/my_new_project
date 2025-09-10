@@ -17,37 +17,7 @@ class PurchaseService {
 
   PurchaseService(this._ref);
 
-  // final String baseUrl = "http://192.168.29.29:5000/api/purchases";
-
-  // // ✅ Fetch all purchases
-  // Future<List<Purchase>> getPurchases() async {
-  //   try {
-  //     final authState = _ref.read(authNotifierProvider);
-  //     final token = authState.user?.accessToken;
-
-  //     if (token == null) throw Exception("User not authenticated");
-
-  //     final response = await _dio.get(
-  //      'http://192.168.29.29:5000/api/purchases',
-  //       options: Options(headers: {"Authorization": "Bearer $token"}),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       // final data = response.data as List;
-  //       // Access the list inside the 'data' field
-  //     final dataList = response.data['data'] as List;
-
-  //       // return data.map((json) => Purchase.fromJson(json)).toList();
-  //        // Convert each item in the list to a Purchase object
-  //     return dataList.map((json) => Purchase.fromJson(json)).toList();
-
-  //     } else {
-  //       throw Exception("Failed to fetch purchases");
-  //     }
-  //   } catch (e) {
-  //     throw Exception("Error fetching purchases: $e");
-  //   }
-  // }
+  
         Future<List<Purchase>> getPurchases() async {
   try {
     final authState = _ref.read(authNotifierProvider);
