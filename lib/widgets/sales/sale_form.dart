@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_new_project/application/sale/sale_provider.dart';
+import 'package:my_new_project/application/broker/broker_provider.dart';
+
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/broker.dart';
 import 'package:my_new_project/core/models/sales.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
@@ -51,6 +53,8 @@ class _SaleFormState extends ConsumerState<SaleForm> {
     }
   }
 
+  List<Map<String, dynamic>> brokersList = [];
+
   //paid partial pending
   // Controllers (declare in your state class)
   final TextEditingController salePriceController = TextEditingController();
@@ -80,6 +84,14 @@ class _SaleFormState extends ConsumerState<SaleForm> {
     });
 
     receivedAmountController.addListener(_updatePaymentStatus);
+
+    //broker
+    // ref.read(brokerProvider.notifier).loadBrokers();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(brokerProvider.notifier)
+          .loadBrokers(); // ✅ Brokers loaded globally
+    });
   }
 
   // Update function
@@ -102,11 +114,11 @@ class _SaleFormState extends ConsumerState<SaleForm> {
 
   @override
   Widget build(BuildContext context) {
+    //broker
+    final brokerState = ref.watch(brokerProvider);
+    final List<Broker> brokers = brokerState.brokers;
 
-    
     final vehicleNotifier = ref.read(vehicleProvider.notifier);
-
-    
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -359,95 +371,176 @@ class _SaleFormState extends ConsumerState<SaleForm> {
                   const Divider(color: Colors.black),
                   KHeight20,
 
-                  TextFormField(
-                    style: const TextStyle(color: Colors.black),
+                  // Show Select Broker (Always)
+                  const Text(
+                    "Select Broker",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  KHeight,
+
+                  DropdownButtonFormField<int>(
+                    value: brokersList.isNotEmpty
+                        ? brokersList[0]["brokerId"]
+                        : null,
+                    items: brokers.map((broker) {
+                      return DropdownMenuItem<int>(
+                        value: broker.id,
+                        child: Text(broker.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        // If list is empty, initialize it
+                        if (brokersList.isEmpty) {
+                          brokersList.add({
+                            "brokerId": value,
+                            "brokerName": brokers
+                                .firstWhere((b) => b.id == value!)
+                                .name,
+                            "amount": TextEditingController(),
+                            "remarks": TextEditingController(),
+                          });
+                        } else {
+                          brokersList[0]["brokerId"] = value;
+                          brokersList[0]["brokerName"] = brokers
+                              .firstWhere((b) => b.id == value!)
+                              .name;
+                        }
+                      });
+                    },
                     decoration: const InputDecoration(
-                      hintText: "Select Broker (optional)",
+                      hintText: "Select Broker (Optional)",
                       border: OutlineInputBorder(),
                     ),
                   ),
                   KHeight,
 
-                 
-                   Center(
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.blue,
-      foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 30,
-        vertical: 15,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-    ),
+                  // Show Amount and Remarks only if broker selected
+                  if (brokersList.isNotEmpty &&
+                      brokersList[0]["brokerId"] != null) ...[
+                    const Text("Brokerage Amount (INR) *"),
+                    KHeight,
+                    TextFormField(
+                      controller: brokersList[0]["amount"],
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        hintText: "e.g., 5000",
+                        suffixIcon: Icon(Icons.calculate),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    KHeight,
 
+                    const Text("Brokerage Remarks"),
+                    KHeight,
+                    TextFormField(
+                      controller: brokersList[0]["remarks"],
+                      decoration: const InputDecoration(
+                        hintText: "Optional remarks",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    KHeight20,
+                  ],
 
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 15,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
 
-   onPressed: () async {
-  if (_formKey.currentState!.validate()) {
-    final saleInfo = SaleInfo(
-      name: _nameController.text.trim().toLowerCase(),
-      phone: _phoneController.text.trim().toLowerCase(),
-      address: _addressController.text.trim().toLowerCase(),
-      date: _dateController.text.trim(),
-      price: salePriceController.text.trim(),
-      receivedPrice: receivedAmountController.text.trim().toLowerCase(),
-      modeOfPayment: _selectedMode?.toLowerCase()??'',
-      paymentStatus: paymentStatusController.text.trim().toLowerCase(),
-    );
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          final saleInfo = SaleInfo(
+                            name: _nameController.text.trim().toLowerCase(),
+                            phone: _phoneController.text.trim().toLowerCase(),
+                            address: _addressController.text
+                                .trim()
+                                .toLowerCase(),
+                            date: _dateController.text.trim(),
+                            price: salePriceController.text.trim(),
+                            receivedPrice: receivedAmountController.text
+                                .trim()
+                                .toLowerCase(),
+                            modeOfPayment: _selectedMode?.toLowerCase() ?? '',
+                            paymentStatus: paymentStatusController.text
+                                .trim()
+                                .toLowerCase(),
+                          );
 
-    final saleData = {
-      'status': 'sold',
-      'sale_name': saleInfo.name,
-      'sale_phone': saleInfo.phone,
-      'sale_address': saleInfo.address,
-      'sale_date': saleInfo.date,
-      'sale_price': saleInfo.price.replaceAll(',', ''),
-      'sale_received_price': saleInfo.receivedPrice.replaceAll(',', ''),
-      'sale_mode_of_payment': saleInfo.modeOfPayment,
-      'sale_payment_status': saleInfo.paymentStatus,
-    };
+                          final brokerEntry = brokersList.isNotEmpty
+                              ? brokersList.first
+                              : null;
 
-    try {
-      await ref.read(vehicleRepositoryProvider).markVehicleAsSold(
-        widget.vehicle.id,
-        saleData,
-      );
+                          final saleData = {
+                            'status': 'sold',
+                            'sale_name': saleInfo.name,
+                            'sale_phone': saleInfo.phone,
+                            'sale_address': saleInfo.address,
+                            'sale_date': saleInfo.date,
+                            'sale_price': saleInfo.price.replaceAll(',', ''),
+                            'sale_received_price': saleInfo.receivedPrice
+                                .replaceAll(',', ''),
+                            'sale_mode_of_payment': saleInfo.modeOfPayment,
+                            'sale_payment_status': saleInfo.paymentStatus,
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Vehicle marked as Sold")),
-        );
-        Navigator.of(context).pop(); // close the form
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ Error: $e")),
-        );
-      }
-    }
-  }
-},
+                            // Single broker flattened fields
+                            if (brokerEntry != null &&
+                                brokerEntry["brokerId"] != null)
+                              "broker_id": brokerEntry["brokerId"],
+                            if (brokerEntry != null &&
+                                brokerEntry["amount"]?.text.trim().isNotEmpty ==
+                                    true)
+                              "brokerage_amount": brokerEntry["amount"].text
+                                  .trim(),
+                            if (brokerEntry != null)
+                              "brokerage_remarks":
+                                  brokerEntry["remarks"]?.text.trim() ?? "",
+                          };
 
+                          try {
+                            await ref
+                                .read(vehicleRepositoryProvider)
+                                .markVehicleAsSold(widget.vehicle.id, saleData);
 
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("✅ Vehicle marked as Sold"),
+                                ),
+                              );
+                              Navigator.of(context).pop(); // close the form
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text("❌ Error: $e")),
+                              );
+                            }
+                          }
+                        }
+                      },
 
-
-
-
-    child: const Text(
-      "Submit",
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ),
-)
-
-
+                      child: const Text(
+                        "Submit",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

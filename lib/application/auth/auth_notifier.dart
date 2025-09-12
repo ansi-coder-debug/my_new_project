@@ -6,7 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/core/models/user/user.dart';
 import 'package:my_new_project/infrastructure/auth/auth_repositary.dart';
-import 'package:my_new_project/infrastructure/auth/auth_service.dart';
+
 
 // 1️⃣ This holds user + loading + error
 class AuthState {

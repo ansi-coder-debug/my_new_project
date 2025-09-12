@@ -77,14 +77,9 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(0),
           ),
-          ListTile(
-            // leading: Icon(Icons.directions_car),
-            // splashColor: Colors.blue,
-            // onTap: () => delayedNavigate(ScreenInventory()),
-            // title: Text(
-            //   'Inventory',
-            //   style: TextStyle(fontWeight: FontWeight.bold),
-            // ),
+          KHeight,
+
+          ListTile(  
             selected: selectedIndex == 1,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -100,6 +95,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(1),
           ),
+            KHeight,
 
           ListTile(
             selected: selectedIndex == 2,
@@ -117,6 +113,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(2),
           ),
+            KHeight,
 
           ListTile(
             selected: selectedIndex == 3,
@@ -134,6 +131,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(3),
           ),
+            KHeight,
 
           // KHeight,
           ListTile(
@@ -152,6 +150,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(4),
           ),
+            KHeight,
 
           ListTile(
             selected: selectedIndex == 5,
@@ -169,6 +168,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(5),
           ),
+            KHeight,
 
           ListTile(
             selected: selectedIndex == 6,
@@ -186,10 +186,11 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(6),
           ),
+            KHeight,
 
-          const Divider(),
+          // const Divider(),
 
-          ListTile(
+           ListTile(
             selected: selectedIndex == 7,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -197,7 +198,7 @@ class MainDrawer extends ConsumerWidget {
               color: selectedIndex == 7 ? Colors.blue : null,
             ),
             title: Text(
-              'Reports',
+              'Brokers',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 7 ? Colors.blue : null,
@@ -205,23 +206,18 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(7),
           ),
+            KHeight,
 
-          ListTile(
-            // leading: Icon(Icons.settings),
-            // splashColor: Colors.blue,
-            // onTap: () => delayedNavigate(ScreenSettings()),
-            // title: Text(
-            //   'Settings',
-            //   style: TextStyle(fontWeight: FontWeight.bold),
-            // ),
+
+             ListTile(
             selected: selectedIndex == 8,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.settings,
+              Icons.factory,
               color: selectedIndex == 8 ? Colors.blue : null,
             ),
             title: Text(
-              'Settings',
+              'Brokerage',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 8 ? Colors.blue : null,
@@ -229,6 +225,46 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(8),
           ),
+            KHeight,
+
+
+
+
+          ListTile(
+            selected: selectedIndex == 9,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.bar_chart,
+              color: selectedIndex == 9 ? Colors.blue : null,
+            ),
+            title: Text(
+              'Reports',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 9 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(9),
+          ),
+            KHeight,
+
+          ListTile(
+            selected: selectedIndex == 10,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.settings,
+              color: selectedIndex == 10 ? Colors.blue : null,
+            ),
+            title: Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 10 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(10),
+          ),
+
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
           const Divider(),
 

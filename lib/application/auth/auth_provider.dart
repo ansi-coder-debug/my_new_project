@@ -16,7 +16,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/auth/auth_notifier.dart';
-import 'package:my_new_project/core/models/user/user.dart';
+
 import 'package:my_new_project/infrastructure/auth/auth_service.dart';
 import 'package:my_new_project/infrastructure/auth/auth_repositary.dart'; // 👈 NEW import
 

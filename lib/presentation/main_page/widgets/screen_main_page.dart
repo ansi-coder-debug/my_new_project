@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 
 import 'package:my_new_project/presentation/main_page/widgets/bottom_nav.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokerage.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokers.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_employees.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_expense.dart';
@@ -35,6 +37,8 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
     ScreenEmployees(),
     ScreenExpense(),
     PartnersPage(),
+    ScreenBrokers(),
+    ScreenBrokerage(),
     ScreenReport(),
     ScreenSettings(),
   ];

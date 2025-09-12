@@ -36,14 +36,7 @@ class ScreenVehicleDetails extends ConsumerStatefulWidget {
 }
 
 class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
-  //  String? _selectedPaymentMode;
-
-  // final List<String> _paymentModes = [
-  //   'Cash',
-  //   'Card',
-  //   'Bank Transfer',
-  //   'Finance',
-  // ];
+  
 
   String _selectedStatus = "available";
 
