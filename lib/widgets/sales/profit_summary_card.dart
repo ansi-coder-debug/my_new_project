@@ -21,7 +21,7 @@ class ProfitSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final purchasePrice = _parseAmount(vehicle.purchasePrice);
+   final purchasePrice = vehicle.purchaseInfo.price;
     final salePrice = _parseAmount(vehicle.saleInfo?.price);
     final totalExpenses = (expenses ?? []).fold<double>(
   0.0,

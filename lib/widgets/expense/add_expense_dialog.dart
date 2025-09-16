@@ -6,17 +6,19 @@ import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 
 class AddExpenseDialog extends ConsumerStatefulWidget {
-  final Vehicle vehicle;
+ final Vehicle? vehicle; // optional now
+final List<Vehicle>? vehicles; // optional list of vehicles for selection
+
   final VoidCallback? onExpenseAdded; // Optional callback
 
   // final Function(Map<String, String>) onSubmit;
+const AddExpenseDialog({
+  super.key,
+  this.vehicle,
+  this.vehicles,
+  this.onExpenseAdded,
+});
 
-  const AddExpenseDialog({
-    super.key,
-    required this.vehicle,
-    this.onExpenseAdded,
-    // required this.onSubmit,
-  });
 
   @override
   ConsumerState<AddExpenseDialog> createState() => _AddExpenseDialogState();
@@ -29,6 +31,8 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
+  Vehicle? _selectedVehicle;
+
 
   final List<String> _expenseTypes = [
     "Vehicle Acquisition Cost",
@@ -41,11 +45,17 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
   ];
 
   @override
-  void initState() {
-    super.initState();
+void initState() {
+  super.initState();
+  if (widget.vehicle != null) {
+    _selectedVehicle = widget.vehicle;
     _vehicleNameController.text =
-        "${widget.vehicle.make} ${widget.vehicle.model} ";
+        "${widget.vehicle!.make} ${widget.vehicle!.model} ";
+  } else {
+    _vehicleNameController.text = "";
   }
+}
+
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
@@ -59,7 +69,8 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
         amount: _amountController.text,
         description: _descriptionController.text,
         date: _selectedDate.toIso8601String(),
-        vehicleId: widget.vehicle.id,
+        vehicleId: _selectedVehicle!.id,
+        type: _selectedExpenseType!,
         //  expenseType: _selectedExpenseType!,
       );
 
@@ -177,14 +188,87 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
               ),
               const SizedBox(height: 16),
 
-              // Vehicle Number
-              TextFormField(
-                controller: _vehicleNameController,
-                readOnly: true,
-                decoration: _inputDecoration("Vehicle Number"),
-                style: TextStyle(color: Colors.black),
+
+              // If vehicle is passed (Details page), just show read-only vehicle name
+if (widget.vehicle != null) 
+  TextFormField(
+    controller: _vehicleNameController,
+    readOnly: true,
+    decoration: _inputDecoration("Vehicle Number"),
+    style: TextStyle(color: Colors.black),
+  )
+
+// Otherwise (ScreenExpense), show vehicle dropdown only if expense type selected
+else if (_selectedExpenseType != null)
+  (widget.vehicles != null && widget.vehicles!.isNotEmpty)
+    ? DropdownButtonFormField<Vehicle>(
+        decoration: _inputDecoration("Select Vehicle"),
+        items: widget.vehicles!
+            .where((v) => v.status == "available" || v.status == "maintenance")
+            .map(
+              (v) => DropdownMenuItem(
+                value: v,
+                child: Text("${v.make} ${v.model}"),
               ),
-              const SizedBox(height: 16),
+            )
+            .toList(),
+        onChanged: (v) {
+          setState(() {
+            _selectedVehicle = v;
+            _vehicleNameController.text = v != null ? "${v.make} ${v.model}" : "";
+          });
+        },
+        validator: (v) => v == null ? "Please select a vehicle" : null,
+      )
+    : SizedBox.shrink()
+else
+  SizedBox.shrink(),
+
+
+
+              
+
+              // Vehicle Number
+  //             _selectedExpenseType == null
+  // ? SizedBox.shrink()  // If no expense type selected, show nothing
+  // : (
+  //     _selectedVehicle != null
+  //       ? TextFormField(
+  //           controller: _vehicleNameController,
+  //           readOnly: true,
+  //           decoration: _inputDecoration("Vehicle Number"),
+  //           style: TextStyle(color: Colors.black),
+  //         )
+  //       : (widget.vehicles != null && widget.vehicles!.isNotEmpty)
+  //           ? DropdownButtonFormField<Vehicle>(
+  //               decoration: _inputDecoration("Select Vehicle"),
+  //               items: widget.vehicles!
+  //                 .where((v) => v.status == "available" || v.status == "maintenance")
+  //                 .map(
+  //                   (v) => DropdownMenuItem(
+  //                     value: v,
+  //                     child: Text("${v.make} ${v.model}"),
+  //                   ),
+  //                 )
+  //                 .toList(),
+  //               onChanged: (v) {
+  //                 setState(() {
+  //                   _selectedVehicle = v;
+  //                   _vehicleNameController.text = v != null ? "${v.make} ${v.model}" : "";
+  //                 });
+  //               },
+  //               validator: (v) => v == null ? "Please select a vehicle" : null,
+  //             )
+  //           : SizedBox.shrink()
+  //   ),
+
+
+
+
+   
+
+
+              KHeight16,
 
               // Amount
               TextFormField(

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 // import 'package:my_new_project/application/auth/auth_notifier.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:http_parser/http_parser.dart';
 
@@ -87,18 +88,18 @@ class VehicleService {
         MapEntry('status', vehicle.status),
         MapEntry('notes', vehicle.description ?? ''),
         MapEntry('fuel_type', vehicle.fuelType.toLowerCase()),
-        MapEntry('purchase_name', vehicle.purchaseName ?? ''),
-        MapEntry('purchase_phone', vehicle.purchasePhone ?? ''),
-        MapEntry('purchase_address', vehicle.purchaseAddress ?? ''),
-        MapEntry('purchase_date', vehicle.purchaseDate ?? ''),
+        MapEntry('purchase_name', vehicle.purchaseInfo.name ?? ''),
+        MapEntry('purchase_phone', vehicle.purchaseInfo.phone ?? ''),
+        MapEntry('purchase_address', vehicle.purchaseInfo.address ?? ''),
+        MapEntry('purchase_date', vehicle.purchaseInfo.date.toIso8601String()),
         MapEntry(
           'purchase_price',
-          vehicle.purchasePrice?.replaceAll(',', '') ?? '0',
+          vehicle.purchaseInfo.price.toString()
         ),
-        MapEntry('purchase_mode_of_payment', vehicle.purchaseMode ?? ''),
+        MapEntry('purchase_mode_of_payment', vehicle.purchaseInfo.modeOfPayment ?? ''),
         MapEntry(
           'purchase_payment_status',
-          vehicle.purchasePaymentStatus ?? 'pending',
+          vehicle.purchaseInfo.paymentStatus ?? 'pending',
         ),
 
         MapEntry(
@@ -217,18 +218,18 @@ class VehicleService {
         MapEntry('status', vehicle.status),
         MapEntry('notes', vehicle.description ?? ''),
         MapEntry('fuel_type', vehicle.fuelType),
-        MapEntry('purchase_name', vehicle.purchaseName ?? ''),
-        MapEntry('purchase_phone', vehicle.purchasePhone ?? ''),
-        MapEntry('purchase_address', vehicle.purchaseAddress ?? ''),
-        MapEntry('purchase_date', vehicle.purchaseDate ?? ''),
+        MapEntry('purchase_name', vehicle.purchaseInfo.name ?? ''),
+        MapEntry('purchase_phone', vehicle.purchaseInfo.phone ?? ''),
+        MapEntry('purchase_address', vehicle.purchaseInfo.address ?? ''),
+        MapEntry('purchase_date', vehicle.purchaseInfo.date.toIso8601String()),
         MapEntry(
           'purchase_price',
-          vehicle.purchasePrice?.replaceAll(',', '') ?? '0',
+          vehicle.purchaseInfo.price.toString()
         ),
-        MapEntry('purchase_mode_of_payment', vehicle.purchaseMode ?? ''),
+        MapEntry('purchase_mode_of_payment', vehicle.purchaseInfo.modeOfPayment ?? ''),
         MapEntry(
           'purchase_payment_status',
-          vehicle.purchasePaymentStatus ?? 'pending',
+          vehicle.purchaseInfo.paymentStatus ?? 'pending',
         ),
         MapEntry(
           'is_partnership',

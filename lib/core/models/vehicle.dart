@@ -1,5 +1,6 @@
 import 'package:my_new_project/core/models/brokerage.dart';
 import 'package:my_new_project/core/models/partnership.dart';
+import 'package:my_new_project/core/models/purchase.dart';
 import 'package:my_new_project/core/models/sales.dart';
 
 class Vehicle {
@@ -13,13 +14,10 @@ class Vehicle {
   final String status;
   final String year;
   final String? description;
-  final String? purchaseDate;
-  final String purchaseName;
-  final String purchasePhone;
-  final String purchaseAddress;
-  final String purchasePrice;
-  final String purchaseMode;
-  final String? purchasePaymentStatus;
+
+final Purchase purchaseInfo; // 👈 required field
+
+
   final List<Partnership>? partnerships;
   final SaleInfo? saleInfo;
   final double mileage; //required by backend
@@ -37,13 +35,9 @@ class Vehicle {
     required this.status,
     required this.year,
     this.description,
-    required this.purchaseDate,
-    required this.purchaseName,
-    required this.purchasePhone,
-    required this.purchaseAddress,
-    required this.purchasePrice,
-    required this.purchaseMode,
-    required this.purchasePaymentStatus,
+
+  required this.purchaseInfo,
+
     this.partnerships,
     this.saleInfo,
     required this.mileage,
@@ -61,13 +55,10 @@ class Vehicle {
     String? status,
     String? year,
     String? description,
-    String? purchaseDate,
-    String? purchaseName,
-    String? purchasePhone,
-    String? purchaseAddress,
-    String? purchasePrice,
-    String? purchaseMode,
-    String? purchasePaymentStatus,
+
+   Purchase? purchaseInfo,
+
+
     List<Partnership>? partnerships, // ✅ FIXED (was Partnership?)
     SaleInfo? saleInfo,
     double? mileage,
@@ -86,14 +77,10 @@ class Vehicle {
       status: status ?? this.status,
       year: year ?? this.year,
       description: description ?? this.description,
-      purchaseDate: purchaseDate ?? this.purchaseDate,
-      purchaseName: purchaseName ?? this.purchaseName,
-      purchasePhone: purchasePhone ?? this.purchasePhone,
-      purchaseAddress: purchaseAddress ?? this.purchaseAddress,
-      purchasePrice: purchasePrice ?? this.purchasePrice,
-      purchaseMode: purchaseMode ?? this.purchaseMode,
-      purchasePaymentStatus:
-          purchasePaymentStatus ?? this.purchasePaymentStatus,
+
+       purchaseInfo: purchaseInfo ?? this.purchaseInfo,
+
+
       partnerships: partnerships ?? this.partnerships, // ✅ now types match
       saleInfo: saleInfo ?? this.saleInfo,
       mileage: mileage ?? this.mileage,
@@ -125,15 +112,14 @@ class Vehicle {
       year: (json['year'] ?? '').toString(),
       description: json['notes'],
 
-      // ✅ Purchase info safely handled
-      purchaseDate: json['purchase_info']?['date']?.toString() ?? '',
-      purchaseName: json['purchase_info']?['name'] ?? '',
-      purchasePhone: json['purchase_info']?['phone'] ?? '',
-      purchaseAddress: json['purchase_info']?['address'] ?? '',
-      purchasePrice: json['purchase_info']?['price']?.toString() ?? '0',
-      purchaseMode: json['purchase_info']?['mode_of_payment'] ?? '',
-      purchasePaymentStatus:
-          json['purchase_info']?['payment_status'] ?? 'pending',
+      purchaseInfo: json['purchase_info'] != null
+    ? Purchase.fromJson({
+        ...json['purchase_info'],
+        'vehicle_id': json['id'].toString(),
+        'user_id': json['user_id']?.toString() ?? '', // Fallback if not present
+      })
+    : throw Exception('Missing purchase_info'),
+
 
       // partnerships: (json['partnerships_info'] as List<dynamic>?)
       //         ?.map((e) => Partnership.fromJson(e))
@@ -195,13 +181,11 @@ class Vehicle {
       // 🔥 CHANGED → only include if non-empty
       'partnerships_info': partnerships!.map((p) => p.toJson()).toList(),
 
-      'purchase_name': purchaseName ?? '',
-      'purchase_phone': purchasePhone ?? '',
-      'purchase_address': purchaseAddress ?? '',
-      'purchase_date': cleanDate(purchaseDate),
-      'purchase_price': cleanNumeric(purchasePrice),
-      'purchase_mode_of_payment': purchaseMode ?? '',
-      'purchase_payment_status': purchasePaymentStatus ?? 'pending',
+
+'purchase_info': purchaseInfo.toJson(),
+
+
+
 
       if (saleInfo != null) 'sale_info': saleInfo!.toJson(),
 

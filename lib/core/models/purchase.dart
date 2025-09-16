@@ -4,32 +4,14 @@
 class Purchase  {
   
   final String id;
-
-  
   final String vehicleId;
-
-  
   final String userId;
-
-
   final String name;
-
-  
   final String phone;
-
- 
   final String address;
-
-
   final DateTime date;
-
- 
   final double price;
-
-
   final String modeOfPayment;
-
-
   final String paymentStatus;
 
   Purchase({

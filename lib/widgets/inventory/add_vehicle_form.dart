@@ -219,15 +219,14 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
         _mileageController.text = vehicle.mileage.toString();
         _fuelTypeController.text = vehicle.fuelType;
 
-        // Set purchase-related fields
-        _sellerNameController.text = vehicle.purchaseName ?? '';
-        _sellerPhoneController.text = vehicle.purchasePhone ?? '';
-        _sellerAddressController.text = vehicle.purchaseAddress ?? '';
-        _sellerPurchaseAdressController.text = vehicle.purchaseAddress ?? '';
-        _purchaseDateController.text = vehicle.purchaseDate ?? '';
-        _sellerPurchasePriceController.text = vehicle.purchasePrice ?? '';
-        _selectedPaymentMode = vehicle.purchaseMode ?? '';
-        _purchasePaymentStatus = vehicle.purchasePaymentStatus ?? 'pending';
+       _sellerNameController.text = vehicle.purchaseInfo.name;
+_sellerPhoneController.text = vehicle.purchaseInfo.phone;
+_sellerAddressController.text = vehicle.purchaseInfo.address;
+_sellerPurchaseAdressController.text = vehicle.purchaseInfo.address;
+_purchaseDateController.text = vehicle.purchaseInfo.date.toIso8601String().split('T').first;
+_sellerPurchasePriceController.text = vehicle.purchaseInfo.price.toString();
+_selectedPaymentMode = vehicle.purchaseInfo.modeOfPayment;
+_purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
 
         if (vehicle.photos.isNotEmpty && !_formWasReset) {
           setState(() {
@@ -1005,22 +1004,49 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                                   color: _colorController.text,
                                   // vin: _vinController.text,
                                   description: _descriptionController.text,
-                                  purchaseDate: _purchaseDateController.text,
-                                  // task: '0',
-                                  purchaseName: _sellerNameController.text,
-                                  purchasePhone: _sellerPhoneController.text,
-                                  purchaseAddress:
-                                      _sellerAddressController.text,
-                                  purchasePaymentStatus:
-                                      _purchasePaymentStatus ?? 'pending',
-                                  purchasePrice: _priceController.text,
-                                  purchaseMode:
-                                      _selectedPaymentMode?.toLowerCase() ?? '',
+
+
+
+
+                                  // purchaseDate: _purchaseDateController.text,
+                                  // // task: '0',
+                                  // purchaseName: _sellerNameController.text,
+                                  // purchasePhone: _sellerPhoneController.text,
+                                  // purchaseAddress:
+                                  //     _sellerAddressController.text,
+                                  // purchasePaymentStatus:
+                                  //     _purchasePaymentStatus ?? 'pending',
+                                  // purchasePrice: _priceController.text,
+                                  // purchaseMode:
+                                  //     _selectedPaymentMode?.toLowerCase() ?? '',
+                                  // ✅ NEW: purchaseInfo object
+  purchaseInfo: Purchase(
+    id: '', // Leave empty if it's a new purchase
+    vehicleId: _idController.text,
+    userId: '', // Set current user ID here if available
+    name: _sellerNameController.text,
+    phone: _sellerPhoneController.text,
+    address: _sellerAddressController.text,
+    date: DateTime.tryParse(_purchaseDateController.text) ?? DateTime.now(),
+    price: double.tryParse(_priceController.text.replaceAll(',', '')) ?? 0.0,
+    modeOfPayment: _selectedPaymentMode?.toLowerCase() ?? '',
+    paymentStatus: _purchasePaymentStatus ?? 'pending',
+  ),
+
+
+
+
+
+
                                   status: _status.toLowerCase(),
 
                                   partnerships: _isPartnershipEnabled
                                       ? _partnerships
                                       : [],
+
+
+
+
                                 );
                                 // Add or update vehicle
                                 if (isEditing) {

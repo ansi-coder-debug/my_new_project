@@ -162,9 +162,8 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                                   color: vehicle.color,
                                   fuel: vehicle.fuelType,
                                   mileage: vehicle.mileage.toString(),
-                                  purchaseDate: vehicle.purchaseDate != null
-                                      ? vehicle.purchaseDate.toString().split('T').first
-                                      : '',
+                                 purchaseDate: vehicle.purchaseInfo.date.toString().split('T').first,
+
                                   status: vehicle.status,
                                   year: vehicle.year,
                                   onTap: () {

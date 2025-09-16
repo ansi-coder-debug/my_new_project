@@ -1,212 +1,131 @@
-// import 'package:flutter/material.dart';
-// import 'package:hive_flutter/adapters.dart';
-// import 'package:my_new_project/core/models/employee.dart';
-// import 'package:my_new_project/core/models/expense.dart';
-// import 'package:my_new_project/widgets/common_search_bar.dart';
-// import 'package:my_new_project/widgets/expense/add_expense_form.dart';
-// import 'package:my_new_project/widgets/expense/expense_card.dart';
-// import 'package:my_new_project/widgets/expense/expense_details_screen.dart';
-// import 'package:my_new_project/widgets/expense/expense_filter_row.dart';
-
-// class ScreenExpense extends StatefulWidget {
-//   const ScreenExpense({super.key});
-
-//   @override
-//   State<ScreenExpense> createState() => _ScreenExpenseState();
-// }
-
-// class _ScreenExpenseState extends State<ScreenExpense> {
-//   String selectedStatus = 'All Status';
-//   String selectedSort = 'Newest First';
-//   bool showAddExpenseForm = false;
-//   Expense? expenseToEdit;
-
-//   //details page
-//   bool showExpenseDetails = false;
-//   Expense? selectedExpense;
-
-//   final Box<Expense> expenseBox = Hive.box<Expense>('expenses');
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: showAddExpenseForm
-//           ?
-//             // If true, show the Add Expense Form instead of the list
-//             AddExpenseForm(
-//               onCancel: () {
-//                 // 👉 When user clicks 'Cancel' inside the form:
-//                 // Close the form and show the list again
-//                 setState(() {
-//                   showAddExpenseForm = false;
-//                 });
-//               },
-//               onAddComplete: () {
-//                 // 👉 When user completes adding a new expense:
-//                 // Close the form and show the list again
-//                 setState(() {
-//                   showAddExpenseForm = false;
-//                 });
-//               },
-//               expenseToEdit: expenseToEdit,
-
-//               // ✅ If false, show the normal Expense List page UI
-//             )
-
-            
-//           : showExpenseDetails && selectedExpense != null
-//           ? ExpenseDetailsScreen(
-//               expense: selectedExpense!,
-//               onBack: () {
-//                 setState(() {
-//                   showAddExpenseForm = false;
-//                   selectedExpense = null;
-//                 });
-//               },
-//               onEdit: () {
-//                 setState(() {
-//                   expenseToEdit = selectedExpense;
-//                   showExpenseDetails = false;
-//                   showAddExpenseForm = true;
-//                 });
-//               },
-//             )
-//           : ValueListenableBuilder(
-//               valueListenable: Hive.box<Expense>('expenses').listenable(),
-//               builder: (context, box, _) {
-//                 //getting details of all employees
-//                 List<Expense> expenses = box.values.toList();
-
-//                 List<dynamic> Keys = box.keys
-//                     .toList(); //Get all keys as numbers in a list
-
-//                 // Apply status filter
-//                 // ✅ 2️⃣ UPDATED: FIX TRIM & LOWERCASE
-//                 if (selectedStatus != 'All Status') {
-//                   expenses = expenses.where((e) {
-//                     final expenseStatus = e.status.trim().toLowerCase();
-//                     final filterStatus = selectedStatus.trim().toLowerCase();
-//                     return expenseStatus == filterStatus;
-//                   }).toList();
-//                 }
-
-//                 /*apply by fiter */
-//                 expenses.sort((a, b) {
-//                   switch (selectedSort) {
-//                     case 'Newest First':
-//                       return b.date.compareTo(a.date);
-//                     case 'Oldest First':
-//                       return a.date.compareTo(b.date);
-//                     case 'Amount High to Low':
-//                       return double.parse(
-//                         b.amount.replaceAll(',', ''),
-//                       ).compareTo(double.parse(a.amount.replaceAll(',', '')));
-//                     case 'Amount Low to High':
-//                       return double.parse(
-//                         a.amount.replaceAll(',', ''),
-//                       ).compareTo(double.parse(b.amount.replaceAll(',', '')));
-//                     default:
-//                       return 0;
-//                   }
-//                 });
-
-//                 return Column(
-//                   children: [
-//                     CommonSearchBar(
-//                       labelText: 'Expenses Page',
-//                       hintText: 'Expenses',
-//                       onChanged: (p0) {},
-//                     ),
-//                     ExpenseFilterRow(
-//                       selectedStatus: selectedStatus,
-//                       selectedSort: selectedSort,
-
-//                       onStatusChanged: (newStatus) {
-//                         setState(() {
-//                           selectedStatus = newStatus!;
-//                         });
-//                       },
-
-//                       onSortingChanged: (sortOption) {
-//                         setState(() {
-//                           selectedSort = sortOption!;
-//                         });
-//                       },
-
-//                       onAddPressed: () {
-//                         setState(() {
-//                           expenseToEdit = null;
-//                           showAddExpenseForm = true;
-//                         });
-//                       },
-//                     ),
-
-//                     //         required this.id,
-//                     // required this.title,
-//                     // required this.category,
-//                     // required this.amount,
-//                     // required this.date,
-//                     // required this.paymentMode,
-//                     // required this.status,
-//                     // this.description
-//                     Expanded(
-//                       child: expenses.isEmpty
-//                           ? Center(child: Text('No Emlpyees Found'))
-//                           : ListView.builder(
-//                               itemCount: expenses.length,
-//                               itemBuilder: (context, index) {
-//                                 final Expense = expenses[index];
-//                                 return ExpenseCard(
-//                                   id: Expense.id,
-//                                   title: Expense.title,
-//                                   category: Expense.category,
-//                                   amount: Expense.amount,
-//                                   date: Expense.date,
-//                                   paymentMode: Expense.paymentMode,
-//                                   status: Expense.status,
-
-//                                   onDelete: () async {
-//                                     await expenses[index].delete();
-//                                   },
-//                                   onEdit: () {
-//                                     setState(() {
-//                                       expenseToEdit = Expense;
-//                                       showAddExpenseForm = true;
-//                                     });
-//                                   },
-//                                   onTap: () {
-//                                     setState(() {
-//                                       selectedExpense = Expense;
-//                                       showExpenseDetails = true;
-//                                     });
-//                                   },
-//                                 );
-//                               },
-//                             ),
-//                     ),
-//                   ],
-//                 );
-//               },
-//             ),
-//     );
-//   }
-// }
-
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:my_new_project/application/expense/expense_provider.dart';
+import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/widgets/expense/add_expense_dialog.dart';
+// Import your vehicle provider
 
-class ScreenExpense extends StatefulWidget {
+class ScreenExpense extends ConsumerStatefulWidget {
   const ScreenExpense({super.key});
 
   @override
-  State<ScreenExpense> createState() => _ScreenExpenseState();
+  ConsumerState<ScreenExpense> createState() => _ScreenExpenseState();
+
+  
 }
 
-class _ScreenExpenseState extends State<ScreenExpense> {
+class _ScreenExpenseState extends ConsumerState<ScreenExpense> {
+
   @override
+  void initState() {
+    super.initState();
+
+    // Fetch expenses from API when screen opens
+    Future.microtask(() {
+      ref.read(expenseProvider.notifier).fetchExpenses();
+    });
+  }
+
+
+@override
   Widget build(BuildContext context) {
+    final vehicleState = ref.watch(vehicleProvider);
+    final vehicles = vehicleState.vehicles;
+
+    final expenseState = ref.watch(expenseProvider);
+    final expenses = expenseState.expenses;
+
     return Scaffold(
-      body: Text("Screen Expense ",style: TextStyle(color: Colors.amber),),
+      body: 
+          ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: expenses.length,
+              itemBuilder: (context, index) {
+                final expense = expenses[index];
+               
+                final vehicle = vehicles.where((v) => v.id == expense.vehicleId).isNotEmpty
+    ? vehicles.firstWhere((v) => v.id == expense.vehicleId)
+    : null;
+
+
+                return Card(
+  elevation: 2,
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  margin: const EdgeInsets.symmetric(vertical: 8),
+  color: Colors.white, // Ensure white background
+  child: Padding(
+    padding: const EdgeInsets.all(16),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Left side: Expense info
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                expense.type.toUpperCase(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 4),
+              if (vehicle != null)
+                Text(
+                  "${vehicle.make} ${vehicle.model}",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              const SizedBox(height: 4),
+              Text(
+                "Paid via: ${expense.description ?? '-'}",
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+            ],
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              "₹${expense.amount}",
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              DateFormat('d/M/yyyy').format(DateTime.parse(expense.date)),
+              style: TextStyle(color: Colors.grey[700]),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ),
+);
+
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (context) => AddExpenseDialog(
+              vehicles: vehicles,
+              onExpenseAdded: ()async {
+                 await ref.read(expenseProvider.notifier).fetchExpenses();
+              },
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

@@ -1,24 +1,35 @@
+// expense_state.dart
 import 'package:my_new_project/core/models/expense.dart';
+
+enum ExpenseStatus { initial, loading, success, error }
 
 class ExpenseState {
   final List<Expense> expenses;
-  final bool isLoading;
+  final ExpenseStatus status;
   final String? error;
 
   ExpenseState({
     required this.expenses,
-    this.isLoading = false,
+    required this.status,
     this.error,
   });
 
+  factory ExpenseState.initial() {
+    return ExpenseState(
+      expenses: [],
+      status: ExpenseStatus.initial,
+      error: null,
+    );
+  }
+
   ExpenseState copyWith({
     List<Expense>? expenses,
-    bool? isLoading,
+    ExpenseStatus? status,
     String? error,
   }) {
     return ExpenseState(
       expenses: expenses ?? this.expenses,
-      isLoading: isLoading ?? this.isLoading,
+      status: status ?? this.status,
       error: error ?? this.error,
     );
   }

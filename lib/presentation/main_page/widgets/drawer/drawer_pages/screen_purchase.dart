@@ -1,101 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:hive_flutter/adapters.dart';
-import 'package:my_new_project/application/purchase/purchase_provider.dart';
-import 'package:my_new_project/core/models/purchase.dart';
-import 'package:my_new_project/widgets/purchase/purchase_card.dart';
-import 'package:my_new_project/widgets/purchase/purchase_details_screen.dart';
+import 'package:intl/intl.dart'; // for formatting dates
+import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 
-class ScreenPurchase extends ConsumerStatefulWidget {
-  const ScreenPurchase({super.key});
+class ScreenPurchase extends ConsumerWidget {
+  const ScreenPurchase ({super.key});
 
   @override
-  ConsumerState<ScreenPurchase> createState() => _ScreenPurchaseState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 👉 Watch vehicles from the vehicleProvider
+    final vehicleState = ref.watch(vehicleProvider);
 
-class _ScreenPurchaseState extends ConsumerState<ScreenPurchase> {
-  // Access the Hive box that stores Purchase objects
-  // final Box<Purchase> purchaseBox = Hive.box<Purchase>('purchases');//hive
+    // 👉 Show loader while fetching
+    if (vehicleState.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-  bool showPurchaseDetails = false;
-  Purchase? selectedPurchase;
+    // 👉 Show error if fetching failed
+    if (vehicleState.error != null) {
+      return Center(child: Text("Error: ${vehicleState.error}"));
+    }
 
+    // 👉 Get vehicles list
+    final vehicles = vehicleState.vehicles;
 
-@override
-void initState() {
-  super.initState();
-  // Load purchases when the screen initializes
-  Future.microtask(() => ref.read(purchaseProvider.notifier).loadPurchases());
-}
-
-  @override
-  Widget build(BuildContext context) {
-     final purchaseState = ref.watch(purchaseProvider);
-     print('Purchases in widget: ${purchaseState.purchases}');
+    // 👉 Filter only those with purchase info (every vehicle should have, but safe)
+    final purchases = vehicles
+        .where((v) => v.purchaseInfo != null)
+        .toList();
 
     return Scaffold(
-      body: purchaseState.isLoading
-          ? Center(child: CircularProgressIndicator())
-          : purchaseState.errorMessage != null
-              ? Center(child: Text('Error: ${purchaseState.errorMessage}'))
-              : purchaseState.purchases.isEmpty
-                  ? Center(child: Text('No Purchases Found'))
-                  : showPurchaseDetails && selectedPurchase != null
-          ? PurchaseDetailsScreen(
-              purchase: selectedPurchase!,
-              onBack: () {
-                setState(() {
-                  showPurchaseDetails = false;
-                  selectedPurchase = null;
-                });
-              },
-            )
-            :
-            ListView.builder(
-              itemCount: purchaseState.purchases.length,
-              itemBuilder:(context, index){
-                final purchase=purchaseState.purchases[index];
-                return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedPurchase = purchase;
-                          showPurchaseDetails = true;
-                        });
-                      },
-                      child: PurchaseCard(
-                        id: purchase.id,
-                        vehicleId:purchase.vehicleId ,
-                        name: purchase.name,
-                        phone: purchase.phone,
-                        address: purchase.address,
-                        date: purchase.date.toString(),
-                        price: purchase.price.toString(),
-                        modeOfPayment: purchase.modeOfPayment,
-                        // onDelete: onDelete,
-                        // onEdit: onEdit,
-                      ),
-                    );
-                  },
+      appBar: AppBar(
+        title: const Text("Purchases"),
+        centerTitle: true,
+      ),
+      body: ListView.separated(
+        itemCount: purchases.length,
+        separatorBuilder: (_, __) => const Divider(height: 1),
+        itemBuilder: (context, index) {
+          final vehicle = purchases[index];
+          final purchase = vehicle.purchaseInfo!; // safe because we filtered above
+
+          // 👉 Format date (convert string/DateTime into 11/9/2025 like screenshot)
+          final formattedDate = DateFormat("d/M/y").format(DateTime.parse(purchase.date.toIso8601String()));
+
+          return ListTile(
+            // 👉 Big title = Vehicle name (Make + Model)
+            title: Text(
+              "${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()}",
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
+
+            // 👉 Below title: price and payment status
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${purchase.price}", // Purchase Price
+                  style: const TextStyle(fontSize: 14),
+                ),
+                Text(
+                  purchase.paymentStatus, // paid / partial
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
+            ),
+
+            // 👉 On the right side: purchase date
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  formattedDate,
+                  style: const TextStyle(fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                // 👉 Three dot menu (for actions like edit/delete)
+                const Icon(Icons.more_vert, size: 20),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
-
-              }
-               
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-    
-          
-          
-          
-               
+}

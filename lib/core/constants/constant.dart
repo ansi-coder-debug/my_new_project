@@ -24,6 +24,7 @@ const List<String> vehicleStatues = [
 // }
 
 const String baseUrl = "http://192.168.29.29:5000/api/";
+const String HbaseUrl = "http://localhost:5000/api/";
 
 // Text('Status', style: TextStyle(color: Colors.black)),
 //               DropdownButtonFormField<String>(
