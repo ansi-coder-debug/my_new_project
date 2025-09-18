@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/accounts/account_provider.dart';
 
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -48,8 +50,8 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   String _status = 'available';
   String? _purchasePaymentStatus = 'pending';
 
-  final List<String> _paymentModes = ['cash', 'card', 'cheque', 'finance'];
-  String? _selectedPaymentMode;
+  // final List<String> _paymentModes = ['cash', 'card', 'cheque', 'finance'];
+  // String? _selectedPaymentMode;
 
   // Controllers
   final TextEditingController _makeController = TextEditingController();
@@ -72,16 +74,22 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _sharePercentageController =
       TextEditingController();
+
+  // (seeller and purchase )
+
   final TextEditingController _sellerNameController = TextEditingController();
   final TextEditingController _sellerPhoneController = TextEditingController();
   final TextEditingController _sellerPurchaseAdressController =
       TextEditingController();
-  final TextEditingController _sellerPurchasePriceController =
+  final TextEditingController _purchaseAmountController =
       TextEditingController();
+  final TextEditingController _paidAmountController = TextEditingController();
+  final TextEditingController _statusController = TextEditingController();
   final TextEditingController _sellerPurchaseModeController =
       TextEditingController();
   final TextEditingController _sellerAddressController =
       TextEditingController();
+
   final TextEditingController _paymentModeController = TextEditingController();
   final TextEditingController _buyerNameController = TextEditingController();
   final TextEditingController _buyerPhoneController = TextEditingController();
@@ -146,7 +154,7 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
       _buyerAddressController.clear();
       _modeOfPaymentController.clear();
 
-      _sellerPurchasePriceController.clear();
+      _purchaseAmountController.clear();
       _sellerPurchaseModeController.clear();
       _saleDateController.clear();
       _mileageController.clear();
@@ -207,6 +215,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final vehicle = ref.read(vehicleProvider).vehicleToEdit;
+       final accountState = ref.read(accountProvider); // ✅ Get account list
+
+
       if (vehicle != null) {
         _makeController.text = vehicle.make;
         _modelController.text = vehicle.model;
@@ -219,14 +230,31 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
         _mileageController.text = vehicle.mileage.toString();
         _fuelTypeController.text = vehicle.fuelType;
 
-       _sellerNameController.text = vehicle.purchaseInfo.name;
-_sellerPhoneController.text = vehicle.purchaseInfo.phone;
-_sellerAddressController.text = vehicle.purchaseInfo.address;
-_sellerPurchaseAdressController.text = vehicle.purchaseInfo.address;
-_purchaseDateController.text = vehicle.purchaseInfo.date.toIso8601String().split('T').first;
-_sellerPurchasePriceController.text = vehicle.purchaseInfo.price.toString();
-_selectedPaymentMode = vehicle.purchaseInfo.modeOfPayment;
-_purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
+        _sellerNameController.text = vehicle.purchaseInfo.name;
+        _sellerPhoneController.text = vehicle.purchaseInfo.phone;
+        _sellerAddressController.text = vehicle.purchaseInfo.address;
+        _sellerPurchaseAdressController.text = vehicle.purchaseInfo.address;
+        _purchaseDateController.text = vehicle.purchaseInfo.date
+            .toIso8601String()
+            .split('T')
+            .first;
+         _purchaseAmountController.text = vehicle.purchaseInfo.price.toString();
+          _paidAmountController.text = vehicle.purchaseInfo.paidAmount.toString();
+          _statusController.text = vehicle.purchaseInfo.paymentStatus;
+          //  bool purchasePaid = vehicle.purchaseInfo.purchasePaid;
+        _purchaseAmountController.addListener(_updatePaymentStatus);
+        _paidAmountController.addListener(_updatePaymentStatus);
+
+
+         try {
+    _selectedAccount = accountState.accounts.firstWhere(
+      (acc) => acc.id == vehicle.purchaseInfo.modeOfPayment,
+    );
+  } catch (e) {
+    print('⚠️ From Account not found for ID: ${vehicle.purchaseInfo.modeOfPayment}');
+    _selectedAccount = null;
+  }
+
 
         if (vehicle.photos.isNotEmpty && !_formWasReset) {
           setState(() {
@@ -264,11 +292,13 @@ _purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
 
   List<Partnership> _partnerships = [];
 
+  Account? _selectedAccount;
+
   @override
   Widget build(BuildContext context) {
     final vehicleToEdit = ref.watch(vehicleProvider).vehicleToEdit;
     final isEditing = vehicleToEdit != null;
-    
+     final accountState = ref.watch(accountProvider);
 
     return Scaffold(
       // backgroundColor: Colors.grey.shade200,// background outside container
@@ -686,16 +716,19 @@ _purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
                   ),
                   KHeight20,
 
-                  Text("Purchase Price", style: TextStyle(color: Colors.black)),
+                  Text(
+                    "Purchase Amount",
+                    style: TextStyle(color: Colors.black),
+                  ),
                   TextFormField(
-                    controller: _sellerPurchasePriceController,
+                    controller: _purchaseAmountController,
                     validator: (value) {
                       if (value == null || value.isEmpty)
-                        return 'Enter purchase price';
+                        return 'Enter purchase Amount';
                       return null;
                     },
                     decoration: kCommonInputDecoration.copyWith(
-                      hintText: "Purchase Price",
+                      hintText: "Purchase Amount",
                     ),
                     style: TextStyle(color: Colors.black),
                   ),
@@ -729,81 +762,104 @@ _purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
                   ),
                   KHeight20,
 
-                  Text(
-                    'Purchase Payment Mode',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: _selectedPaymentMode,
+                  TextFormField(
+                    controller: _paidAmountController,
                     decoration: kCommonInputDecoration.copyWith(
-                      hintText: "Select Payment Mode",
+                      hintText: "Paid Amount",
                     ),
-                    icon: Icon(Icons.arrow_drop_down),
                     style: TextStyle(color: Colors.black),
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Select a payment mode'
-                        : null,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _selectedPaymentMode = newValue;
-                        print(
-                          "Selected Payment Mode: $_selectedPaymentMode",
-                        ); // 👈 Add this
-                      });
-                    },
-                    items: _paymentModes.map<DropdownMenuItem<String>>((
-                      String value,
-                    ) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
+                    keyboardType: TextInputType.number,
                   ),
-                  KHeight20,
+                  KHeight16,
 
-                  Text('Payment Status', style: TextStyle(color: Colors.black)),
-                  DropdownButtonFormField<String>(
-                    value: _purchasePaymentStatus,
+                  DropdownButtonFormField<Account>(
+  decoration: kCommonInputDecoration.copyWith(
+    hintText: "From Account",
+  ),
+  value: _selectedAccount, // You need to define this in your widget's state
+  onChanged: (Account? newAccount) {
+    setState(() {
+      _selectedAccount = newAccount;
+    });
+  },
+  items: ref.watch(accountProvider).accounts.map((account) {
+    return DropdownMenuItem<Account>(
+      value: account,
+      child: Text("${account.name} (${account.type})"),
+    );
+  }).toList(),
+  style: TextStyle(color: Colors.black),
+  dropdownColor: Colors.white,
+),
+
+                  KHeight16,
+
+                  TextFormField(
+                    readOnly: true,
+                    controller: _statusController,
                     decoration: kCommonInputDecoration.copyWith(
-                      hintText: "payment status",
+                      hintText: "Payment Status",
                     ),
-                    items: ['paid', 'partial', 'pending'].map((status) {
-                      return DropdownMenuItem<String>(
-                        value: status,
-                        child: Text(
-                          status[0].toUpperCase() + status.substring(1),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _purchasePaymentStatus = newValue;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select payment status';
-                      }
-                      return null;
-                    },
+                    style: TextStyle(color: Colors.black),
+                     // read-only
                   ),
+
+                  // DropdownButtonFormField<String>(
+                  //   value: _selectedPaymentMode,
+                  //   decoration: kCommonInputDecoration.copyWith(
+                  //     hintText: "Select Payment Mode",
+                  //   ),
+                  //   icon: Icon(Icons.arrow_drop_down),
+                  //   style: TextStyle(color: Colors.black),
+                  //   validator: (value) => value == null || value.isEmpty
+                  //       ? 'Select a payment mode'
+                  //       : null,
+                  //   onChanged: (String? newValue) {
+                  //     setState(() {
+                  //       _selectedPaymentMode = newValue;
+                  //       print(
+                  //         "Selected Payment Mode: $_selectedPaymentMode",
+                  //       ); // 👈 Add this
+                  //     });
+                  //   },
+                  //   items: _paymentModes.map<DropdownMenuItem<String>>((
+                  //     String value,
+                  //   ) {
+                  //     return DropdownMenuItem<String>(
+                  //       value: value,
+                  //       child: Text(value),
+                  //     );
+                  //   }).toList(),
+                  // ),
+                  // KHeight20,
+
+                  // Text('Payment Status', style: TextStyle(color: Colors.black)),
+                  // DropdownButtonFormField<String>(
+                  //   value: _purchasePaymentStatus,
+                  //   decoration: kCommonInputDecoration.copyWith(
+                  //     hintText: "payment status",
+                  //   ),
+                  //   items: ['paid', 'partial', 'pending'].map((status) {
+                  //     return DropdownMenuItem<String>(
+                  //       value: status,
+                  //       child: Text(
+                  //         status[0].toUpperCase() + status.substring(1),
+                  //       ),
+                  //     );
+                  //   }).toList(),
+                  //   onChanged: (String? newValue) {
+                  //     setState(() {
+                  //       _purchasePaymentStatus = newValue;
+                  //     });
+                  //   },
+                  //   validator: (value) {
+                  //     if (value == null || value.isEmpty) {
+                  //       return 'Please select payment status';
+                  //     }
+                  //     return null;
+                  //   },
+                  // ),
                   KHeight20,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                   SwitchListTile(
                     title: Text(
@@ -921,7 +977,7 @@ _purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
                                           ).viewInsets.bottom,
                                         ),
                                         child: AddPartnershipDetails(
-                                          vehicleId:_idController.text ,
+                                          vehicleId: _idController.text,
                                         ),
                                       ),
                                     );
@@ -982,6 +1038,11 @@ _purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
                                     .read(vehicleProvider.notifier)
                                     .setVehicleToEdit(null);
 
+                                    // purchase paid
+                                    double price = double.tryParse(_priceController.text.replaceAll(',', '')) ?? 0.0;
+      double paidAmount = double.tryParse(_paidAmountController.text.replaceAll(',', '')) ?? 0.0;
+      bool purchasePaid = paidAmount >= price;
+
                                 Partnership? selectedPartner;
 
                                 // Create new vehicle object from form data
@@ -1005,9 +1066,6 @@ _purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
                                   // vin: _vinController.text,
                                   description: _descriptionController.text,
 
-
-
-
                                   // purchaseDate: _purchaseDateController.text,
                                   // // task: '0',
                                   // purchaseName: _sellerNameController.text,
@@ -1020,33 +1078,43 @@ _purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
                                   // purchaseMode:
                                   //     _selectedPaymentMode?.toLowerCase() ?? '',
                                   // ✅ NEW: purchaseInfo object
-  purchaseInfo: Purchase(
-    id: '', // Leave empty if it's a new purchase
-    vehicleId: _idController.text,
-    userId: '', // Set current user ID here if available
-    name: _sellerNameController.text,
-    phone: _sellerPhoneController.text,
-    address: _sellerAddressController.text,
-    date: DateTime.tryParse(_purchaseDateController.text) ?? DateTime.now(),
-    price: double.tryParse(_priceController.text.replaceAll(',', '')) ?? 0.0,
-    modeOfPayment: _selectedPaymentMode?.toLowerCase() ?? '',
-    paymentStatus: _purchasePaymentStatus ?? 'pending',
-  ),
+                                  purchaseInfo: Purchase(
+                                    id: '', // Leave empty if it's a new purchase
+                                    vehicleId: _idController.text,
+                                    userId:
+                                        '', // Set current user ID here if available
+                                    name: _sellerNameController.text,
+                                    phone: _sellerPhoneController.text,
+                                    address: _sellerAddressController.text,
+                                    date:
+                                        DateTime.tryParse(
+                                          _purchaseDateController.text,
+                                        ) ??
+                                        DateTime.now(),
+                                    price:
+                                        double.tryParse(
+                                          _priceController.text.replaceAll(
+                                            ',',
+                                            '',
+                                          ),
+                                        ) ??
+                                        0.0,
+                                        modeOfPayment: _selectedAccount?.id ?? '',// <-- Account ID here
 
+                                    // modeOfPayment: _selectedPaymentMode?.toLowerCase() ?? '',
+                                    paymentStatus:
+                                        _purchasePaymentStatus ?? 'pending',
 
+                                        // purchasePaid:purchasePaid
+                                        paidAmount:  double.tryParse(_paidAmountController.text) ?? 0.0,
 
-
-
+                                  ),
 
                                   status: _status.toLowerCase(),
 
                                   partnerships: _isPartnershipEnabled
                                       ? _partnerships
                                       : [],
-
-
-
-
                                 );
                                 // Add or update vehicle
                                 if (isEditing) {
@@ -1096,4 +1164,28 @@ _purchasePaymentStatus = vehicle.purchaseInfo.paymentStatus;
       ),
     );
   }
+
+  //update payment
+void _updatePaymentStatus() {
+  final purchase = double.tryParse(_purchaseAmountController.text) ?? 0.0;
+  final paid = double.tryParse(_paidAmountController.text) ?? 0.0;
+
+  String status;
+  if (paid == 0) {
+    status = 'Pending';
+  } else if (paid < purchase) {
+    status = 'Partial';
+  } else {
+    status = 'Paid';
+  }
+
+  setState(() {
+    _statusController.text = status;
+    _purchasePaymentStatus = status; // ✅ also update backend value
+  });
+
+  print("DEBUG: purchase=$purchase, paid=$paid");
+  print("DEBUG: status=$status");
+}
+
 }

@@ -1,0 +1,69 @@
+[33m773715d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtest1[m[33m)[m HEAD@{0}: reset: moving to HEAD
+[33m773715d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtest1[m[33m)[m HEAD@{1}: reset: moving to HEAD
+[33m773715d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtest1[m[33m)[m HEAD@{2}: reset: moving to HEAD
+[33m773715d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtest1[m[33m)[m HEAD@{3}: commit: i have completed expense
+[33m770ca39[m HEAD@{4}: commit: i have completed broker and brokerage
+[33m902d8df[m HEAD@{5}: commit: i have completed my sales
+[33m8afaf58[m HEAD@{6}: commit: done with partnership
+[33m0530e66[m[33m ([m[1;32mdev[m[33m)[m HEAD@{7}: reset: moving to HEAD
+[33m0530e66[m[33m ([m[1;32mdev[m[33m)[m HEAD@{8}: checkout: moving from dev to test1
+[33m0530e66[m[33m ([m[1;32mdev[m[33m)[m HEAD@{9}: commit: for testing purpose
+[33me6fcbcd[m[33m ([m[1;31morigin/dev[m[33m)[m HEAD@{10}: commit: Kinda done with partnership functionality
+[33m8de86ec[m HEAD@{11}: commit: expense in details shown
+[33ma1b98d3[m HEAD@{12}: commit: Kinda done with ui of Add expense
+[33m013431e[m HEAD@{13}: commit: new connected api
+[33m38abe36[m HEAD@{14}: commit: starting to stable functionalities
+[33mb179eaa[m HEAD@{15}: commit: started changing inventory details page completed and add vehicle started
+[33m8e51421[m HEAD@{16}: commit: started changing inventory details page almost done
+[33md1380de[m HEAD@{17}: reset: moving to HEAD
+[33md1380de[m HEAD@{18}: commit: CONNECTED FRONT AND BACKEND FOR INVENTORY AND PURCHASE
+[33m540f2dd[m HEAD@{19}: commit: Kinda done with pagination and photo adding stuck at existing edit
+[33mcf9fe08[m HEAD@{20}: commit: Kinda done with pagination and photo adding
+[33mb89661b[m HEAD@{21}: commit: my first image on web is getting uploaded and update fields are also working
+[33m4aa601e[m HEAD@{22}: commit: my first image on web is getting uploaded
+[33macb4c49[m HEAD@{23}: reset: moving to HEAD
+[33macb4c49[m HEAD@{24}: reset: moving to HEAD
+[33macb4c49[m HEAD@{25}: commit: connected backend and frontend and wheni add data it add in backend also
+[33m5610ec7[m HEAD@{26}: commit: taken inventory data from backend and fixed show add form
+[33m348a968[m HEAD@{27}: commit: taken inventory data from backend
+[33mef93e2a[m HEAD@{28}: commit: complete login and signup connected backend with flutter done
+[33md6a0678[m HEAD@{29}: commit: signup and login done but not saving token and pagination
+[33m29d5f2e[m HEAD@{30}: commit: incomplete login and signup
+[33m51be18f[m HEAD@{31}: commit: 8 and 9 step completed
+[33mdd4202f[m HEAD@{32}: commit: 8 step completed
+[33m9ffbe0d[m HEAD@{33}: commit: start of authentication and api
+[33mf04f579[m HEAD@{34}: commit: riverpod for inventory Done and Dusted
+[33m671c11e[m HEAD@{35}: commit: riverpod of inventory screen fully completed
+[33m0609d3e[m HEAD@{36}: commit: Need to make everything to riverpod
+[33mdf64386[m HEAD@{37}: commit: start of riverpod
+[33mf683899[m HEAD@{38}: commit: sales everthing regaring that completed
+[33m3a57c4f[m HEAD@{39}: commit: almost over sales
+[33m6a2537d[m HEAD@{40}: commit: full of error
+[33me5bb64b[m HEAD@{41}: commit: some of the sales started
+[33mb0707d0[m HEAD@{42}: commit: done and dusted purchase
+[33m9fbd103[m HEAD@{43}: commit: created field
+[33m3a3ad37[m HEAD@{44}: commit: delete everything done now purchase page
+[33mead8243[m HEAD@{45}: commit: Need to add delete for partnership
+[33m420486f[m HEAD@{46}: commit: Created partnership page and everything now tommorow make it visible in or optional on inventory if partnership is there after adding field make visible on details page and partnershipscreen
+[33m00f397e[m HEAD@{47}: commit: connected the expense page with screen vehicle details page and built a pop screen
+[33m8abc5b1[m HEAD@{48}: commit: employees and expense page completed
+[33m1e2290f[m HEAD@{49}: commit: folder structure well defined
+[33mce551f5[m HEAD@{50}: commit: employees page done
+[33mdc82a22[m HEAD@{51}: commit: rewritten everything
+[33m9e08de8[m HEAD@{52}: commit: rewritten everything
+[33mdfb5c24[m HEAD@{53}: commit: Fix: made sales page with expense and employees
+[33mb9559d6[m HEAD@{54}: commit: Fix: Save vehicle description and update details page
+[33m258e728[m HEAD@{55}: commit: feat: add vehicle details screen and navigation flow
+[33m5f72500[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{56}: checkout: moving from main to dev
+[33m5f72500[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{57}: commit: Add vehicle image picker and fix status dropdown
+[33m9d9824f[m HEAD@{58}: commit: Add 'year' field to Vehicle, regenerate adapter, seed default data
+[33m16dce05[m HEAD@{59}: commit: Add vehicle form with buttons and styling updates
+[33m3565116[m HEAD@{60}: commit: Add inventory filter and sorting functionality
+[33m21a4f6f[m HEAD@{61}: commit: Add InventoryVehicleCard, update inventory screen, replace car image
+[33me4bfa99[m HEAD@{62}: commit: Updated today's work: added drawer navigation and UI fixes
+[33mad58345[m HEAD@{63}: commit: Your commit message
+[33mb684cd5[m HEAD@{64}: Branch: renamed refs/heads/main to refs/heads/main
+[33mb684cd5[m HEAD@{66}: commit: Initial commit
+[33mddb1627[m HEAD@{67}: commit: Your update message here
+[33m5a2c590[m HEAD@{68}: Branch: renamed refs/heads/master to refs/heads/main
+[33m5a2c590[m HEAD@{70}: commit (initial): Initial commit

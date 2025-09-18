@@ -1,8 +1,4 @@
-
-
-
-class Purchase  {
-  
+class Purchase {
   final String id;
   final String vehicleId;
   final String userId;
@@ -13,6 +9,8 @@ class Purchase  {
   final double price;
   final String modeOfPayment;
   final String paymentStatus;
+  // final  purchasePaid; // add this
+  final double paidAmount; // 
 
   Purchase({
     required this.id,
@@ -23,11 +21,12 @@ class Purchase  {
     required this.address,
     required this.date,
     required this.price,
-    required this.modeOfPayment,
+    required this.modeOfPayment, // Will store Account ID as String, not just a string name
     required this.paymentStatus,
+    // required this.purchasePaid, //(partial , paid )
+     required this.paidAmount,
   });
 
-  // ✅ JSON factory (to map with backend API)
   factory Purchase.fromJson(Map<String, dynamic> json) {
     return Purchase(
       id: json['id'].toString(),
@@ -36,16 +35,21 @@ class Purchase  {
       name: json['name'] ?? '',
       phone: json['phone'] ?? '',
       address: json['address'] ?? '',
-      // date: DateTime.parse(json['date']),
-      //temp date code 
-      date:json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+      date: json['date'] != null
+          ? DateTime.parse(json['date'])
+          : DateTime.now(),
       price: double.tryParse(json['price'].toString()) ?? 0.0,
-      modeOfPayment: json['mode_of_payment'] ?? '',
+      // modeOfPayment: json['mode_of_payment']
+      //     .toString(), // This should be account id string
+      modeOfPayment: (json['mode_of_payment'] ?? json['account_id'] ?? '').toString(),
       paymentStatus: json['payment_status'] ?? '',
+      // purchasePaid:
+      //     json['purchase_paid'] == 1 ||
+      //     json['purchase_paid'] == true, // adapt based on actual type
+       paidAmount: double.tryParse(json['purchase_paid'].toString()) ?? 0.0,
     );
   }
 
-  // ✅ Convert to JSON (for sending to backend)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -56,8 +60,10 @@ class Purchase  {
       'address': address,
       'date': date.toIso8601String(),
       'price': price,
-      'mode_of_payment': modeOfPayment,
+      'mode_of_payment': modeOfPayment, // account id string here
       'payment_status': paymentStatus,
+      // 'purchase_paid': purchasePaid ? 1 : 0, // adapt type accordingly
+      'purchase_paid': paidAmount, 
     };
   }
 }

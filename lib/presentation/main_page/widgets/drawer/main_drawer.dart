@@ -227,18 +227,15 @@ class MainDrawer extends ConsumerWidget {
           ),
             KHeight,
 
-
-
-
-          ListTile(
+             ListTile(
             selected: selectedIndex == 9,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.bar_chart,
+              Icons.wallet,
               color: selectedIndex == 9 ? Colors.blue : null,
             ),
             title: Text(
-              'Reports',
+              'Accounts',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 9 ? Colors.blue : null,
@@ -248,21 +245,42 @@ class MainDrawer extends ConsumerWidget {
           ),
             KHeight,
 
+
+
+
           ListTile(
             selected: selectedIndex == 10,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.settings,
-              color: selectedIndex == 10 ? Colors.blue : null,
+              Icons.bar_chart,
+              color: selectedIndex == 10? Colors.blue : null,
             ),
             title: Text(
-              'Settings',
+              'Reports',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 10 ? Colors.blue : null,
               ),
             ),
             onTap: () => onItemSelected(10),
+          ),
+            KHeight,
+
+          ListTile(
+            selected: selectedIndex == 11,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.settings,
+              color: selectedIndex == 11 ? Colors.blue : null,
+            ),
+            title: Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 11 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(11),
           ),
 
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
