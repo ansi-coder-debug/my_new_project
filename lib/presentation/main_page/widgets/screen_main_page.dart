@@ -6,9 +6,12 @@ import 'package:my_new_project/presentation/main_page/widgets/bottom_nav.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_accounts.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokerage.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokers.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_cashbook.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_employees.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_expense.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_finance.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_financiers.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_inventory.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_partners.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_purchase.dart';
@@ -40,7 +43,10 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
     PartnersPage(),
     ScreenBrokers(),
     ScreenBrokerage(),
+    ScreenFinanciers(),
+    ScreenFinance(),
     ScreenAccounts(),
+    ScreenCashbook(),
     ScreenReport(),
     ScreenSettings(),
   ];

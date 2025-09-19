@@ -14,33 +14,78 @@ class EmployeeService {
 
   EmployeeService(this._dio, this._ref);
 
-  // Fetch employees from the API
+  // // Fetch employees from the API
+  // Future<List<Employee>> getEmployees() async {
+  //   try {
+  //     final token = _ref.read(authNotifierProvider).user?.accessToken;
+
+  //     if (token == null) throw Exception('User not authenticated');
+
+  //     final response = await _dio.get(
+  //       'http://192.168.29.29:5000/api/employees', // Replace with your API URL
+  //       options: Options(headers: {'Authorization': 'Bearer $token'}),
+  //     );
+
+  //     print('API RESPONSE 🔹 API response data: ${response.data} ');
+
+  //     final data = response.data;
+
+  //     if (data is List) {
+  //       return data.map((json) => Employee.fromJson(json)).toList();
+  //     } else {
+  //       throw Exception('Invalid response format: $data');
+  //     }
+  //   } on DioException catch (e) {
+  //     throw Exception(
+  //       'Failed to fetch employees: ${e.response?.data ?? e.message}',
+  //     );
+  //   }
+  // }
+
+
   Future<List<Employee>> getEmployees() async {
-    try {
-      final token = _ref.read(authNotifierProvider).user?.accessToken;
+  try {
+    final token = _ref.read(authNotifierProvider).user?.accessToken;
 
-      if (token == null) throw Exception('User not authenticated');
+    if (token == null) throw Exception('User not authenticated');
 
-      final response = await _dio.get(
-        'http://192.168.29.29:5000/api/employees', // Replace with your API URL
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+    final response = await _dio.get(
+      'http://192.168.29.29:5000/api/employees',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
 
-      print('API RESPONSE 🔹 API response data: ${response.data} ');
+    print('API RESPONSE 🔹 API response data: ${response.data} ');
 
-      final data = response.data;
+    final data = response.data;
 
-      if (data is List) {
-        return data.map((json) => Employee.fromJson(json)).toList();
-      } else {
-        throw Exception('Invalid response format: $data');
+    if (data is List) {
+      final employees = <Employee>[];
+
+      for (final json in data) {
+        try {
+          final employee = Employee.fromJson(json);
+          employees.add(employee);
+        } catch (e, st) {
+          print('❌ Failed to parse employee: $json');
+          print('📍 Error: $e');
+          print('📍 Stack: $st');
+        }
       }
-    } on DioException catch (e) {
-      throw Exception(
-        'Failed to fetch employees: ${e.response?.data ?? e.message}',
-      );
+
+      print('✅ Parsed ${employees.length} employees');
+      return employees;
+    } else {
+      throw Exception('Invalid response format: $data');
     }
+  } on DioException catch (e) {
+    throw Exception(
+      'Failed to fetch employees: ${e.response?.data ?? e.message}',
+    );
   }
+}
+
+
+
 
   // Add a new employee to the backend
   Future<void> addEmployee(Employee employee) async {

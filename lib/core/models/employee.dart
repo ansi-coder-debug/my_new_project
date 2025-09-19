@@ -19,19 +19,7 @@ class Employee {
     required this.address,
   });
 
-  // Factory constructor to create an Employee from JSON
-  // factory Employee.fromJson(Map<String, dynamic> json) {
-  //   return Employee(
-  //     id: json['id'],
-  //     name: json['name'],
-  //     email: json['email'],
-  //     phone: json['phone'],
-  //     position: json['position'],
-  //     salary: json['salary'].toDouble(), // Ensure salary is a double
-  //     hireDate: json['hire_date'], // Or you could convert it to DateTime here
-  //     address: json['address'],
-  //   );
-  // }
+  
    factory Employee.fromJson(Map<String, dynamic> json) {
     print('🔹 Parsing Employee JSON: $json');
     return Employee(
@@ -40,7 +28,7 @@ class Employee {
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       position: json['position'] ?? '',
-      salary: (json['salary'] as num?)?.toDouble() ?? 0.0,
+      salary: double.tryParse(json['salary'].toString()) ?? 0.0,
       hireDate: json['hire_date'] ?? '',
       address: json['address'] ?? '',
     );

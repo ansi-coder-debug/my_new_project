@@ -22,6 +22,7 @@ class MainDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    
     void delayedNavigate(Widget screen) async {
       await Future.delayed(Duration(milliseconds: 100));
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
@@ -30,6 +31,7 @@ class MainDrawer extends ConsumerWidget {
     final user = ref.watch(authNotifierProvider).user;
 
     return Drawer(
+      backgroundColor: Colors.white,
       child: ListView(
         padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
         children: [
@@ -227,15 +229,16 @@ class MainDrawer extends ConsumerWidget {
           ),
             KHeight,
 
-             ListTile(
+
+              ListTile(
             selected: selectedIndex == 9,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.wallet,
+             Icons.account_balance,
               color: selectedIndex == 9 ? Colors.blue : null,
             ),
             title: Text(
-              'Accounts',
+              'Financiers',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 9 ? Colors.blue : null,
@@ -245,18 +248,15 @@ class MainDrawer extends ConsumerWidget {
           ),
             KHeight,
 
-
-
-
-          ListTile(
+              ListTile(
             selected: selectedIndex == 10,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.bar_chart,
-              color: selectedIndex == 10? Colors.blue : null,
+             Icons.account_balance,
+              color: selectedIndex == 10 ? Colors.blue : null,
             ),
             title: Text(
-              'Reports',
+              'Finance',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 10 ? Colors.blue : null,
@@ -266,21 +266,79 @@ class MainDrawer extends ConsumerWidget {
           ),
             KHeight,
 
-          ListTile(
+             ListTile(
             selected: selectedIndex == 11,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.settings,
+              Icons.wallet,
               color: selectedIndex == 11 ? Colors.blue : null,
             ),
             title: Text(
-              'Settings',
+              'Accounts',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 11 ? Colors.blue : null,
               ),
             ),
             onTap: () => onItemSelected(11),
+          ),
+            KHeight,
+
+           ListTile(
+            selected: selectedIndex == 12,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.point_of_sale,
+              color: selectedIndex == 12 ? Colors.blue : null,
+            ),
+            title: Text(
+              'Cashbook',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 12 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(12),
+          ),
+            KHeight,
+
+
+
+          ListTile(
+            selected: selectedIndex == 13,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.bar_chart,
+              color: selectedIndex == 13? Colors.blue : null,
+            ),
+            title: Text(
+              'Reports',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 13 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(13),
+          ),
+            KHeight,
+
+
+
+          ListTile(
+            selected: selectedIndex == 14,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.settings,
+              color: selectedIndex == 14 ? Colors.blue : null,
+            ),
+            title: Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 14 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(14),
           ),
 
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
