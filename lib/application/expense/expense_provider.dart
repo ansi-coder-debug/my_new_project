@@ -29,29 +29,6 @@ class ExpenseNotifier extends StateNotifier<ExpenseState> {
     }
   }
 
-  // Add a new expense locally (you might want to also call repository to add remotely)
-  // void addExpense({
-  //   required String amount,
-  //   String? description,
-  //   required String date,
-  //   required String vehicleId,
-  //   required String type,
-  // }) {
-  //   final newExpense = Expense(
-  //     id: const Uuid().v4(),
-  //     amount: amount,
-  //     description: description,
-  //     date: date,
-  //     vehicleId: vehicleId,
-  //     type: type,
-  //   );
-
-  //   state = state.copyWith(
-  //     expenses: [...state.expenses, newExpense],
-  //     status: ExpenseStatus.success,
-  //     error: null,
-  //   );
-  // }
 
     Future<void> addExpense({
   required String amount,
