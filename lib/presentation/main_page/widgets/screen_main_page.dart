@@ -4,6 +4,7 @@ import 'package:my_new_project/core/constants/constant.dart';
 
 import 'package:my_new_project/presentation/main_page/widgets/bottom_nav.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_accounts.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_advance.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokerage.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokers.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_cashbook.dart';
@@ -18,6 +19,7 @@ import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_page
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_report.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_sales.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_settings.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_subscription.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_tasks.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/main_drawer.dart';
 import 'package:my_new_project/presentation/notifications/screen_notifications.dart';
@@ -37,7 +39,7 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
     ScreenDashboard(),
     ScreenInventory(), 
     ScreenSales(),
-     ScreenPurchase(),
+    ScreenPurchase(),
     ScreenEmployees(),
     ScreenExpense(),
     PartnersPage(),
@@ -47,6 +49,8 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
     ScreenFinance(),
     ScreenAccounts(),
     ScreenCashbook(),
+    ScreenSubscription(),
+    ScreenAdvance(),
     ScreenReport(),
     ScreenSettings(),
   ];

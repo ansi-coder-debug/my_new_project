@@ -23,26 +23,55 @@ class CashBookEntry {
     this.createdAt,
   });
 
+  // factory CashBookEntry.fromJson(Map<String, dynamic> json) {
+  //   return CashBookEntry(
+  //     id: json['id']?.toString(),
+  //     userId: json['user_id']?.toString(),
+  //     // accountId: json['account_id']?.toString() ?? '',
+  //      accountId: json['account_id']?.toString() ?? (throw Exception("account_id missing")),
+
+  //     accountName: json['account_name'], // from JOIN
+  //     // transactionType: json['transaction_type'] ?? '',
+  //     transactionType: json['transaction_type']?.toString() ?? (throw Exception("transaction_type missing")),
+
+  //     transactionId: json['transaction_id'],
+  //     debit: (json['debit'] != null) ? double.tryParse(json['debit'].toString()) : null,
+  //     credit: (json['credit'] != null) ? double.tryParse(json['credit'].toString()) : null,
+  //     description: json['description'],
+  //     createdAt: json['created_at'] != null
+  //         ? DateTime.tryParse(json['created_at'])
+  //         : null,
+  //   );
+  // }
+
   factory CashBookEntry.fromJson(Map<String, dynamic> json) {
+  try {
+    final accountId = json['account_id']?.toString();
+    final transactionType = json['transaction_type']?.toString();
+
+    if (accountId == null || transactionType == null) {
+      print("⚠️ Skipping entry: account_id or transaction_type is null. Raw JSON: $json");
+      throw FormatException("Missing required fields");
+    }
+
     return CashBookEntry(
       id: json['id']?.toString(),
       userId: json['user_id']?.toString(),
-      // accountId: json['account_id']?.toString() ?? '',
-       accountId: json['account_id']?.toString() ?? (throw Exception("account_id missing")),
-
-      accountName: json['account_name'], // from JOIN
-      // transactionType: json['transaction_type'] ?? '',
-      transactionType: json['transaction_type']?.toString() ?? (throw Exception("transaction_type missing")),
-
-      transactionId: json['transaction_id'],
+      accountId: accountId,
+      accountName: json['account_name'],
+      transactionType: transactionType,
+      transactionId: json['transaction_id']?.toString(),
       debit: (json['debit'] != null) ? double.tryParse(json['debit'].toString()) : null,
       credit: (json['credit'] != null) ? double.tryParse(json['credit'].toString()) : null,
       description: json['description'],
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'])
-          : null,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
     );
+  } catch (e) {
+    print("❌ Error parsing CashBookEntry: $e");
+    rethrow; // Or return a fallback value
   }
+}
+
 
 //  accountId: json['account_id']?.toString() ?? (throw Exception("account_id missing")),
 // transactionType: json['transaction_type']?.toString() ?? (throw Exception("transaction_type missing")),

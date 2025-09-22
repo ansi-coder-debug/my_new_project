@@ -303,16 +303,15 @@ class MainDrawer extends ConsumerWidget {
             KHeight,
 
 
-
-          ListTile(
+           ListTile(
             selected: selectedIndex == 13,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.bar_chart,
+              Icons.subscriptions,
               color: selectedIndex == 13? Colors.blue : null,
             ),
             title: Text(
-              'Reports',
+              'Subscription',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 13 ? Colors.blue : null,
@@ -323,22 +322,60 @@ class MainDrawer extends ConsumerWidget {
             KHeight,
 
 
-
-          ListTile(
+            ListTile(
             selected: selectedIndex == 14,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.settings,
-              color: selectedIndex == 14 ? Colors.blue : null,
+             Icons.account_balance_wallet,
+              color: selectedIndex == 14? Colors.blue : null,
             ),
             title: Text(
-              'Settings',
+              'Advance',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 14 ? Colors.blue : null,
               ),
             ),
             onTap: () => onItemSelected(14),
+          ),
+            KHeight,
+
+
+          ListTile(
+            selected: selectedIndex == 15,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.bar_chart,
+              color: selectedIndex == 15? Colors.blue : null,
+            ),
+            title: Text(
+              'Reports',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 15 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(15),
+          ),
+            KHeight,
+
+
+
+          ListTile(
+            selected: selectedIndex == 16,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.settings,
+              color: selectedIndex == 16? Colors.blue : null,
+            ),
+            title: Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 16 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(16),
           ),
 
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
