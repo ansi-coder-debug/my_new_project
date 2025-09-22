@@ -1,10 +1,142 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/finance/finance_provider.dart';
+import 'package:my_new_project/core/models/finance.dart';
+import 'package:my_new_project/core/models/vehicle.dart';  // if you have vehicle in finance
 
-class ScreenFinance extends StatelessWidget {
+class ScreenFinance extends ConsumerWidget {
   const ScreenFinance({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(financeProvider);
+
+    
+
+    final List<Finance> finances = state.finances;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Finance'),
+      ),
+      body: state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : finances.isEmpty
+              ? const Center(child: Text('No finance records found.'))
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: finances.length,
+                  itemBuilder: (context, index) {
+                    final finance = finances[index];
+
+                    final vehicleName = finance.vehicle?.make ?? 'Unknown Vehicle';
+                    final financierName = finance.financier?.companyName ?? 'Unknown Financier';
+                    final amount = finance.amount ?? 0.0;
+                    final received = finance.receivedPrice ?? 0.0;
+                    final paymentMode = finance.toAccount ?? 'N/A';
+                    final status = finance.paymentStatus ?? 'pending';
+
+                    return Card(
+                      color: Colors.white,
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Vehicle name + menu
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    vehicleName.toUpperCase(),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Color(0xFF1B1B3A),
+                                    ),
+                                  ),
+                                ),
+                                PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    if (value == 'edit') {
+                                      // TODO: Handle edit
+                                    } else if (value == 'delete') {
+                                      // TODO: Handle delete
+                                    }
+                                  },
+                                  itemBuilder: (context) => const [
+                                    PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                    PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+
+                            // Financier company name
+                            Text(
+                              financierName,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+
+                            // Payment mode
+                            Text(
+                              'Paid via: $paymentMode',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+
+                            // Amount
+                            Text(
+                              amount.toStringAsFixed(2),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                color: Colors.black87,
+                              ),
+                            ),
+
+                            const SizedBox(height: 6),
+
+                            // Received amount
+                            Text(
+                              'Received: $received',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: Colors.green,
+                              ),
+                            ),
+
+                            const SizedBox(height: 6),
+
+                            // Status
+                            Text(
+                              'Status: $status',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+    );
   }
 }

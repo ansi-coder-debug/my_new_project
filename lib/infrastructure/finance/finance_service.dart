@@ -1,60 +1,60 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_new_project/core/models/advance.dart';
+import 'package:my_new_project/core/models/finance.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
 
-final advanceServiceProvider = Provider<AdvanceService>((ref) {
+final financeServiceProvider = Provider<FinanceService>((ref) {
   final dio = Dio();
-  return AdvanceService(dio, ref);
+  return FinanceService(dio, ref);
 });
 
-class AdvanceService {
+class FinanceService {
   final Dio _dio;
   final Ref _ref;
 
-  AdvanceService(this._dio, this._ref);
+  FinanceService(this._dio, this._ref);
 
-  Future<List<Advance>> getAdvances() async {
-    
+  Future<List<Finance>> getAllFinances() async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.get(
-      'http://192.168.29.29:5000/api/advances',
+      'http://192.168.29.29:5000/api/finances',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
+
     final data = response.data as List;
-    return data.map((json) => Advance.fromJson(json)).toList();
+    return data.map((json) => Finance.fromJson(json)).toList();
   }
 
-  Future<Advance> addAdvance(Advance advance) async {
+  Future<Finance> addFinance(Finance finance) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.post(
-      'http://192.168.29.29:5000/api/advances',
-      data: advance.toJson(),
+      'http://192.168.29.29:5000/api/finances',
+      data: finance.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
-    return Advance.fromJson(response.data);
+
+    return Finance.fromJson(response.data);
   }
 
-  Future<Advance> updateAdvance(Advance advance) async {
-    if (advance.id == null) throw Exception('Advance ID is required for update');
-
+  Future<Finance> updateFinance(Finance finance) async {
+    if (finance.id.isEmpty) {
+      throw Exception('Finance ID is required for update');
+    }
     final token = _ref.read(authNotifierProvider).user?.accessToken;
-    
     final response = await _dio.put(
-      
-      'http://192.168.29.29:5000/api/advances/${advance.id}',
-      data: advance.toJson(),
+      'http://192.168.29.29:5000/api/finances/${finance.id}',
+      data: finance.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
-    return Advance.fromJson(response.data);
+
+    return Finance.fromJson(response.data);
   }
 
-  Future<void> deleteAdvance(int id) async {
+  Future<void> deleteFinance(String id) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     await _dio.delete(
-      'http://192.168.29.29:5000/api/advances/$id',
+      'http://192.168.29.29:5000/api/finances/$id',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }
 }
-

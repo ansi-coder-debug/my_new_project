@@ -27,6 +27,8 @@ class _ScreenExpenseState extends ConsumerState<ScreenExpense> {
     });
   }
 
+  
+
 
 @override
   Widget build(BuildContext context) {
@@ -38,6 +40,13 @@ class _ScreenExpenseState extends ConsumerState<ScreenExpense> {
 
     return Scaffold(
       body: 
+      expenses.isEmpty
+    ? Center(
+        child: Text(
+          'No expense record found',
+          style: TextStyle(fontSize: 18, color: Colors.black),
+        ),
+      ):
           ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: expenses.length,

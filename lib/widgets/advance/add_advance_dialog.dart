@@ -34,33 +34,35 @@ class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
   }
 
   void _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    try {
-      final newAdvance = Advance(
-        // Backend will generate
-        amount: double.parse(_amountController.text.trim()),
-        date: _selectedDate,
-        buyerName: _buyerNameController.text.trim(),
-        buyerPhone: _buyerPhoneController.text.trim(),
-        buyerAddress: _buyerAddressController.text.trim(),
-      );
+  try {
+    final newAdvance = Advance(
+      vehicleId: int.parse(_selectedVehicleId!), // ✅ Now included
+      amount: double.parse(_amountController.text.trim()),
+      date: _selectedDate,
+      buyerName: _buyerNameController.text.trim(),
+      buyerPhone: _buyerPhoneController.text.trim(),
+      buyerAddress: _buyerAddressController.text.trim(),
+    );
 
-      await ref.read(advanceProvider.notifier).addAdvance(newAdvance);
+    print('📤 Sending advance: ${newAdvance.toJson()}'); // 👈 Print before sending
 
-      await ref.read(advanceProvider.notifier).loadAdvances();
+    await ref.read(advanceProvider.notifier).addAdvance(newAdvance);
+    await ref.read(advanceProvider.notifier).loadAdvances();
 
-      Navigator.of(context).pop();
+    Navigator.of(context).pop();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Advance added successfully')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to add advance: $e')));
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Advance added successfully')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to add advance: $e')),
+    );
   }
+}
+
 
   InputDecoration _inputDecoration(String hintText) {
     return InputDecoration(

@@ -341,15 +341,15 @@ class MainDrawer extends ConsumerWidget {
             KHeight,
 
 
-          ListTile(
+             ListTile(
             selected: selectedIndex == 15,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.bar_chart,
+             Icons.handshake,
               color: selectedIndex == 15? Colors.blue : null,
             ),
             title: Text(
-              'Reports',
+              'Partnerships',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 15 ? Colors.blue : null,
@@ -360,22 +360,41 @@ class MainDrawer extends ConsumerWidget {
             KHeight,
 
 
-
           ListTile(
             selected: selectedIndex == 16,
             splashColor: Colors.blueAccent,
             leading: Icon(
-              Icons.settings,
+              Icons.bar_chart,
               color: selectedIndex == 16? Colors.blue : null,
             ),
             title: Text(
-              'Settings',
+              'Reports',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: selectedIndex == 16 ? Colors.blue : null,
               ),
             ),
             onTap: () => onItemSelected(16),
+          ),
+            KHeight,
+
+
+
+          ListTile(
+            selected: selectedIndex == 17,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.settings,
+              color: selectedIndex == 17? Colors.blue : null,
+            ),
+            title: Text(
+              'Settings',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 17 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(17),
           ),
 
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
