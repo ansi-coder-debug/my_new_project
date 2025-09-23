@@ -8,12 +8,15 @@ import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_page
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokerage.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokers.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_cashbook.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_daily_summary.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_dashboard.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_employees.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_expense.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_expensetype.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_finance.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_financiers.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_inventory.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_monthly_summary.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_partners.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_partnerships.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_purchase.dart';
@@ -55,6 +58,9 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
     ScreenPartnerships(),
     ScreenReport(),
     ScreenSettings(),
+    ScreenExpenseTypes(),
+    ScreenMonthlySummary(),
+    ScreenDailySummary()
   ];
 
   @override

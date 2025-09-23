@@ -1182,7 +1182,8 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
 
     final totalExpenseAmount = expenseForThisVehicle.fold<double>(
       0.0,
-      (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
+      (sum, e) => sum + e.amount
+      // (double.tryParse(e.amount) ?? 0),
     );
 
     return Scaffold(
@@ -1844,7 +1845,8 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text("Type:"),
-                                            Text(expense.type.toUpperCase()),
+                                           Text((expense.expenseTypeName ?? "N/A").toUpperCase())
+
                                           ],
                                         ),
                                         Row(
@@ -1860,7 +1862,8 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text("Date:"),
-                                            Text(expense.date),
+                                            // Text(expense.date),
+                                            Text("${expense.date.toLocal()}".split(' ')[0]),
                                           ],
                                         ),
                                         Row(
@@ -1922,7 +1925,9 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                         Padding(
                           padding: const EdgeInsets.only(top: 12),
                           child: Text(
-                            "Total: ₹${expenseForThisVehicle.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.amount) ?? 0.0)).toStringAsFixed(2)}",
+                            // "Total: ₹${expenseForThisVehicle.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.amount) ?? 0.0)).toStringAsFixed(2)}",
+                                "Total: ₹${expenseForThisVehicle.fold<double>(0.0, (sum, item) => sum + (item.amount ?? 0.0)).toStringAsFixed(2)}",
+
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,

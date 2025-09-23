@@ -22,28 +22,52 @@ class Finance {
     this.vehicle,
   });
 
+
   factory Finance.fromJson(Map<String, dynamic> json) {
-    return Finance(
-      id: json['id'].toString(),
-      vehicleId: json['vehicle_id'].toString(),
-      toAccount: json['to_account'] ?? '',
-      paymentStatus: json['payment_status'] ?? '',
-      amount: (json['amount'] ?? 0).toDouble(),
-      receivedPrice: (json['received_price'] ?? 0).toDouble(),
+    try {
+      print('🔍 Parsing Finance from JSON: $json');
 
-      // Assuming backend returns `financier` or `financier_id` + related fields
-      financier: json['financier'] != null
-          ? Financier.fromJson(json['financier'])
-          : json['financier_id'] != null
-              ? Financier(id: json['financier_id'], companyName: '', contactPerson: '', contactNumber: '', address: '')
-              : null,
-
-      // Assuming backend returns partial vehicle details in `vehicle`
-      vehicle: json['vehicle'] != null
-          ? Vehicle.fromJson(json['vehicle'])
-          : null,
-    );
+      return Finance(
+        id: json['id']?.toString() ?? '',
+        vehicleId: json['vehicle_id']?.toString() ?? '',
+        toAccount: json['to_account']?.toString() ?? '',
+        paymentStatus: json['payment_status']?.toString() ?? '',
+        amount: (json['amount'] is num)
+            ? (json['amount'] as num).toDouble()
+            : double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
+        receivedPrice: (json['received_price'] is num)
+            ? (json['received_price'] as num).toDouble()
+            : double.tryParse(json['received_price']?.toString() ?? '') ?? 0.0,
+        financier: json['financier'] != null
+            ? Financier.fromJson(json['financier'])
+            : (json['financier_id'] != null || json['financier_name'] != null)
+                ? Financier(
+                    id: json['financier_id'],
+                    companyName: json['financier_name'] ?? '',
+                    contactPerson: '',
+                    contactNumber: '',
+                    address: '',
+                  )
+                : null,
+        vehicle: json['vehicle'] != null ? Vehicle.fromJson(json['vehicle']) : null,
+      );
+    } catch (e, stack) {
+      print('⚠️ Error parsing Finance JSON: $e\n$stack');
+      return Finance(
+        id: '',
+        vehicleId: '',
+        toAccount: '',
+        paymentStatus: '',
+        amount: 0,
+        receivedPrice: 0,
+        financier: null,
+        vehicle: null,
+      );
+    }
   }
+
+
+
 
   Map<String, dynamic> toJson() {
     return {

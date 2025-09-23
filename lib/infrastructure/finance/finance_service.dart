@@ -20,9 +20,13 @@ class FinanceService {
       'http://192.168.29.29:5000/api/finances',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
+    print("📥 Raw backend response: ${response.data}");
+
 
     final data = response.data as List;
+    
     return data.map((json) => Finance.fromJson(json)).toList();
+    
   }
 
   Future<Finance> addFinance(Finance finance) async {

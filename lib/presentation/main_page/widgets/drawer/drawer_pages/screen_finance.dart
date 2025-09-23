@@ -9,11 +9,13 @@ class ScreenFinance extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    
     final state = ref.watch(financeProvider);
 
     
 
     final List<Finance> finances = state.finances;
+print('🧾 UI received finances: ${finances.length}');
 
     return Scaffold(
       appBar: AppBar(
@@ -27,14 +29,16 @@ class ScreenFinance extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   itemCount: finances.length,
                   itemBuilder: (context, index) {
+                    
                     final finance = finances[index];
 
                     final vehicleName = finance.vehicle?.make ?? 'Unknown Vehicle';
                     final financierName = finance.financier?.companyName ?? 'Unknown Financier';
-                    final amount = finance.amount ?? 0.0;
-                    final received = finance.receivedPrice ?? 0.0;
-                    final paymentMode = finance.toAccount ?? 'N/A';
-                    final status = finance.paymentStatus ?? 'pending';
+                    final amount = finance.amount;
+final received = finance.receivedPrice;
+final paymentMode = finance.toAccount;
+final status = finance.paymentStatus;
+
 
                     return Card(
                       color: Colors.white,

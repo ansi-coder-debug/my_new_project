@@ -20,6 +20,7 @@ class FinanceNotifier extends StateNotifier<FinanceState> {
     try {
       state = state.copyWith(isLoading: true, error: null);
       final finances = await _repository.getAllFinances();
+      print('✅ Loaded finances count in notifier: ${finances.length}');
       state = state.copyWith(finances: finances, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());

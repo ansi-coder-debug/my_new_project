@@ -22,7 +22,6 @@ class MainDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
     void delayedNavigate(Widget screen) async {
       await Future.delayed(Duration(milliseconds: 100));
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
@@ -81,7 +80,7 @@ class MainDrawer extends ConsumerWidget {
           ),
           KHeight,
 
-          ListTile(  
+          ListTile(
             selected: selectedIndex == 1,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -97,7 +96,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(1),
           ),
-            KHeight,
+          KHeight,
 
           ListTile(
             selected: selectedIndex == 2,
@@ -115,7 +114,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(2),
           ),
-            KHeight,
+          KHeight,
 
           ListTile(
             selected: selectedIndex == 3,
@@ -133,7 +132,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(3),
           ),
-            KHeight,
+          KHeight,
 
           // KHeight,
           ListTile(
@@ -152,7 +151,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(4),
           ),
-            KHeight,
+          KHeight,
 
           ListTile(
             selected: selectedIndex == 5,
@@ -170,7 +169,7 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(5),
           ),
-            KHeight,
+          KHeight,
 
           ListTile(
             selected: selectedIndex == 6,
@@ -188,11 +187,10 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(6),
           ),
-            KHeight,
+          KHeight,
 
           // const Divider(),
-
-           ListTile(
+          ListTile(
             selected: selectedIndex == 7,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -208,10 +206,9 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(7),
           ),
-            KHeight,
+          KHeight,
 
-
-             ListTile(
+          ListTile(
             selected: selectedIndex == 8,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -227,14 +224,13 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(8),
           ),
-            KHeight,
+          KHeight,
 
-
-              ListTile(
+          ListTile(
             selected: selectedIndex == 9,
             splashColor: Colors.blueAccent,
             leading: Icon(
-             Icons.account_balance,
+              Icons.account_balance,
               color: selectedIndex == 9 ? Colors.blue : null,
             ),
             title: Text(
@@ -246,13 +242,13 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(9),
           ),
-            KHeight,
+          KHeight,
 
-              ListTile(
+          ListTile(
             selected: selectedIndex == 10,
             splashColor: Colors.blueAccent,
             leading: Icon(
-             Icons.account_balance,
+              Icons.account_balance,
               color: selectedIndex == 10 ? Colors.blue : null,
             ),
             title: Text(
@@ -264,9 +260,9 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(10),
           ),
-            KHeight,
+          KHeight,
 
-             ListTile(
+          ListTile(
             selected: selectedIndex == 11,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -282,9 +278,9 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(11),
           ),
-            KHeight,
+          KHeight,
 
-           ListTile(
+          ListTile(
             selected: selectedIndex == 12,
             splashColor: Colors.blueAccent,
             leading: Icon(
@@ -300,15 +296,14 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(12),
           ),
-            KHeight,
+          KHeight,
 
-
-           ListTile(
+          ListTile(
             selected: selectedIndex == 13,
             splashColor: Colors.blueAccent,
             leading: Icon(
               Icons.subscriptions,
-              color: selectedIndex == 13? Colors.blue : null,
+              color: selectedIndex == 13 ? Colors.blue : null,
             ),
             title: Text(
               'Subscription',
@@ -319,15 +314,14 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(13),
           ),
-            KHeight,
+          KHeight,
 
-
-            ListTile(
+          ListTile(
             selected: selectedIndex == 14,
             splashColor: Colors.blueAccent,
             leading: Icon(
-             Icons.account_balance_wallet,
-              color: selectedIndex == 14? Colors.blue : null,
+              Icons.account_balance_wallet,
+              color: selectedIndex == 14 ? Colors.blue : null,
             ),
             title: Text(
               'Advance',
@@ -338,15 +332,14 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(14),
           ),
-            KHeight,
+          KHeight,
 
-
-             ListTile(
+          ListTile(
             selected: selectedIndex == 15,
             splashColor: Colors.blueAccent,
             leading: Icon(
-             Icons.handshake,
-              color: selectedIndex == 15? Colors.blue : null,
+              Icons.handshake,
+              color: selectedIndex == 15 ? Colors.blue : null,
             ),
             title: Text(
               'Partnerships',
@@ -357,15 +350,14 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(15),
           ),
-            KHeight,
-
+          KHeight,
 
           ListTile(
             selected: selectedIndex == 16,
             splashColor: Colors.blueAccent,
             leading: Icon(
               Icons.bar_chart,
-              color: selectedIndex == 16? Colors.blue : null,
+              color: selectedIndex == 16 ? Colors.blue : null,
             ),
             title: Text(
               'Reports',
@@ -376,16 +368,14 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(16),
           ),
-            KHeight,
-
-
+          KHeight,
 
           ListTile(
             selected: selectedIndex == 17,
             splashColor: Colors.blueAccent,
             leading: Icon(
               Icons.settings,
-              color: selectedIndex == 17? Colors.blue : null,
+              color: selectedIndex == 17 ? Colors.blue : null,
             ),
             title: Text(
               'Settings',
@@ -396,6 +386,103 @@ class MainDrawer extends ConsumerWidget {
             ),
             onTap: () => onItemSelected(17),
           ),
+          KHeight,
+
+          ListTile(
+            selected: selectedIndex == 18,
+            splashColor: Colors.blueAccent,
+            leading: Icon(
+              Icons.menu,
+              color: selectedIndex == 18? Colors.blue : null,
+            ),
+            title: Text(
+              'Expense Type',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedIndex == 18 ? Colors.blue : null,
+              ),
+            ),
+            onTap: () => onItemSelected(18),
+          ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ExpansionTile(
+  leading: const Icon(Icons.insert_drive_file_outlined),
+  title: const Text(
+    'Summary',
+    style: TextStyle(fontWeight: FontWeight.bold),
+  ),
+  children: [
+    ListTile(
+      selected: selectedIndex == 19,   // ✅ highlight if active
+      leading: Icon(
+        Icons.calendar_today,
+        color: selectedIndex == 19 ? Colors.blue : null,
+      ),
+      title: Text(
+        'Monthly Summary',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: selectedIndex == 19 ? Colors.blue : null,
+        ),
+      ),
+      onTap: () => onItemSelected(19),
+    ),
+    ListTile(
+      selected: selectedIndex == 20,   // ✅ highlight if active
+      leading: Icon(
+        Icons.bar_chart,
+        color: selectedIndex == 20 ? Colors.blue : null,
+      ),
+      title: Text(
+        'Daily Summary',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: selectedIndex == 20 ? Colors.blue : null,
+        ),
+      ),
+      onTap: () => onItemSelected(20),
+    ),
+  ],
+),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
           SizedBox(height: MediaQuery.of(context).size.height * 0.3),
           const Divider(),

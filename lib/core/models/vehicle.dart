@@ -42,7 +42,7 @@ final Purchase purchaseInfo; // 👈 required field
     this.saleInfo,
     required this.mileage,
     required this.fuelType,
-    this.brokerageInfo,
+    this.brokerageInfo, 
   });
   Vehicle copyWith({
     String? id,

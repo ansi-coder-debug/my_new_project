@@ -23,10 +23,16 @@ class ProfitSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
    final purchasePrice = vehicle.purchaseInfo.price;
     final salePrice = _parseAmount(vehicle.saleInfo?.price);
-    final totalExpenses = (expenses ?? []).fold<double>(
+//     final totalExpenses = (expenses ?? []).fold<double>(
+//   0.0,
+//   (sum, e) => sum + (double.tryParse(e.amount.replaceAll(',', '')) ?? 0.0),
+// );
+
+final totalExpenses = (expenses ?? []).fold<double>(
   0.0,
-  (sum, e) => sum + (double.tryParse(e.amount.replaceAll(',', '')) ?? 0.0),
+  (sum, e) => sum + (e.amount ?? 0.0),
 );
+
 
     final totalCost = purchasePrice + totalExpenses;
     final profit = salePrice - totalCost;
