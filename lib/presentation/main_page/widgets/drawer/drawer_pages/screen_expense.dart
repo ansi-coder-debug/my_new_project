@@ -317,7 +317,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/expense/expense_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/widgets/expense/add_expense_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 class ScreenExpense extends ConsumerWidget {
   const ScreenExpense({super.key});
@@ -327,23 +329,52 @@ class ScreenExpense extends ConsumerWidget {
     final expenseState = ref.watch(expenseProvider);
     final expenses = expenseState.expenses;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Expenses'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              // Open your AddExpenseDialog as a dialog (like your AddAccountDialog)
-              showDialog(
-                context: context,
-                builder: (_) => const AddExpenseDialog(),
-              );
-            },
-          ),
-        ],
-      ),
-      body: expenseState.isLoading
+    
+      // appBar: AppBar(
+      //   title: const Text('Expenses'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.add),
+      //       onPressed: () {
+      //         // Open your AddExpenseDialog as a dialog (like your AddAccountDialog)
+      //         showDialog(
+      //           context: context,
+      //           builder: (_) => const AddExpenseDialog(),
+      //         );
+      //       },
+      //     ),
+      //   ],
+      // ),
+      return Scaffold(
+      body:SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title: "Expense",
+               onBack: (){
+                //last index wanna do at later 
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(expenseProvider.notifier).loadExpenses();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd:(){
+                showDialog(
+                  context: context,
+                   builder:(_) =>AddExpenseDialog(),
+                    );
+              }    
+            ),
+            KHeight,
+
+            Expanded(
+              child:expenseState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : expenses.isEmpty
               ? const Center(child: Text("No expenses found"))
@@ -420,6 +451,10 @@ class ScreenExpense extends ConsumerWidget {
                     );
                   },
                 ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

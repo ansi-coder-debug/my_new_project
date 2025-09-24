@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/expensetype/expensetype_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 
 import 'package:my_new_project/widgets/expensetype/add_expensetype_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 class ScreenExpenseTypes extends ConsumerWidget {
   const ScreenExpenseTypes({super.key});
@@ -12,23 +14,53 @@ class ScreenExpenseTypes extends ConsumerWidget {
     final expenseTypeState = ref.watch(expenseTypeProvider);
     final expenseTypes = expenseTypeState.expenseTypes;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Expense Types'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => const AddExpenseTypeDialog(),
-              );
-            },
-          )
-        ],
-      ),
+   
+      // appBar: AppBar(
+      //   title: const Text('Expense Types'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.add),
+      //       onPressed: () {
+      //         showDialog(
+      //           context: context,
+      //           builder: (_) => const AddExpenseTypeDialog(),
+      //         );
+      //       },
+      //     )
+      //   ],
+      // ),
+       return Scaffold(
+      body: SafeArea(
+        child:Column(
+          children: [
+            CustomHeader(
+              title:"Expense Types",
+              onBack: (){
+                //last index wanna do at later 
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(expenseTypeProvider.notifier).loadExpenseTypes();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd: (){
+                showDialog(
+                  context: context,
+                   builder: (_)=>AddExpenseTypeDialog(),
+                   );
+              } ,
+               ),
+               KHeight,
 
-      body: expenseTypeState.isLoading
+
+      Expanded(
+        child: 
+       expenseTypeState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : expenseTypes.isEmpty
               ? const Center(child: Text("No expense types found"))
@@ -110,6 +142,10 @@ class ScreenExpenseTypes extends ConsumerWidget {
                     );
                   },
                 ),
+      ),
+          ],
+        ),
+      ),
     );
   }
 }

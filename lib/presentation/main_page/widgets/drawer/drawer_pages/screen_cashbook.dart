@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/cashbook/cashbook_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/cashbook.dart';
 import 'package:my_new_project/widgets/cashbook/add_cashbook_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 // Import your AddCashBookEntryDialog here
 
 class  ScreenCashbook extends ConsumerWidget {
@@ -13,23 +15,55 @@ class  ScreenCashbook extends ConsumerWidget {
     final cashBookState = ref.watch(cashBookProvider);
     final entries = cashBookState.entries;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cash Book'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              // Show a dialog to add new cashbook entry
-              showDialog(
-                context: context,
-                builder: (_) => const AddCashBookDialog(),
-              );
-            },
-          )
-        ],
-      ),
-      body: cashBookState.isLoading
+   
+      // appBar: AppBar(
+      //   title: const Text('Cash Book'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.add),
+      //       onPressed: () {
+      //         // Show a dialog to add new cashbook entry
+      //         showDialog(
+      //           context: context,
+      //           builder: (_) => const AddCashBookDialog(),
+      //         );
+      //       },
+      //     )
+      //   ],
+      // ),
+       return Scaffold(
+      body:SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title:"Cash Book",
+              onBack: (){
+                //last index wanna do at later 
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(cashBookProvider.notifier).loadCashBookEntries();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd:(){
+                showDialog(
+                  context: context,
+                   builder:(_) =>AddCashBookDialog(),
+                    );
+              } 
+               ),
+               KHeight,
+
+
+
+    Expanded(
+      child: 
+       cashBookState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : entries.isEmpty
               ? const Center(child: Text('No cashbook entries found'))
@@ -127,6 +161,10 @@ class  ScreenCashbook extends ConsumerWidget {
                     );
                   },
                 ),
+    ),
+          ],
+        ),
+      ),
     );
   }
 

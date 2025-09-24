@@ -1,146 +1,272 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/finance/finance_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/finance.dart';
-import 'package:my_new_project/core/models/vehicle.dart';  // if you have vehicle in finance
+import 'package:my_new_project/widgets/reusable/custom_header.dart'; // adjust path
 
 class ScreenFinance extends ConsumerWidget {
   const ScreenFinance({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    
     final state = ref.watch(financeProvider);
-
-    
-
     final List<Finance> finances = state.finances;
-print('🧾 UI received finances: ${finances.length}');
+    print('🧾 UI received finances: ${finances.length}');
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Finance'),
-      ),
-      body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : finances.isEmpty
-              ? const Center(child: Text('No finance records found.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: finances.length,
-                  itemBuilder: (context, index) {
-                    
-                    final finance = finances[index];
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title: 'Finance',
+              onFilter: () {
+                // TODO: Open filter dialog
+              },
+              onRefresh: () {
+                ref.read(financeProvider.notifier).loadFinances();
+              },
+              onSearch: () {
+                // TODO: Implement search
+              },
+              showAdd: false,
+              onAdd: () {
+                // TODO: Show Add Finance dialog
+              },
+            ),
+            Kheight6,
+            Expanded(
+              child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : finances.isEmpty
+                      ? const Center(child: Text('No finance records found.'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: finances.length,
+                          itemBuilder: (context, index) {
+                            final finance = finances[index];
+                            final vehicleName = finance.vehicle?.make ?? 'Unknown Vehicle';
+                            final financierName = finance.financier?.companyName ?? 'Unknown Financier';
+                            final amount = finance.amount;
+                            final received = finance.receivedPrice;
+                            final paymentMode = finance.toAccount;
+                            final status = finance.paymentStatus;
 
-                    final vehicleName = finance.vehicle?.make ?? 'Unknown Vehicle';
-                    final financierName = finance.financier?.companyName ?? 'Unknown Financier';
-                    final amount = finance.amount;
-final received = finance.receivedPrice;
-final paymentMode = finance.toAccount;
-final status = finance.paymentStatus;
-
-
-                    return Card(
-                      color: Colors.white,
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Vehicle name + menu
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    vehicleName.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: Color(0xFF1B1B3A),
+                            return Card(
+                              color: Colors.white,
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              margin: const EdgeInsets.only(bottom: 16),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            vehicleName.toUpperCase(),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: Color(0xFF1B1B3A),
+                                            ),
+                                          ),
+                                        ),
+                                        PopupMenuButton<String>(
+                                          onSelected: (value) {
+                                            if (value == 'edit') {
+                                              // TODO: Handle edit
+                                            } else if (value == 'delete') {
+                                              // TODO: Handle delete
+                                            }
+                                          },
+                                          itemBuilder: (context) => const [
+                                            PopupMenuItem(value: 'edit', child: Text('Edit')),
+                                            PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ),
-                                PopupMenuButton<String>(
-                                  onSelected: (value) {
-                                    if (value == 'edit') {
-                                      // TODO: Handle edit
-                                    } else if (value == 'delete') {
-                                      // TODO: Handle delete
-                                    }
-                                  },
-                                  itemBuilder: (context) => const [
-                                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                    PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                   KHeight,
+                                    Text(financierName, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                                  Kheight6,
+                                    Text('Paid via: $paymentMode', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                                  Kheight6,
+                                    Text(
+                                      amount.toStringAsFixed(2),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
+                                    ),
+                                   Kheight6,
+                                    Text('Received: $received',
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.green)),
+                                  Kheight6,
+                                    Text('Status: $status', style: const TextStyle(fontSize: 14, color: Colors.grey)),
                                   ],
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-
-                            // Financier company name
-                            Text(
-                              financierName,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
                               ),
-                            ),
-                            const SizedBox(height: 6),
-
-                            // Payment mode
-                            Text(
-                              'Paid via: $paymentMode',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-
-                            // Amount
-                            Text(
-                              amount.toStringAsFixed(2),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                color: Colors.black87,
-                              ),
-                            ),
-
-                            const SizedBox(height: 6),
-
-                            // Received amount
-                            Text(
-                              'Received: $received',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                                color: Colors.green,
-                              ),
-                            ),
-
-                            const SizedBox(height: 6),
-
-                            // Status
-                            Text(
-                              'Status: $status',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      ),
-                    );
-                  },
-                ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+
+
+
+
+/*import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/finance/finance_provider.dart';
+import 'package:my_new_project/core/models/finance.dart';
+import 'package:my_new_project/core/models/vehicle.dart'; // if you have vehicle in finance
+
+class ScreenFinance extends ConsumerWidget {
+  const ScreenFinance({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(financeProvider);
+
+    final List<Finance> finances = state.finances;
+    print('🧾 UI received finances: ${finances.length}');
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Finance')),
+      body: state.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : finances.isEmpty
+          ? const Center(child: Text('No finance records found.'))
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: finances.length,
+              itemBuilder: (context, index) {
+                final finance = finances[index];
+
+                final vehicleName = finance.vehicle?.make ?? 'Unknown Vehicle';
+                final financierName =
+                    finance.financier?.companyName ?? 'Unknown Financier';
+                final amount = finance.amount;
+                final received = finance.receivedPrice;
+                final paymentMode = finance.toAccount;
+                final status = finance.paymentStatus;
+
+                return Card(
+                  color: Colors.white,
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Vehicle name + menu
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                vehicleName.toUpperCase(),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Color(0xFF1B1B3A),
+                                ),
+                              ),
+                            ),
+                            PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'edit') {
+                                  // TODO: Handle edit
+                                } else if (value == 'delete') {
+                                  // TODO: Handle delete
+                                }
+                              },
+                              itemBuilder: (context) => const [
+                                PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text('Edit'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Financier company name
+                        Text(
+                          financierName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+
+                        // Payment mode
+                        Text(
+                          'Paid via: $paymentMode',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+
+                        // Amount
+                        Text(
+                          amount.toStringAsFixed(2),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.black87,
+                          ),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        // Received amount
+                        Text(
+                          'Received: $received',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.green,
+                          ),
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        // Status
+                        Text(
+                          'Status: $status',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+    );
+  }
+}
+*/

@@ -7,6 +7,7 @@ const KWidth12 = SizedBox(width: 12);
 const KHeight30 = SizedBox(height: 30);
 const KHeight16 = SizedBox(height: 16);
 const Kblack = TextStyle(color: Colors.black);
+const Kheight6 = SizedBox(height: 6);
 
 const List<String> vehicleStatues = [
   'Available',

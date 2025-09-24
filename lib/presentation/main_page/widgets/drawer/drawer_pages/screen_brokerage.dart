@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/brokerage.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 class ScreenBrokerage extends ConsumerWidget {
   const ScreenBrokerage({super.key});
@@ -24,13 +26,37 @@ class ScreenBrokerage extends ConsumerWidget {
       }
     }
 
-    if (brokerageEntries.isEmpty) {
-      return const Center(child: Text('No brokerage records found.'));
-    }
+    // if (brokerageEntries.isEmpty) {
+    //   return const Center(child: Text('No brokerage records found.'));
+    // }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Brokerage')),
-      body: ListView.builder(
+      // appBar: AppBar(title: const Text('Brokerage')),
+
+      body:SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title:"Brokerage",
+              onBack: (){
+                //last index wanna do at later 
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(vehicleProvider.notifier).loadVehicles();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: false,
+               ),
+               KHeight,
+
+    Expanded(
+      child: 
+       ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: brokerageEntries.length,
         itemBuilder: (context, index) {
@@ -125,6 +151,10 @@ class ScreenBrokerage extends ConsumerWidget {
             ),
           );
         },
+      ),
+    ),
+          ],
+        ),
       ),
     );
   }

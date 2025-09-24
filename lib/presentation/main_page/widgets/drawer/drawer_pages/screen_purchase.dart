@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart'; // for formatting dates
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 class ScreenPurchase extends ConsumerWidget {
   const ScreenPurchase ({super.key});
@@ -30,11 +32,31 @@ class ScreenPurchase extends ConsumerWidget {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Purchases"),
-        centerTitle: true,
-      ),
-      body: ListView.separated(
+      body:SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title:'Purchase',
+              onBack: () => Navigator.pop(context),
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(vehicleProvider.notifier).loadVehicles();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: false, 
+               ),
+               KHeight,
+
+
+
+      Expanded(
+          child: purchases.isEmpty?
+           const Center(child: Text("No sale information available."))
+     :ListView.separated(
         itemCount: purchases.length,
         separatorBuilder: (_, __) => const Divider(height: 1),
         itemBuilder: (context, index) {
@@ -82,6 +104,10 @@ class ScreenPurchase extends ConsumerWidget {
           );
         },
       ),
-    );
+    ),
+          ],
+        ),
+      ),
+        );
   }
 }

@@ -5,6 +5,7 @@ import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/presentation/main_page/widgets/bottom_nav.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_accounts.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_advance.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_attendance.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokerage.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_brokers.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_cashbook.dart';
@@ -19,6 +20,7 @@ import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_page
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_monthly_summary.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_partners.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_partnerships.dart';
+import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_payroll.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_purchase.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_report.dart';
 import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_pages/screen_sales.dart';
@@ -38,30 +40,31 @@ class ScreenMainPage extends StatefulWidget {
 
 class _ScreenMainPageState extends State<ScreenMainPage> {
   int _selectedDrawerIndex = 0;
+final List<Widget> _drawerPages = [
+  ScreenDashboard(),          // 0: Dashboard
+  ScreenInventory(),          // 1: Vehicles
+  ScreenSales(),              // 2: Sales
+  ScreenPurchase(),           // 3: Purchase
+  ScreenExpense(),            // 4: Expenses
+  ScreenExpenseTypes(),       // 5: Expense Type
+  ScreenBrokerage(),          // 6: Brokerage
+  ScreenCashbook(),           // 7: Cashbook
+  ScreenMonthlySummary(),     // 8: Monthly Summary
+  ScreenDailySummary(),       // 9: Daily Summary
+  ScreenFinance(),            // 10: Finance
+  ScreenPartnerships(),       // 11: Partnerships
+  ScreenAccounts(),           // 12: Account
+  ScreenAdvance(),            // 13: Advance
+  ScreenBrokers(),            // 14: Broker
+  ScreenEmployees(),          // 15: Employees
+  ScreenPayroll(),            // 16: Payroll
+  ScreenAttendance(),         // 17: Attendance
+  ScreenFinanciers(),         // 18: Financier
+  PartnersPage(),             // 19: Partner
+  ScreenSubscription(),       // 20: Subscription
+  ScreenSettings(),           // 21: Settings
+];
 
-  final List<Widget> _drawerPages = [
-    ScreenDashboard(),
-    ScreenInventory(), 
-    ScreenSales(),
-    ScreenPurchase(),
-    ScreenEmployees(),
-    ScreenExpense(),
-    PartnersPage(),
-    ScreenBrokers(),
-    ScreenBrokerage(),
-    ScreenFinanciers(),
-    ScreenFinance(),
-    ScreenAccounts(),
-    ScreenCashbook(),
-    ScreenSubscription(),
-    ScreenAdvance(),
-    ScreenPartnerships(),
-    ScreenReport(),
-    ScreenSettings(),
-    ScreenExpenseTypes(),
-    ScreenMonthlySummary(),
-    ScreenDailySummary()
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -72,18 +75,17 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
           mainAxisSize: MainAxisSize.min,
           children: const[
              Text(
-          'AutoInventory',
-          
+          'Wheelx',   
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
-        KHeight,
-        Text(
-          'Vehicle Inventory',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey
-          ),
-        )
+        // KHeight,
+        // Text(
+        //   'Vehicle Inventory',
+        //   style: TextStyle(
+        //     fontSize: 12,
+        //     color: Colors.grey
+        //   ),
+        // )
           ],
         ),
         
@@ -92,7 +94,7 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
           builder: (context) => Padding(
             padding: const EdgeInsets.all(10),
             child: CircleAvatar(
-              backgroundColor: Colors.blue,
+              backgroundColor: Colors.grey,
               child: IconButton(
                 icon: const Icon(Icons.menu),
                 iconSize: 20,
@@ -105,34 +107,34 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
         ),
 
         actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 2),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => ScreenNotifications()),
-                    );
-                  },
-                ),
-                Positioned(
-                  right: 10,
-                  top: 10,
-                  child: Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.red,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: EdgeInsets.only(right: 2),
+          //   child: Stack(
+          //     clipBehavior: Clip.none,
+          //     children: [
+          //       IconButton(
+          //         icon: const Icon(Icons.notifications_none),
+          //         onPressed: () {
+          //           Navigator.of(context).push(
+          //             MaterialPageRoute(builder: (_) => ScreenNotifications()),
+          //           );
+          //         },
+          //       ),
+          //       Positioned(
+          //         right: 10,
+          //         top: 10,
+          //         child: Container(
+          //           width: 8,
+          //           height: 8,
+          //           decoration: BoxDecoration(
+          //             shape: BoxShape.circle,
+          //             color: Colors.red,
+          //           ),
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Padding(
             padding: EdgeInsets.only(right: 10),
             child: IconButton(
@@ -162,7 +164,11 @@ class _ScreenMainPageState extends State<ScreenMainPage> {
         },
       ),
       body: _drawerPages[_selectedDrawerIndex],
+     
       // bottomNavigationBar: const BottomNavigationWidget(),
     );
   }
 }
+
+/*
+*/
