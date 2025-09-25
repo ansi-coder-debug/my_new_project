@@ -3,8 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/financier/financier_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/financier.dart';
 import 'package:my_new_project/widgets/financier/add_financier_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 class ScreenFinanciers extends ConsumerWidget {
   const ScreenFinanciers({super.key});
@@ -14,22 +16,53 @@ class ScreenFinanciers extends ConsumerWidget {
     final financierState = ref.watch(financierProvider);
     final financiers = financierState.financiers;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Financiers'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => const AddFinancierDialog(),
-              );
-            },
-          ),
-        ],
-      ),
-      body: financierState.isLoading
+   
+      // appBar: AppBar(
+      //   title: const Text('Financiers'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.add),
+      //       onPressed: () {
+      //         showDialog(
+      //           context: context,
+      //           builder: (_) => const AddFinancierDialog(),
+      //         );
+      //       },
+      //     ),
+      //   ],
+      // ),
+
+     return Scaffold(
+      body:SafeArea(
+        child:Column(
+          children: [
+            CustomHeader(
+              title:"Financiers",
+              onBack: () {
+                // Optional back action
+              },
+               onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(financierProvider.notifier).loadFinanciers();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const AddFinancierDialog(),
+                );
+              },
+               ),
+               KHeight,
+      
+      Expanded(
+        child:
+      financierState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : financiers.isEmpty
           ? const Center(child: Text("No financiers found"))
@@ -121,6 +154,10 @@ class ScreenFinanciers extends ConsumerWidget {
                 );
               },
             ),
+      ),
+          ],
+        ),
+      ),
     );
   }
 
