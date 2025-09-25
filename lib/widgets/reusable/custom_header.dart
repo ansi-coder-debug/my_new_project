@@ -10,7 +10,6 @@
 //   final VoidCallback? onAdd;
 //   final bool showAdd;
 //   final Widget? customActions; // NEW
-  
 
 //   const CustomHeader({
 //     super.key,
@@ -171,7 +170,10 @@ class CustomHeader extends StatelessWidget {
           // 🔹 First Row: Back + Title
           Row(
             children: [
-              _buildIconButton(Icons.arrow_back, onBack ?? () => Navigator.pop(context)),
+              _buildIconButton(
+                Icons.arrow_back,
+                onBack ?? () => Navigator.pop(context),
+              ),
               KWidth12,
               Text(
                 title,
@@ -192,9 +194,15 @@ class CustomHeader extends StatelessWidget {
               : [
                   Row(
                     children: [
-                      _buildIconButton(Icons.filter_alt_outlined, onFilter),
-                      _buildIconButton(Icons.refresh, onRefresh),
-                      _buildIconButton(Icons.search, onSearch),
+                      // _buildIconButton(Icons.filter_alt_outlined, onFilter),
+                      // _buildIconButton(Icons.refresh, onRefresh),
+                      // _buildIconButton(Icons.search, onSearch),
+                      if (onFilter != null)
+                        _buildIconButton(Icons.filter_alt_outlined, onFilter),
+                      if (onRefresh != null)
+                        _buildIconButton(Icons.refresh, onRefresh),
+                      if (onSearch != null)
+                        _buildIconButton(Icons.search, onSearch),
                       const Spacer(),
                       if (showAdd)
                         Padding(
@@ -211,16 +219,19 @@ class CustomHeader extends StatelessWidget {
                                 ),
                                 padding: EdgeInsets.zero,
                               ),
-                              child: const Icon(Icons.add, size: 20, color: Colors.white),
+                              child: const Icon(
+                                Icons.add,
+                                size: 20,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
                     ],
-                  )
+                  ),
                 ]),
         ],
       ),
     );
   }
 }
-

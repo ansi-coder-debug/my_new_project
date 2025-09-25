@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/core/models/partnership.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 class ScreenPartnerships extends ConsumerWidget {
   const ScreenPartnerships({super.key});
@@ -25,11 +27,33 @@ class ScreenPartnerships extends ConsumerWidget {
       }
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Partnerships'),
-      ),
-      body: state.isLoading
+    
+      // appBar: AppBar(
+      //   title: const Text('Partnerships'),
+      // ),
+      return Scaffold(
+      body:SafeArea(
+        child:Column(
+          children: [
+            CustomHeader(
+              title:"Partnerships", 
+              onFilter: () {
+                // TODO: Open filter dialog
+              },
+              onRefresh: () {
+               // provider 
+              },
+              onSearch: () {
+                // TODO: Implement search
+              },
+              showAdd: false,             
+              ),
+             KHeight,
+
+             Expanded(
+              child: 
+
+       state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : allPartnerships.isEmpty
               ? const Center(child: Text('No partnerships found.'))
@@ -132,6 +156,10 @@ class ScreenPartnerships extends ConsumerWidget {
                     );
                   },
                 ),
+             ),
+          ],
+        ),
+      ),
     );
   }
 }

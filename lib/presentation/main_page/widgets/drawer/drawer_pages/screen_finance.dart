@@ -30,11 +30,9 @@ class ScreenFinance extends ConsumerWidget {
                 // TODO: Implement search
               },
               showAdd: false,
-              onAdd: () {
-                // TODO: Show Add Finance dialog
-              },
+             
             ),
-            Kheight6,
+            KHeight,
             Expanded(
               child: state.isLoading
                   ? const Center(child: CircularProgressIndicator())

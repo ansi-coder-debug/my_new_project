@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/employee/employee_provider.dart';
 import 'package:my_new_project/application/employee/employee_state.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 
 import 'package:my_new_project/core/models/employee.dart';
 import 'package:my_new_project/widgets/employee/add_employee_modal.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 
 class ScreenEmployees extends ConsumerWidget {
@@ -19,22 +21,56 @@ class ScreenEmployees extends ConsumerWidget {
      print('👀 Employees In Ui: ${employees.map((a) => a.name).toList()}');
 
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Employees'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => const AddEmployeeModal(),
-              );
-            },
-          )
-        ],
-      ),
-      body: employeeState.status == EmployeeStatus.loading
+    
+      // appBar: AppBar(
+      //   title: const Text('Employees'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.add),
+      //       onPressed: () {
+      //         showDialog(
+      //           context: context,
+      //           builder: (_) => const AddEmployeeModal(),
+      //         );
+      //       },
+      //     )
+      //   ],
+      // ),
+      return Scaffold(
+      body:SafeArea(
+        child:Column(
+          children: [
+            CustomHeader(
+               title:"Employees",
+                onBack: (){
+                //last index wanna do at later 
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+       // ref.read(employeeProvider.notifier).loadEmployees(employees);
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd:(){
+                showDialog(
+                  context: context,
+                   builder:(_) =>AddEmployeeModal(),
+                    );
+              }    
+               ),
+               KHeight,
+
+               Expanded(
+                child: 
+             
+
+      
+      
+       employeeState.status == EmployeeStatus.loading
           ? const Center(child: CircularProgressIndicator())
           : employees.isEmpty
               ? const Center(child: Text("No employees found"))
@@ -116,6 +152,10 @@ class ScreenEmployees extends ConsumerWidget {
                     );
                   },
                 ),
+               ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/advance/advance_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/widgets/advance/add_advance_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 
 
@@ -15,19 +17,52 @@ class ScreenAdvance extends ConsumerWidget {
 
     print('👀 Advances in UI: ${advances.map((a) => a.buyerName).toList()}');
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Advances'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              showDialog(context: context, builder: (_) => AddAdvanceDialog());
-            },
-          ),
-        ],
-      ),
-      body: advanceState.isLoading
+   
+      // appBar: AppBar(
+      //   title: const Text('Advances'),
+      //   actions: [
+      //     IconButton(
+      //       icon: const Icon(Icons.add),
+      //       onPressed: () {
+      //         showDialog(context: context, builder: (_) => AddAdvanceDialog());
+      //       },
+      //     ),
+      //   ],
+      // ),
+       return Scaffold(
+      body:SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title:"Advances",
+               onBack: (){
+                //last index wanna do at later 
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(advanceProvider.notifier).loadAdvances();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd:(){
+                showDialog(
+                  context: context,
+                   builder:(_) =>AddAdvanceDialog(),
+                    );
+              }    
+               ),
+               KHeight,
+      
+      
+      
+      Expanded(
+        child: 
+      
+       advanceState.isLoading
           ? const Center(child: CircularProgressIndicator())
           : advances.isEmpty
           ? const Center(child: Text("No advances found"))
@@ -139,6 +174,10 @@ class ScreenAdvance extends ConsumerWidget {
                 );
               },
             ),
+      ),
+          ],
+        ),
+      ),
     );
   }
 }
