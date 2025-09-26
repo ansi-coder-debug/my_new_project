@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:my_new_project/core/constants/constant.dart';
 
@@ -31,14 +32,16 @@ import 'package:my_new_project/presentation/main_page/widgets/drawer/main_drawer
 import 'package:my_new_project/presentation/notifications/screen_notifications.dart';
 import 'package:my_new_project/presentation/profile/screen_profile.dart';
 
-class ScreenMainPage extends StatefulWidget {
+class ScreenMainPage extends ConsumerStatefulWidget {
   const ScreenMainPage({super.key});
 
   @override
-  State<ScreenMainPage> createState() => _ScreenMainPageState();
+  ConsumerState<ScreenMainPage> createState() => _ScreenMainPageState();
 }
 
-class _ScreenMainPageState extends State<ScreenMainPage> {
+class _ScreenMainPageState extends ConsumerState<ScreenMainPage> {
+
+
   int _selectedDrawerIndex = 0;
 final List<Widget> _drawerPages = [
   ScreenDashboard(),          // 0: Dashboard

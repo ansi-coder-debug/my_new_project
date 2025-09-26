@@ -86,3 +86,30 @@ Widget buildTextField(TextEditingController controller, String label) {
     ],
   );
 }
+
+
+//add dialogs designs
+InputDecoration buildInputDecoration(String hintText, {IconData? icon}) {
+  return InputDecoration(
+    hintText: hintText,
+    hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
+    filled: true,
+    fillColor: const Color(0xFFF5F6FA),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    suffixIcon: icon != null
+        ? Icon(icon, size: 20, color: Colors.grey[700])
+        : null,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8), // Slightly less rounded
+      borderSide: BorderSide.none,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Color(0xFFE0E0E0)), // Light grey
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Colors.black, width: 1.5), // Black focus
+    ),
+  );
+}

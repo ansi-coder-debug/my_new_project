@@ -5,6 +5,7 @@ import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/core/models/advance.dart';
+import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
 
 class AddAdvanceDialog extends ConsumerStatefulWidget {
   const AddAdvanceDialog({Key? key}) : super(key: key);
@@ -16,7 +17,7 @@ class AddAdvanceDialog extends ConsumerStatefulWidget {
 class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
   final _formKey = GlobalKey<FormState>();
 
- String? _selectedVehicleId;
+  String? _selectedVehicleId;
 
   final _amountController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
@@ -34,35 +35,254 @@ class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
   }
 
   void _submitForm() async {
-  if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) return;
 
-  try {
-    final newAdvance = Advance(
-      vehicleId: int.parse(_selectedVehicleId!), // ✅ Now included
-      amount: double.parse(_amountController.text.trim()),
-      date: _selectedDate,
-      buyerName: _buyerNameController.text.trim(),
-      buyerPhone: _buyerPhoneController.text.trim(),
-      buyerAddress: _buyerAddressController.text.trim(),
+    try {
+      final newAdvance = Advance(
+        vehicleId: int.parse(_selectedVehicleId!), // ✅ Now included
+        amount: double.parse(_amountController.text.trim()),
+        date: _selectedDate,
+        buyerName: _buyerNameController.text.trim(),
+        buyerPhone: _buyerPhoneController.text.trim(),
+        buyerAddress: _buyerAddressController.text.trim(),
+      );
+
+      print(
+        '📤 Sending advance: ${newAdvance.toJson()}',
+      ); // 👈 Print before sending
+
+      await ref.read(advanceProvider.notifier).addAdvance(newAdvance);
+      await ref.read(advanceProvider.notifier).loadAdvances();
+
+      Navigator.of(context).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Advance added successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add advance: $e')));
+    }
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
     );
 
-    print('📤 Sending advance: ${newAdvance.toJson()}'); // 👈 Print before sending
+    if (picked != null && picked != _selectedDate) {
+      setState(() => _selectedDate = picked);
+    }
+  }
 
-    await ref.read(advanceProvider.notifier).addAdvance(newAdvance);
-    await ref.read(advanceProvider.notifier).loadAdvances();
+  @override
+  Widget build(BuildContext context) {
+    final vehicleState = ref.watch(vehicleProvider);
 
-    Navigator.of(context).pop();
+    return CustomDialog(
+      title: "Add Advance",
+      onSubmit: _submitForm,
+      onCancel: () => Navigator.of(context).pop(),
+      bodyContent: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Vehicle Dropdown
+              vehicleState.isLoading
+                  ? const CircularProgressIndicator()
+                  :
+                    // Date Picker
+                    SizedBox(
+                      width:
+                          MediaQuery.of(context).size.width *
+                          0.5, // half of screen width (adjust as needed)
+                      child: InkWell(
+                        onTap: _pickDate,
+                        child: InputDecorator(
+                          decoration: buildInputDecoration("Date"),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "${_selectedDate.toLocal()}".split(' ')[0],
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black, // make text black
+                                ),
+                              ),
+                              const Icon(Icons.calendar_today),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Advance added successfully')),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to add advance: $e')),
+              KHeight16,
+
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                value: _selectedVehicleId, // Change to String? or String
+                decoration: buildInputDecoration("Select vehicle"),
+                items: vehicleState.vehicles.map((vehicle) {
+                  return DropdownMenuItem<String>(
+                    value: vehicle.id, // Now this is OK
+                    child: Text(
+                      '${vehicle.make} ${vehicle.model} ~ ${vehicle.registrationId}',
+                    ),
+                  );
+                }).toList(),
+                onChanged: (val) => setState(() => _selectedVehicleId = val),
+                validator: (val) =>
+                    val == null ? 'Please select a vehicle' : null,
+              ),
+
+              KHeight16,
+
+              // Amount
+              TextFormField(
+                controller: _amountController,
+                style: TextStyle(color: Colors.black),
+                decoration: buildInputDecoration("Amount"),
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Please enter amount';
+                  }
+                  final amount = double.tryParse(val.trim());
+                  if (amount == null || amount <= 0) {
+                    return 'Please enter a valid amount';
+                  }
+                  return null;
+                },
+              ),
+              KHeight16,
+
+              // Buyer Name
+              TextFormField(
+                controller: _buyerNameController,
+                style: TextStyle(color: Colors.black),
+                decoration: buildInputDecoration("Buyer Name"),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Please enter buyer name';
+                  }
+                  return null;
+                },
+              ),
+              KHeight16,
+
+              // Buyer Phone
+              TextFormField(
+                controller: _buyerPhoneController,
+                style: TextStyle(color: Colors.black),
+                decoration: buildInputDecoration("Buyer Phone"),
+                keyboardType: TextInputType.phone,
+                maxLength: 10,
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Please enter buyer phone';
+                  }
+                  final phone = val.trim();
+                  if (phone.length != 10 ||
+                      !RegExp(r'^\d{10}$').hasMatch(phone)) {
+                    return 'Phone must be exactly 10 digits';
+                  }
+                  return null;
+                },
+              ),
+              KHeight16,
+              // Buyer Address
+              TextFormField(
+                controller: _buyerAddressController,
+                style: TextStyle(color: Colors.black),
+                decoration: buildInputDecoration("Buyer Address"),
+                maxLines: 2,
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Please enter buyer address';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
 
+/*import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/advance/advance_provider.dart';
+import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/core/models/advance.dart';
+
+class AddAdvanceDialog extends ConsumerStatefulWidget {
+  const AddAdvanceDialog({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<AddAdvanceDialog> createState() => _AddAdvanceDialogState();
+}
+
+class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
+  final _formKey = GlobalKey<FormState>();
+
+  String? _selectedVehicleId;
+
+  final _amountController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
+  final _buyerNameController = TextEditingController();
+  final _buyerPhoneController = TextEditingController();
+  final _buyerAddressController = TextEditingController();
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _buyerNameController.dispose();
+    _buyerPhoneController.dispose();
+    _buyerAddressController.dispose();
+    super.dispose();
+  }
+
+  void _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final newAdvance = Advance(
+        vehicleId: int.parse(_selectedVehicleId!), // ✅ Now included
+        amount: double.parse(_amountController.text.trim()),
+        date: _selectedDate,
+        buyerName: _buyerNameController.text.trim(),
+        buyerPhone: _buyerPhoneController.text.trim(),
+        buyerAddress: _buyerAddressController.text.trim(),
+      );
+
+      print(
+        '📤 Sending advance: ${newAdvance.toJson()}',
+      ); // 👈 Print before sending
+
+      await ref.read(advanceProvider.notifier).addAdvance(newAdvance);
+      await ref.read(advanceProvider.notifier).loadAdvances();
+
+      Navigator.of(context).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Advance added successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add advance: $e')));
+    }
+  }
 
   InputDecoration _inputDecoration(String hintText) {
     return InputDecoration(
@@ -132,20 +352,23 @@ class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
                     vehicleState.isLoading
                         ? const CircularProgressIndicator()
                         : DropdownButtonFormField<String>(
-                          isExpanded: true,
-  value: _selectedVehicleId,  // Change to String? or String
-  decoration: _inputDecoration("Select vehicle"),
-  items: vehicleState.vehicles.map((vehicle) {
-    return DropdownMenuItem<String>(
-      
-      value: vehicle.id,  // Now this is OK
-      child: Text('${vehicle.make} ${vehicle.model} ~ ${vehicle.registrationId}'),
-    );
-  }).toList(),
-  onChanged: (val) => setState(() => _selectedVehicleId = val),
-  validator: (val) => val == null ? 'Please select a vehicle' : null,
-),
-
+                            isExpanded: true,
+                            value:
+                                _selectedVehicleId, // Change to String? or String
+                            decoration: _inputDecoration("Select vehicle"),
+                            items: vehicleState.vehicles.map((vehicle) {
+                              return DropdownMenuItem<String>(
+                                value: vehicle.id, // Now this is OK
+                                child: Text(
+                                  '${vehicle.make} ${vehicle.model} ~ ${vehicle.registrationId}',
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (val) =>
+                                setState(() => _selectedVehicleId = val),
+                            validator: (val) =>
+                                val == null ? 'Please select a vehicle' : null,
+                          ),
 
                     KHeight16,
 
@@ -192,7 +415,7 @@ class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
                     // Buyer Name
                     TextFormField(
                       controller: _buyerNameController,
-                       style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black),
                       decoration: _inputDecoration("Buyer Name"),
                       validator: (val) {
                         if (val == null || val.trim().isEmpty) {
@@ -206,7 +429,7 @@ class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
                     // Buyer Phone
                     TextFormField(
                       controller: _buyerPhoneController,
-                       style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black),
                       decoration: _inputDecoration("Buyer Phone"),
                       keyboardType: TextInputType.phone,
                       maxLength: 10,
@@ -227,7 +450,7 @@ class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
                     // Buyer Address
                     TextFormField(
                       controller: _buyerAddressController,
-                       style: TextStyle(color: Colors.black),
+                      style: TextStyle(color: Colors.black),
                       decoration: _inputDecoration("Buyer Address"),
                       maxLines: 2,
                       validator: (val) {
@@ -296,3 +519,4 @@ class _AddAdvanceDialogState extends ConsumerState<AddAdvanceDialog> {
     );
   }
 }
+*/
