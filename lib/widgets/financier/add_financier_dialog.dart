@@ -4,6 +4,135 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/financier/financier_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/financier.dart';
+import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
+
+class AddFinancierDialog extends ConsumerStatefulWidget {
+  const AddFinancierDialog({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<AddFinancierDialog> createState() => _AddFinancierDialogState();
+}
+
+class _AddFinancierDialogState extends ConsumerState<AddFinancierDialog> {
+  final _formKey = GlobalKey<FormState>();
+
+  final _companyNameController = TextEditingController();
+  final _contactPersonController = TextEditingController();
+  final _contactNumberController = TextEditingController();
+  final _addressController = TextEditingController();
+
+  @override
+  void dispose() {
+    _companyNameController.dispose();
+    _contactPersonController.dispose();
+    _contactNumberController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  void _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final financier = Financier(
+      companyName: _companyNameController.text.trim(),
+      contactPerson: _contactPersonController.text.trim(),
+      contactNumber: _contactNumberController.text.trim(),
+      address: _addressController.text.trim(),
+    );
+
+    try {
+      await ref.read(financierProvider.notifier).addFinancier(financier);
+      await ref.read(financierProvider.notifier).loadFinanciers();
+
+      Navigator.of(context).pop();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Financier added successfully')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to add financier: $e')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomDialog(
+      height: MediaQuery.of(context).size.height *0.50,
+      title: "Add Financier",
+      onSubmit: _submitForm,
+      onCancel: () => Navigator.of(context).pop(),
+      bodyContent:Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _companyNameController,
+                decoration: buildInputDecoration("Company Name"),
+                validator: (val) =>
+                    val == null || val.isEmpty ? "Required" : null,
+                style: const TextStyle(color: Colors.black),
+              ),
+             KHeight16,
+          
+              TextFormField(
+                controller: _contactPersonController,
+                decoration: buildInputDecoration("Contact Person"),
+                validator: (val) =>
+                    val == null || val.isEmpty ? "Required" : null,
+                style: const TextStyle(color: Colors.black),
+              ),
+             KHeight16,
+          
+              TextFormField(
+                controller: _contactNumberController,
+                decoration: buildInputDecoration("Contact Number"),
+                validator: (val) {
+                  if (val == null || val.isEmpty) {
+                    return "Required";
+                  }
+                  if (val.length != 10) {
+                    return "Contact number must be exactly 10 digits";
+                  }
+                  return null;
+                },
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly, // Allow digits only
+                  LengthLimitingTextInputFormatter(10), // Limit to 10 digits
+                ],
+                style: const TextStyle(color: Colors.black),
+              ),
+          
+              KHeight16,
+          
+              TextFormField(
+                controller: _addressController,
+                decoration: buildInputDecoration("Address"),
+                maxLines: 2,
+                validator: (val) =>
+                    val == null || val.isEmpty ? "Required" : null,
+                style: const TextStyle(color: Colors.black),
+              ),
+              // const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/*// lib/presentation/financiers/widgets/add_financier_dialog.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/financier/financier_provider.dart';
 import 'package:my_new_project/core/models/financier.dart';
 
 class AddFinancierDialog extends ConsumerStatefulWidget {
@@ -56,7 +185,7 @@ class _AddFinancierDialogState extends ConsumerState<AddFinancierDialog> {
     }
   }
 
-  InputDecoration _inputDecoration(String hintText) {
+  InputDecoration buildInputDecoration(String hintText) {
     return InputDecoration(
       hintText: hintText,
       hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
@@ -106,7 +235,7 @@ class _AddFinancierDialogState extends ConsumerState<AddFinancierDialog> {
                 children: [
                   TextFormField(
                     controller: _companyNameController,
-                    decoration: _inputDecoration("Company Name"),
+                    decoration: buildInputDecoration("Company Name"),
                     validator: (val) =>
                         val == null || val.isEmpty ? "Required" : null,
                     style: const TextStyle(color: Colors.black),
@@ -115,7 +244,7 @@ class _AddFinancierDialogState extends ConsumerState<AddFinancierDialog> {
 
                   TextFormField(
                     controller: _contactPersonController,
-                    decoration: _inputDecoration("Contact Person"),
+                    decoration: buildInputDecoration("Contact Person"),
                     validator: (val) =>
                         val == null || val.isEmpty ? "Required" : null,
                     style: const TextStyle(color: Colors.black),
@@ -124,7 +253,7 @@ class _AddFinancierDialogState extends ConsumerState<AddFinancierDialog> {
 
                   TextFormField(
                     controller: _contactNumberController,
-                    decoration: _inputDecoration("Contact Number"),
+                    decoration: buildInputDecoration("Contact Number"),
                     validator: (val) {
                       if (val == null || val.isEmpty) {
                         return "Required";
@@ -149,7 +278,7 @@ class _AddFinancierDialogState extends ConsumerState<AddFinancierDialog> {
 
                   TextFormField(
                     controller: _addressController,
-                    decoration: _inputDecoration("Address"),
+                    decoration: buildInputDecoration("Address"),
                     maxLines: 2,
                     validator: (val) =>
                         val == null || val.isEmpty ? "Required" : null,
@@ -209,3 +338,4 @@ class _AddFinancierDialogState extends ConsumerState<AddFinancierDialog> {
     );
   }
 }
+*/

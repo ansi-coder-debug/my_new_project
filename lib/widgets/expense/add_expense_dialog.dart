@@ -437,7 +437,7 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
                 validator: (val) =>
                     val == null ? 'Please select expense type' : null,
               ),
-              const SizedBox(height: 16),
+              KHeight16,
 
               // Vehicle Dropdown
               DropdownButtonFormField<Vehicle>(
@@ -455,7 +455,7 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
                 validator: (val) =>
                     val == null ? 'Please select a vehicle' : null,
               ),
-              const SizedBox(height: 16),
+              KHeight16,
 
               // Amount
               TextFormField(
@@ -468,7 +468,7 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Enter amount' : null,
               ),
-              const SizedBox(height: 16),
+              KHeight16,
 
               // Paid Amount
               TextFormField(
@@ -481,7 +481,7 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Enter paid amount' : null,
               ),
-              const SizedBox(height: 16),
+              KHeight16,
 
               // Account Dropdown
               DropdownButtonFormField<Account>(
@@ -497,7 +497,8 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
                 validator: (val) =>
                     val == null ? 'Please select account' : null,
               ),
-              const SizedBox(height: 16),
+               KHeight16,
+
 
               // Description
               TextFormField(

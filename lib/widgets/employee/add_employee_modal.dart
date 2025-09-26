@@ -4,6 +4,179 @@ import 'package:intl/intl.dart';
 import 'package:my_new_project/application/employee/employee_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/employee.dart';
+import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
+
+class AddEmployeeModal extends ConsumerStatefulWidget {
+  const AddEmployeeModal({super.key});
+
+  @override
+  ConsumerState<AddEmployeeModal> createState() => _AddEmployeeModalState();
+}
+
+class _AddEmployeeModalState extends ConsumerState<AddEmployeeModal> {
+  final _formKey = GlobalKey<FormState>();
+
+  // Controllers
+  final TextEditingController _nameCtrl = TextEditingController();
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _phoneCtrl = TextEditingController();
+  final TextEditingController _addressCtrl = TextEditingController();
+  final TextEditingController _salaryCtrl = TextEditingController();
+
+  String? _selectedPosition;
+  DateTime _selectedDate = DateTime.now();
+
+  final List<String> _positions = [
+    'Manager',
+    'Sales Executive',
+    'Accountant',
+    'Technician',
+  ];
+
+  Future<void> _submit() async {
+    if (_formKey.currentState!.validate()) {
+      final employee = Employee(
+        id: null, // backend will assign it
+        name: _nameCtrl.text.trim(),
+        email: _emailCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim(),
+        address: _addressCtrl.text.trim(),
+        position: _selectedPosition!,
+        salary: double.tryParse(_salaryCtrl.text.trim()) ?? 0,
+        hireDate: _selectedDate.toIso8601String(),
+      );
+
+      await ref.read(employeeProvider.notifier).addEmployee(employee);
+      Navigator.of(context).pop(); // Close modal
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomDialog(
+       height: MediaQuery.of(context).size.height * 0.65,
+      title: "Add Employee",
+      onSubmit: _submit,
+      onCancel: () => Navigator.of(context).pop(),
+      bodyContent: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Kheight6,
+              FractionallySizedBox(
+                widthFactor: 0.5, // 50% of the available width
+                child: InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _selectedDate = picked;
+                      });
+                    }
+                  },
+                  child: InputDecorator(
+                    decoration: buildInputDecoration(
+                      'Hire Date',
+                    ).copyWith(labelText: 'Hire Date'),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          DateFormat('MM/dd/yyyy').format(_selectedDate),
+                           style: const TextStyle(color: Colors.black, fontSize: 14),// Adjust font size if necessary
+                        ),
+                        const Icon(Icons.calendar_today, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              KHeight16,
+
+              /// Name
+              TextFormField(
+                controller: _nameCtrl,
+                decoration: buildInputDecoration("Employee Name"),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Required' : null,
+              ),
+              KHeight16,
+
+              /// Email
+              TextFormField(
+                controller: _emailCtrl,
+                decoration: buildInputDecoration("Email"),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Required' : null,
+              ),
+              KHeight16,
+
+              /// Phone
+              TextFormField(
+                controller: _phoneCtrl,
+                decoration: buildInputDecoration("Phone"),
+                keyboardType: TextInputType.number,
+                maxLength: 10,
+                validator: (val) {
+                  if (val == null || val.isEmpty) return 'Required';
+                  if (val.length != 10) return 'Must be 10 digits';
+                  return null;
+                },
+              ),
+              KHeight16,
+
+              /// Address
+              TextFormField(
+                controller: _addressCtrl,
+                decoration: buildInputDecoration("Address"),
+                maxLines: 2,
+              ),
+              KHeight16,
+
+              /// Position Dropdown
+              DropdownButtonFormField<String>(
+                decoration: buildInputDecoration("Select Position"),
+                value: _selectedPosition,
+                items: _positions
+                    .map(
+                      (pos) => DropdownMenuItem(value: pos, child: Text(pos)),
+                    )
+                    .toList(),
+                onChanged: (val) => setState(() => _selectedPosition = val),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Required' : null,
+              ),
+              KHeight16,
+
+              /// Salary
+              TextFormField(
+                controller: _salaryCtrl,
+                decoration: buildInputDecoration("Salary"),
+                keyboardType: TextInputType.number,
+              ),
+              KHeight16,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/*import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:my_new_project/application/employee/employee_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/employee.dart';
 
 class AddEmployeeModal extends ConsumerStatefulWidget {
   const AddEmployeeModal({super.key});
@@ -228,3 +401,4 @@ class _AddEmployeeModalState extends ConsumerState<AddEmployeeModal> {
     );
   }
 }
+*/

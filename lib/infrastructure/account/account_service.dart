@@ -11,18 +11,33 @@ final accountServiceProvider = Provider<AccountService>((ref) {
 class AccountService {
   final Dio _dio;
   final Ref _ref;
-  
+
   AccountService(this._dio, this._ref);
 
   Future<List<Account>> getAccounts() async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
+    print("🔑 Access token: $token");
     final response = await _dio.get(
       'http://192.168.29.29:5000/api/account',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
+    print("🌐 Raw Response: ${response.data}");
 
     final data = response.data as List;
     return data.map((json) => Account.fromJson(json)).toList();
+//     final List<Account> accounts = [];
+
+// for (final json in data) {
+//   try {
+//     final account = Account.fromJson(json);
+//     accounts.add(account);
+//   } catch (e) {
+//     print("❌ Error parsing account: $e\nProblem JSON: $json");
+//   }
+// }
+
+// return accounts;
+
   }
 
   Future<Account> addAccount(Account account) async {

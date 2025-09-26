@@ -13,16 +13,16 @@ class Account {
     this.partnerId,
   });
 
-  factory Account.fromJson(Map<String, dynamic> json) {
-    return Account(
-    id: json['id']?.toString() ?? json['_id']?.toString(),
- // backend may return 'id' or '_id'
-      name: json['name'],
-      type: json['type'],
-      description: json['description'],
-      partnerId: json['partner_id'],
-    );
-  }
+ factory Account.fromJson(Map<String, dynamic> json) {
+  return Account(
+    id: json['id']?.toString() ?? json['_id']?.toString(), // handles both "id" and "_id"
+    name: json['name'],
+    type: json['type'],
+    description: json['description'],
+    partnerId: json['partner_id']?.toString(), // ✅ Convert to String safely
+  );
+}
+
 
   Map<String, dynamic> toJson() {
     return {

@@ -2,6 +2,161 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/employee/employee_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+
+import 'package:my_new_project/core/models/attendance.dart';
+import 'package:my_new_project/core/models/employee.dart';
+import 'package:my_new_project/application/attendance/attendance_provider.dart';
+import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
+
+class AddAttendanceDialog extends ConsumerStatefulWidget {
+  const AddAttendanceDialog({super.key});
+
+  @override
+  ConsumerState<AddAttendanceDialog> createState() =>
+      _AddAttendanceDialogState();
+}
+
+class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
+  final _formKey = GlobalKey<FormState>();
+  DateTime _selectedDate = DateTime.now();
+  Employee? _selectedEmployee;
+  String? _selectedStatus;
+
+  final List<String> _statusOptions = ['Present', 'Absent', 'Late', 'Half Day'];
+
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      if (_selectedEmployee == null || _selectedStatus == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please select both employee and status'),
+          ),
+        );
+        return;
+      }
+
+      final newAttendance = Attendance(
+        employeeId: _selectedEmployee!.id!,
+        attendanceStatus: _selectedStatus!,
+        attendanceDate: _selectedDate,
+      );
+
+      try {
+        await ref
+            .read(attendanceProvider.notifier)
+            .addAttendance(newAttendance);
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Attendance added successfully')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to add attendance: $e')));
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final employees = ref.watch(employeeProvider).employees;
+
+    return CustomDialog(
+      height: MediaQuery.of(context).size.height * 0.42,
+      title: "Add Attendance",
+      onSubmit: _submitForm,
+      onCancel: () => Navigator.of(context).pop(),
+      bodyContent: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            // Date picker
+            // Date picker
+FractionallySizedBox(
+  widthFactor: 0.5, // half width
+  child: InkWell(
+    onTap: () async {
+      final picked = await showDatePicker(
+        context: context,
+        initialDate: _selectedDate,
+        firstDate: DateTime(2020),
+        lastDate: DateTime(2100),
+      );
+      if (picked != null) {
+        setState(() {
+          _selectedDate = picked;
+        });
+      }
+    },
+    child: InputDecorator(
+      decoration: buildInputDecoration('Date').copyWith(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey.shade400),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.blue.shade700, width: 1.5),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        labelText: 'Date',
+        labelStyle: const TextStyle(fontSize: 14, color: Colors.black54),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min, // shrink width to content
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            DateFormat('MM/dd/yyyy').format(_selectedDate),
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
+          ),
+          const Icon(Icons.calendar_today, size: 18, color: Colors.black54),
+        ],
+      ),
+    ),
+  ),
+),
+
+          KHeight16,
+
+            // Employee dropdown
+            DropdownButtonFormField<Employee>(
+              value: _selectedEmployee,
+              decoration: buildInputDecoration("Select Employee"),
+              items: employees
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
+                  .toList(),
+              onChanged: (value) => setState(() => _selectedEmployee = value),
+              validator: (val) =>
+                  val == null ? 'Please select an employee' : null,
+            ),
+            KHeight16,
+
+            // Status dropdown
+            DropdownButtonFormField<String>(
+              value: _selectedStatus,
+              decoration: buildInputDecoration("Select Status"),
+              items: _statusOptions
+                  .map(
+                    (status) =>
+                        DropdownMenuItem(value: status, child: Text(status)),
+                  )
+                  .toList(),
+              onChanged: (value) => setState(() => _selectedStatus = value),
+              validator: (val) => val == null ? 'Please select a status' : null,
+            ),
+            Kheight6,
+          ],
+        ),
+      ),
+    );
+  }
+}
+/*import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:my_new_project/application/employee/employee_provider.dart';
 
 import 'package:my_new_project/core/models/attendance.dart';
 import 'package:my_new_project/core/models/employee.dart';
@@ -52,7 +207,7 @@ class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
     }
   }
 
-  InputDecoration _inputDecoration(String hintText) {
+  InputDecoration buildInputDecoration(String hintText) {
     return InputDecoration(
       hintText: hintText,
       hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
@@ -113,7 +268,7 @@ class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
                       }
                     },
                     child: InputDecorator(
-                      decoration: _inputDecoration('Date'),
+                      decoration: buildInputDecoration('Date'),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -128,7 +283,7 @@ class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
                   // Employee dropdown
                   DropdownButtonFormField<Employee>(
                     value: _selectedEmployee,
-                    decoration: _inputDecoration("Select Employee"),
+                    decoration: buildInputDecoration("Select Employee"),
                     items: employees
                         .map(
                           (e) => DropdownMenuItem(
@@ -145,7 +300,7 @@ class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
                   // Status dropdown
                   DropdownButtonFormField<String>(
                     value: _selectedStatus,
-                    decoration: _inputDecoration("Select Status"),
+                    decoration: buildInputDecoration("Select Status"),
                     items: _statusOptions
                         .map(
                           (status) => DropdownMenuItem(
@@ -193,3 +348,4 @@ class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
     );
   }
 }
+*/

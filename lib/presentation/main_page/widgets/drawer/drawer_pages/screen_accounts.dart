@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/accounts/account_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
-import 'package:my_new_project/core/models/account.dart';
+// import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/widgets/accounts/add_account_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
