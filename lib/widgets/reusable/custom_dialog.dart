@@ -73,7 +73,7 @@ insetPadding: EdgeInsets.zero,
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  OutlinedButton(
+                  OutlinedButton( 
                     onPressed: onCancel,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFF1B1B3A)),
