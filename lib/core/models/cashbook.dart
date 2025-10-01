@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/core/models/vehicle_summary.dart';
+
 class CashBookEntry {
   final String? id;
   final String? userId;
@@ -9,6 +14,9 @@ class CashBookEntry {
   final double? credit;
   final String? description;
   final DateTime? createdAt;
+  final VehicleSummary? vehicle;
+
+
 
   CashBookEntry({
     this.id,
@@ -21,6 +29,8 @@ class CashBookEntry {
     this.credit,
     this.description,
     this.createdAt,
+    this.vehicle
+    
   });
 
   // factory CashBookEntry.fromJson(Map<String, dynamic> json) {
@@ -45,36 +55,49 @@ class CashBookEntry {
   // }
 
   factory CashBookEntry.fromJson(Map<String, dynamic> json) {
-  try {
-    final accountId = json['account_id']?.toString();
-    final transactionType = json['transaction_type']?.toString();
+    try {
+      print("Raw cashbook entry JSON: ${jsonEncode(json)}");
+      final accountId = json['account_id']?.toString();
+      final transactionType = json['transaction_type']?.toString();
 
-    if (accountId == null || transactionType == null) {
-      print("⚠️ Skipping entry: account_id or transaction_type is null. Raw JSON: $json");
-      throw FormatException("Missing required fields");
+      if (accountId == null || transactionType == null) {
+        print(
+          "⚠️ Skipping entry: account_id or transaction_type is null. Raw JSON: $json",
+        );
+        throw FormatException("Missing required fields");
+      }
+
+      return CashBookEntry(
+        id: json['id']?.toString(),
+        userId: json['user_id']?.toString(),
+        accountId: accountId,
+        accountName: json['account_name'],
+        transactionType: transactionType,
+        transactionId: json['transaction_id']?.toString(),
+        debit: (json['debit'] != null)
+            ? double.tryParse(json['debit'].toString())
+            : null,
+        credit: (json['credit'] != null)
+            ? double.tryParse(json['credit'].toString())
+            : null,
+        description: json['description'],
+        createdAt: json['created_at'] != null
+            ? DateTime.tryParse(json['created_at'])
+            : null,
+             // ✅ new vehicle summary
+      vehicle: (json['vehicle_name'] != null || json['vehicle_reg_no'] != null)
+          ? VehicleSummary.fromJson(json)
+          : null,
+            
+      );
+    } catch (e) {
+      print("❌ Error parsing CashBookEntry: $e");
+      rethrow; // Or return a fallback value
     }
-
-    return CashBookEntry(
-      id: json['id']?.toString(),
-      userId: json['user_id']?.toString(),
-      accountId: accountId,
-      accountName: json['account_name'],
-      transactionType: transactionType,
-      transactionId: json['transaction_id']?.toString(),
-      debit: (json['debit'] != null) ? double.tryParse(json['debit'].toString()) : null,
-      credit: (json['credit'] != null) ? double.tryParse(json['credit'].toString()) : null,
-      description: json['description'],
-      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at']) : null,
-    );
-  } catch (e) {
-    print("❌ Error parsing CashBookEntry: $e");
-    rethrow; // Or return a fallback value
   }
-}
 
-
-//  accountId: json['account_id']?.toString() ?? (throw Exception("account_id missing")),
-// transactionType: json['transaction_type']?.toString() ?? (throw Exception("transaction_type missing")),
+  //  accountId: json['account_id']?.toString() ?? (throw Exception("account_id missing")),
+  // transactionType: json['transaction_type']?.toString() ?? (throw Exception("transaction_type missing")),
 
   Map<String, dynamic> toJson() {
     return {

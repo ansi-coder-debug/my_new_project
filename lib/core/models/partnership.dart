@@ -13,6 +13,8 @@ class Partnership {
   final String? contribution;
   final String? paymentMode;
   final String? contributionStatus;
+  final int? fromAccount;
+
 
   Partnership({
     this.id,
@@ -27,6 +29,7 @@ class Partnership {
     this.contribution,
     this.paymentMode,
     this.contributionStatus,
+    this.fromAccount
   });
 
   factory Partnership.fromJson(Map<String, dynamic> json) {
@@ -45,6 +48,10 @@ class Partnership {
       contribution: json['contribution']?.toString(),
       paymentMode: json['payment_mode'],
       contributionStatus: json['contribution_status'],
+      fromAccount: json['from_account'] is int
+    ? json['from_account']
+    : int.tryParse(json['from_account']?.toString() ?? ''),
+
     );
   }
 

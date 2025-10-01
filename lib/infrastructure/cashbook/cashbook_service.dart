@@ -12,6 +12,7 @@ final cashBookServiceProvider = Provider<CashBookService>((ref) {
 class CashBookService {
   final Dio _dio;
   final Ref _ref;
+  
 
   CashBookService(this._dio, this._ref);
 
@@ -37,6 +38,10 @@ class CashBookService {
       data: entry.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
+    
+  print("🔍 Raw cashbook list JSON response: ${response.data}");
+
+  
 
     return CashBookEntry.fromJson(response.data);
   }

@@ -5,6 +5,7 @@ import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
 
 class ScreenPartnerships extends ConsumerWidget {
   const ScreenPartnerships({super.key});
@@ -19,60 +20,87 @@ class ScreenPartnerships extends ConsumerWidget {
     for (final vehicle in state.vehicles) {
       if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
         for (final partnership in vehicle.partnerships!) {
-          allPartnerships.add({
-            'vehicle': vehicle,
-            'partnership': partnership,
-          });
+          allPartnerships.add({'vehicle': vehicle, 'partnership': partnership});
         }
       }
     }
 
-    
-      // appBar: AppBar(
-      //   title: const Text('Partnerships'),
-      // ),
-      return Scaffold(
-      body:SafeArea(
-        child:Column(
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
           children: [
             CustomHeader(
-              title:"Partnerships", 
+              title: "Partnerships",
               onFilter: () {
                 // TODO: Open filter dialog
               },
               onRefresh: () {
-               // provider 
+                // provider
               },
               onSearch: () {
                 // TODO: Implement search
               },
-              showAdd: false,             
-              ),
-             KHeight,
+              showAdd: false,
+            ),
+            KHeight,
 
-             Expanded(
-              child: 
+            Expanded(
+              child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : allPartnerships.isEmpty
+                  ? const Center(child: Text('No partnerships found.'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: allPartnerships.length,
+                      itemBuilder: (context, index) {
+                        final item = allPartnerships[index];
+                        final Vehicle vehicle = item['vehicle'];
+                        final Partnership partnership = item['partnership'];
 
-       state.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : allPartnerships.isEmpty
-              ? const Center(child: Text('No partnerships found.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: allPartnerships.length,
-                  itemBuilder: (context, index) {
-                    final item = allPartnerships[index];
-                    final Vehicle vehicle = item['vehicle'];
-                    final Partnership partnership = item['partnership'];
+                       final partnerName =
+    partnership.partnerName ?? partnership.partner?.name ?? 'Unknown';
+final vehicleName = '${vehicle.make} ${vehicle.model}';
+final contribution =
+    double.tryParse(partnership.contribution ?? '0') ?? 0.0;
+final paymentMode = partnership.paymentMode ?? 'N/A';
 
-                    final partnerName =
-                        partnership.partnerName ?? partnership.partner?.name ?? 'Unknown';
-                    final vehicleName = '${vehicle.make} ${vehicle.model}';
-                    final contribution = double.tryParse(partnership.contribution ?? '0') ?? 0.0;
-                    final paymentMode = partnership.paymentMode ?? 'N/A';
-                    final contributionStatus = partnership.contributionStatus ?? 'pending';
+// ✅ NEW STATUS LOGIC:
+final total = double.tryParse(partnership.contribution ?? '0') ?? 0.0;
+final received = contribution; // using the same value for now
 
-                    return Card(
+String contributionStatus;
+if (received >= total && total > 0) {
+  contributionStatus = 'paid';
+} else if (received > 0 && received < total) {
+  contributionStatus = 'partial';
+} else {
+  contributionStatus = 'pending';
+}
+
+                        return OutputCard(
+                          title: partnerName,
+                          subtitle: vehicleName,
+                          amount: contribution,
+                          received: contribution,
+                          receivedLabel: 'Paid',
+                          paymentMode: paymentMode,
+                          status: contributionStatus,
+                          showMenu: true,
+                          onEdit: () {},
+                          onDelete: () {},
+                          onView: () {},
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/* return Card(
                       color: Colors.white,
                       elevation: 3,
                       shape: RoundedRectangleBorder(
@@ -154,12 +182,4 @@ class ScreenPartnerships extends ConsumerWidget {
                         ),
                       ),
                     );
-                  },
-                ),
-             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+                    */

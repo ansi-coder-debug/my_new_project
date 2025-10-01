@@ -4,6 +4,12 @@ class Brokerage {
   final String brokerName;
   final String amount;
   final String? remarks;
+  final String? brokeragePaid;
+final String? paymentStatus;
+
+  
+
+
 
   Brokerage({
     this.id,
@@ -11,6 +17,9 @@ class Brokerage {
     required this.brokerName,
     required this.amount,
     this.remarks,
+    this.brokeragePaid,     
+  this.paymentStatus,  
+
   });
 
   factory Brokerage.fromJson(Map<String, dynamic> json) {
@@ -20,6 +29,9 @@ class Brokerage {
       brokerName: json['broker_name'],
       amount: json['amount'],
       remarks: json['remarks'],
+       brokeragePaid: json['brokerage_paid'],      // new
+    paymentStatus: json['payment_status'],      // new
+     
     );
   }
 
@@ -30,6 +42,9 @@ class Brokerage {
       'broker_name': brokerName,
       'amount': amount,
       'remarks': remarks,
+       'brokerage_paid': brokeragePaid,      // new
+    'payment_status': paymentStatus,      // new
+      
     };
   }
 }
