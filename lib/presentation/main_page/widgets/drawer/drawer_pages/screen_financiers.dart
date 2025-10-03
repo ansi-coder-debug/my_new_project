@@ -7,6 +7,89 @@ import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/financier.dart';
 import 'package:my_new_project/widgets/financier/add_financier_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
+
+class ScreenFinanciers extends ConsumerWidget {
+  const ScreenFinanciers({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final financierState = ref.watch(financierProvider);
+    final financiers = financierState.financiers;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title: "Financiers",
+              onBack: () {
+                // Optional back action
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(financierProvider.notifier).loadFinanciers();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const AddFinancierDialog(),
+                );
+              },
+            ),
+            KHeight,
+
+            Expanded(
+              child: financierState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : financiers.isEmpty
+                  ? const Center(child: Text("No financiers found"))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: financiers.length,
+                      itemBuilder: (context, index) {
+                        final financier = financiers[index];
+
+                        return OutputCard(
+                          title: financier.companyName,
+                          subtitle: financier.contactPerson,
+                          phone: financier.contactNumber,
+                           onView: () {
+                            // You can show a dialog or navigate to a detail screen
+                          },
+                          onEdit: () {
+                            
+                          },
+                          onDelete: () {
+                         
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+/*// lib/presentation/financiers/screen_financiers.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/financier/financier_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/financier.dart';
+import 'package:my_new_project/widgets/financier/add_financier_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 class ScreenFinanciers extends ConsumerWidget {
   const ScreenFinanciers({super.key});
@@ -205,3 +288,4 @@ class ScreenFinanciers extends ConsumerWidget {
     }
   }
 }
+*/

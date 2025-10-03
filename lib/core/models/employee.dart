@@ -29,7 +29,9 @@ class Employee {
       phone: json['phone'] ?? '',
       position: json['position'] ?? '',
       salary: double.tryParse(json['salary'].toString()) ?? 0.0,
-      hireDate: json['hire_date'] ?? '',
+      hireDate: json['hire_date'] != null
+          ? _formatDate(json['hire_date'])
+          : 'No date',
       address: json['address'] ?? '',
     );
   }
@@ -48,4 +50,19 @@ class Employee {
     };
   }
 
+
+
+   // 🔧 Private helper method to format date string to "dd-MM-yyyy"
+  static String _formatDate(String rawDate) {
+    try {
+      final parsedDate = DateTime.parse(rawDate); // ⏳ convert ISO string to DateTime
+      final day = parsedDate.day.toString().padLeft(2, '0');    // pad single digit day
+      final month = parsedDate.month.toString().padLeft(2, '0'); // pad single digit month
+      final year = parsedDate.year;
+
+      return '$day-$month-$year'; // 📅 Final format: 18-05-2025
+    } catch (e) {
+      return rawDate; // ❌ fallback if parsing fails
+    }
+  }
 }

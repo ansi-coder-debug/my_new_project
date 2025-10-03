@@ -4,6 +4,98 @@ import 'package:my_new_project/application/advance/advance_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/widgets/advance/add_advance_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
+
+class ScreenAdvance extends ConsumerWidget {
+  const ScreenAdvance({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final advanceState = ref.watch(advanceProvider);
+    final advances = advanceState.advances;
+
+    print('👀 Advances in UI: ${advances.map((a) => a.buyerName).toList()}');
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title: "Advances",
+              onBack: () {
+                //last index wanna do at later
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(advanceProvider.notifier).loadAdvances();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AddAdvanceDialog(),
+                );
+              },
+            ),
+            KHeight,
+
+            Expanded(
+              child: advanceState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : advances.isEmpty
+                  ? const Center(child: Text("No advances found"))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: advances.length,
+                      itemBuilder: (context, index) {
+                        final advance = advances[index];
+
+                        return OutputCard(
+                          title: advance.buyerName,
+                          subtitle: advance.vehicleDisplayName,
+                          phone: advance.buyerPhone?.isNotEmpty == true
+                              ? advance.buyerPhone
+                              : 'No phone',
+                         date: "${advance.date.day}/${advance.date.month}/${advance.date.year}",
+
+                          showAmount: true,
+                          amount: advance.amount,
+                          receivedLabel: "Advance",
+                          receivedLabelColor: Colors.green,
+                          isCashBook: false,
+                          addTopSubtitleSpacing: true,
+                          showBalanceBelowPaid: false,
+                          onView: () {
+                            // TODO: handle view logic
+                          },
+                          onEdit: () {
+                            // TODO: handle edit logic
+                          },
+                          onDelete: () {
+                            // TODO: handle delete logic
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/*import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/advance/advance_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/widgets/advance/add_advance_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 
 
@@ -18,17 +110,7 @@ class ScreenAdvance extends ConsumerWidget {
     print('👀 Advances in UI: ${advances.map((a) => a.buyerName).toList()}');
 
    
-      // appBar: AppBar(
-      //   title: const Text('Advances'),
-      //   actions: [
-      //     IconButton(
-      //       icon: const Icon(Icons.add),
-      //       onPressed: () {
-      //         showDialog(context: context, builder: (_) => AddAdvanceDialog());
-      //       },
-      //     ),
-      //   ],
-      // ),
+      
        return Scaffold(
       body:SafeArea(
         child: Column(
@@ -181,3 +263,4 @@ class ScreenAdvance extends ConsumerWidget {
     );
   }
 }
+*/

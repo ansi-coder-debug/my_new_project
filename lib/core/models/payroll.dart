@@ -7,6 +7,7 @@ class Payroll {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final String? employeeName;
+  final String? position;
 
   // ✅ One constructor only
   Payroll({
@@ -18,22 +19,29 @@ class Payroll {
     this.createdAt,
     this.updatedAt,
     this.employeeName,
+    this.position
   });
 
   // ✅ Parse backend response
- factory Payroll.fromJson(Map<String, dynamic> json) {
-  return Payroll(
-    id: json['id'],
-    userId: json['user_id'],
-    employeeId: json['employee_id'],
-    salary: double.parse(json['salary'].toString()), // <-- Parse string to double safely
-    payDate: DateTime.parse(json['pay_date']),
-    createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
-    updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
-    employeeName: json['employee_name'],
-  );
-}
-
+  factory Payroll.fromJson(Map<String, dynamic> json) {
+    return Payroll(
+      id: json['id'],
+      userId: json['user_id'],
+      employeeId: json['employee_id'],
+      salary: double.parse(
+        json['salary'].toString(),
+      ), // <-- Parse string to double safely
+      payDate: DateTime.parse(json['pay_date']),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : null,
+      employeeName: json['employee_name'],
+      position: json['position']
+    );
+  }
 
   // ✅ Only include required fields for POST
   Map<String, dynamic> toJson() {

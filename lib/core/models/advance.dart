@@ -1,3 +1,5 @@
+import 'package:my_new_project/core/models/vehicle_summary.dart';
+
 class Advance {
   final int? id;         // Nullable - backend sets it
   final int? userId;     // Nullable - backend sets it
@@ -9,6 +11,12 @@ class Advance {
   final String? buyerPhone;
   final String? buyerAddress;
 
+  // Add these two fields:
+  final String? make;
+  final String? model;
+ final VehicleSummary? vehicle;
+
+
   Advance({
     this.id,               // Optional
     this.userId,           // Optional
@@ -19,6 +27,9 @@ class Advance {
     required this.buyerName,
     this.buyerPhone,
     this.buyerAddress,
+    this.make,
+    this.model,
+    this.vehicle
   });
 
  factory Advance.fromJson(Map<String, dynamic> json) {
@@ -34,7 +45,12 @@ class Advance {
     buyerName: json['buyer_name'],
     buyerPhone: json['buyer_phone'],
     buyerAddress: json['buyer_address'],
-   
+       // Parse make and model from JSON
+      make: json['make']?.toString(),
+      model: json['model']?.toString(),
+
+      // Leave vehicle as null, or parse if needed
+      vehicle: null,
   );
 }
 
@@ -52,5 +68,15 @@ class Advance {
     'buyer_address': buyerAddress,
   };
 }
+// Add a getter to display combined vehicle name:
+  String get vehicleDisplayName {
+    if (make != null && model != null) {
+      return '$make $model';
+    } else if (vehicle?.name != null) {
+      return vehicle!.name!;
+    } else {
+      return 'No vehicle info';
+    }
+  }
 
 }

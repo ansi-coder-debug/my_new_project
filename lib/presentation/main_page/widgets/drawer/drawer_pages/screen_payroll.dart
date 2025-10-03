@@ -5,6 +5,86 @@ import 'package:my_new_project/application/payroll/payroll_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/widgets/payroll/add_payroll_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
+
+class ScreenPayroll extends ConsumerWidget {
+  const ScreenPayroll({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final payrollState = ref.watch(payrollProvider);
+    final payrolls = payrollState.payrolls;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title: "Payroll",
+              onBack: () {
+                // TODO: handle back if needed
+              },
+              onFilter: () {
+                // TODO: Open filter dialog
+              },
+              onRefresh: () {
+                ref.read(payrollProvider.notifier).loadPayrolls();
+              },
+              onSearch: () {
+                // TODO: Open search dialog
+              },
+              showAdd: true,
+              onAdd: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const AddPayrollDialog(),
+                );
+              },
+            ),
+            KHeight,
+
+            Expanded(
+              child: payrollState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : payrolls.isEmpty
+                  ? const Center(child: Text("No payroll records found"))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: payrolls.length,
+                      itemBuilder: (context, index) {
+                        final payroll = payrolls[index];
+                        // final payDateFormatted = DateFormat(
+                        //   'd/M/y',
+                        // ).format(payroll.payDate);
+
+                        return OutputCard(
+                          title: payroll.employeeName!,
+                          subtitle: 'Role: ${payroll.position}',
+                          date:
+                              'Pay Date: ${DateFormat('dd-MM-yyyy').format(payroll.payDate)}',
+                          onView: () {
+                            // You can show a dialog or navigate to a detail screen
+                          },
+                          onEdit: () {},
+                          onDelete: () {},
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/*import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:my_new_project/application/payroll/payroll_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/widgets/payroll/add_payroll_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 
 class ScreenPayroll extends ConsumerWidget {
   const ScreenPayroll({super.key});
@@ -120,3 +200,4 @@ class ScreenPayroll extends ConsumerWidget {
     );
   }
 }
+*/

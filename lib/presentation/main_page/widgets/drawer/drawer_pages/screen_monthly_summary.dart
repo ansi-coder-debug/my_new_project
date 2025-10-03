@@ -4,6 +4,118 @@ import 'package:my_new_project/application/monthlysummary/monthlysummary_provide
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/monthlysummary.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
+import 'package:my_new_project/widgets/reusable/custom_header_buttons.dart';
+import 'package:my_new_project/widgets/reusable/custom_header_summary.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
+
+class ScreenMonthlySummary extends ConsumerStatefulWidget {
+  const ScreenMonthlySummary({super.key});
+
+  @override
+  ConsumerState<ScreenMonthlySummary> createState() => _ScreenMonthlySummaryState();
+}
+
+class _ScreenMonthlySummaryState extends ConsumerState<ScreenMonthlySummary> {
+  String selectedTab = 'sales'; // Default tab
+
+  @override
+  Widget build(BuildContext context) {
+    final monthlySummaryState = ref.watch(monthlySummaryProvider);
+    final summaries = monthlySummaryState.summaries;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom header (reused)
+           CustomHeaderSummary(
+             title: 'Monthly Summary',
+             onBack: () => Navigator.pop(context),
+             headerContent: SummaryHeaderButtons(
+               selectedTab: selectedTab,
+               onTabSelected: (tab) {
+                 setState(() {
+                   selectedTab = tab;
+                   // Optional: Filter your data based on selectedTab
+                 });
+               },
+               onFilter: () {
+                 // handle filter logic
+               },
+               onRefresh: () {
+                 // handle refresh logic
+               },
+             ),
+           ),
+
+
+
+            KHeight16,
+
+            // Main list of summaries
+            Expanded(
+              child: monthlySummaryState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : summaries.isEmpty
+                      ? const Center(child: Text('No monthly reports found'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(12),
+                          itemCount: summaries.length,
+                          itemBuilder: (context, index) {
+                            final summary = summaries[index];
+
+                            // Dynamic mapping based on selected tab
+                            String subtitle = '';
+                            double? amount;
+                            double? received;
+                            double? balance;
+
+                            if (selectedTab == 'sales') {
+                              subtitle = 'Sales: ${summary.saleCount}';
+                              amount = summary.saleReceived + summary.salePending;
+                              received = summary.saleReceived;
+                              balance = summary.salePending;
+                            } else if (selectedTab == 'purchases') {
+                              subtitle = 'Purchases: ${summary.purchaseCount}';
+                              amount = summary.purchasePaid + summary.purchasePending;
+                              received = summary.purchasePaid;
+                              balance = summary.purchasePending;
+                            } else if (selectedTab == 'expenses') {
+                              subtitle = 'Expenses: ${summary.expenseCount}';
+                              amount = summary.expenseAmount;
+                              received = summary.expensePaid;
+                              balance = summary.expenseBalance;
+                            }
+
+                            return OutputCard(
+                              title: '${summary.month} ${summary.year}',
+                              subtitle: subtitle,
+                              amount: amount,
+                              received: received,
+                              balance: balance,
+                              isSummaryView: true,
+                              showMenu: false,
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+ 
+}
+
+
+/*import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/monthlysummary/monthlysummary_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/monthlysummary.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
 import 'package:my_new_project/widgets/reusable/output_card.dart';
 
 class ScreenMonthlySummary extends ConsumerStatefulWidget {
@@ -205,3 +317,4 @@ class _ScreenMonthlySummaryState extends ConsumerState<ScreenMonthlySummary> {
     return months[month - 1];
   }
 }
+*/

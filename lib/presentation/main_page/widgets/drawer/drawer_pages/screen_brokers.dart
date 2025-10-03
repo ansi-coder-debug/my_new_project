@@ -1,4 +1,96 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/broker/broker_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/widgets/broker/add_broker_dialog_form.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
+
+class ScreenBrokers extends ConsumerStatefulWidget {
+  const ScreenBrokers({super.key});
+
+  @override
+  ConsumerState<ScreenBrokers> createState() => _ScreenBrokersState();
+}
+
+class _ScreenBrokersState extends ConsumerState<ScreenBrokers> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(brokerProvider.notifier).loadBrokers();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(brokerProvider);
+    final brokers = state.brokers;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title: "Brokers",
+              onBack: () {
+                //last index wanna do at later
+              },
+              onFilter: () {
+                // TODO: Open filter
+              },
+              onRefresh: () {
+                ref.read(brokerProvider.notifier).loadBrokers();
+              },
+              onSearch: () {
+                // TODO: Open search
+              },
+              showAdd: true,
+              onAdd: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AddBrokerDialogForm(),
+                );
+              },
+            ),
+            KHeight,
+
+            Expanded(
+              child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : brokers.isEmpty
+                  ? const Center(child: Text("No brokers found."))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: brokers.length,
+                      itemBuilder: (context, index) {
+                        final broker = brokers[index];
+
+                        return OutputCard(
+                          title: broker.name,
+                          subtitle: broker.phone,
+                          address: broker.address,
+                           onView: () {
+                            // You can show a dialog or navigate to a detail screen
+                          },
+                          onEdit: () {
+                            
+                          },
+                          onDelete: () {
+                         
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/*// import 'package:flutter/material.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // import 'package:my_new_project/application/broker/broker_provider.dart';
@@ -215,3 +307,4 @@ class _ScreenBrokersState extends ConsumerState<ScreenBrokers> {
 }
 
 
+*/

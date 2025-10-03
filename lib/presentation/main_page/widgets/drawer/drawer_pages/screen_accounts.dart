@@ -5,6 +5,7 @@ import 'package:my_new_project/core/constants/constant.dart';
 // import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/widgets/accounts/add_account_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
 
 class ScreenAccounts extends ConsumerWidget {
   const ScreenAccounts({super.key});
@@ -15,19 +16,84 @@ class ScreenAccounts extends ConsumerWidget {
     final accounts = accountState.accounts;
     print('👀 Accounts in UI: ${accounts.map((a) => a.name).toList()}');
 
-    // appBar: AppBar(
-    //   title: const Text('Accounts'),
-    //   actions: [
-    //     IconButton(
-    //       icon: const Icon(Icons.add),
-    //       onPressed: () {
-    //         // You can open your AddAccountDialog here
-    //         // Example:
-    //         showDialog(context: context, builder: (_) => const AddAccountDialog());
-    //       },
-    //     )
-    //   ],
-    // ),
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            CustomHeader(
+              title: "Accounts",
+              onBack: () {
+                //last index wanna do at later
+              },
+              showAdd: true,
+              onAdd: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AddAccountDialog(),
+                );
+              },
+            ),
+            KHeight,
+
+            Expanded(
+              child: accountState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : accounts.isEmpty
+                  ? const Center(child: Text("No accounts found"))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: accounts.length,
+                      itemBuilder: (context, index) {
+                        final account = accounts[index];
+
+                        return OutputCard(
+                          title: account.name,
+                          subtitle: "Type: ${capitalize(account.type)}",
+                          phone:
+                              (account.description != null &&
+                                  account.description!.trim().isNotEmpty)
+                              ? account.description
+                              : "No description",
+
+                          showAmount: false,
+                          onView: () {},
+                          onEdit: () {},
+                          onDelete: () {},
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1).toLowerCase();
+  }
+}
+
+
+/*import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/accounts/account_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+// import 'package:my_new_project/core/models/account.dart';
+import 'package:my_new_project/widgets/accounts/add_account_dialog.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
+
+class ScreenAccounts extends ConsumerWidget {
+  const ScreenAccounts({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final accountState = ref.watch(accountProvider);
+    final accounts = accountState.accounts;
+    print('👀 Accounts in UI: ${accounts.map((a) => a.name).toList()}');
+
+    
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -144,3 +210,4 @@ class ScreenAccounts extends ConsumerWidget {
     return s[0].toUpperCase() + s.substring(1).toLowerCase();
   }
 }
+*/

@@ -1,4 +1,94 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:my_new_project/application/partner/partner_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/widgets/reusable/custom_header.dart';
+import 'package:my_new_project/widgets/partnerships/add_partner_form.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
+
+class PartnersPage extends ConsumerStatefulWidget {
+  const PartnersPage({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<PartnersPage> createState() => _ScreenPartnersState();
+}
+
+class _ScreenPartnersState extends ConsumerState<PartnersPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(partnerProvider.notifier).loadPartners();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final partnerState = ref.watch(partnerProvider);
+    final partners = partnerState.partners;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Top Header
+            CustomHeader(
+              title: "Partners",
+              onBack: () {},
+              onFilter: () {
+                // TODO: Implement filter
+              },
+              onSearch: () {
+                // TODO: Implement search
+              },
+              onRefresh: () {
+                ref.read(partnerProvider.notifier).loadPartners();
+              },
+              showAdd: true,
+              onAdd: () {
+                showDialog(context: context, builder: (_) => AddPartnerForm());
+              },
+            ),
+            KHeight,
+
+            // Body
+            Expanded(
+              child: partnerState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : partners.isEmpty
+                  ? const Center(child: Text("No partners found"))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: partners.length,
+                      itemBuilder: (context, index) {
+                        final partner = partners[index];
+
+                        return OutputCard(
+                          title: partner.name,
+                          subtitle: partner.phone!,
+                          address: partner.address,
+                           onView: () {
+                            // You can show a dialog or navigate to a detail screen
+                          },
+                          onEdit: () {
+                            
+                          },
+                          onDelete: () {
+                         
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/*// import 'package:flutter/material.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:my_new_project/application/partner/partner_provider.dart';
 // import 'package:my_new_project/application/partner/partner_state.dart';
@@ -239,3 +329,4 @@ class _ScreenPartnersState extends ConsumerState< PartnersPage> {
     );
   }
 }
+*/
