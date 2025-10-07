@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/finance.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
 
@@ -17,7 +18,7 @@ class FinanceService {
   Future<List<Finance>> getAllFinances() async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.get(
-      'http://192.168.29.29:5000/api/finances',
+      '$HbaseUrl/finances',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
     print("📥 Raw backend response: ${response.data}");
@@ -32,7 +33,7 @@ class FinanceService {
   Future<Finance> addFinance(Finance finance) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.post(
-      'http://192.168.29.29:5000/api/finances',
+      '$HbaseUrl/finances',
       data: finance.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -46,7 +47,7 @@ class FinanceService {
     }
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.put(
-      'http://192.168.29.29:5000/api/finances/${finance.id}',
+      '$HbaseUrl/finances/${finance.id}',
       data: finance.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -57,7 +58,7 @@ class FinanceService {
   Future<void> deleteFinance(String id) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     await _dio.delete(
-      'http://192.168.29.29:5000/api/finances/$id',
+      '$HbaseUrl/finances/$id',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }

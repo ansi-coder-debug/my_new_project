@@ -32,7 +32,7 @@ class VehicleService {
       }
 
       final response = await _dio.get(
-        'http://192.168.29.29:5000/api/vehicles/paginated',
+        '$HbaseUrl/vehicles/paginated',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
@@ -171,7 +171,7 @@ class VehicleService {
       print('🔍 Sending FormData with ${vehicle.photos.length} images');
 
       final response = await _dio.post(
-        'http://192.168.29.29:5000/api/vehicles/detailed',
+        '$HbaseUrl/vehicles/detailed',
         data: formData,
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
@@ -301,7 +301,7 @@ class VehicleService {
       print('🔍 Sending FormData update with ${vehicle.photos.length} images');
 
       final response = await _dio.put(
-        'http://192.168.29.29:5000/api/vehicles/detailed/${vehicle.id}',
+        '$HbaseUrl/vehicles/detailed/${vehicle.id}',
         data: formData,
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
@@ -328,7 +328,7 @@ Future<void> markVehicleAsSold(String vehicleId, Map<String, dynamic> saleData) 
     if (token == null) throw Exception('User not authenticated');
     if (vehicleId.isEmpty) throw Exception('Vehicle ID is required');
 
-    final url = 'http://192.168.29.29:5000/api/vehicles/detailed/$vehicleId';
+    final url = '$HbaseUrl/vehicles/detailed/$vehicleId';
 
     final response = await _dio.put(
       url,
@@ -364,7 +364,7 @@ Future<void> markVehicleAsSold(String vehicleId, Map<String, dynamic> saleData) 
       if (token == null) throw Exception('User not authenticated');
 
       await _dio.delete(
-        'http://192.168.29.29:5000/api/vehicles/$id',
+        '$HbaseUrl/vehicles/$id',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
     } on DioException catch (e) {

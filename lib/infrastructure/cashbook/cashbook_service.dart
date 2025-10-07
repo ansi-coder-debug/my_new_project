@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:my_new_project/application/auth/auth_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/cashbook.dart';
 
 final cashBookServiceProvider = Provider<CashBookService>((ref) {
@@ -16,7 +17,7 @@ class CashBookService {
 
   CashBookService(this._dio, this._ref);
 
-  String get _baseUrl => 'http://192.168.29.29:5000/api/cash-Book';
+  String get _baseUrl => '$HbaseUrl/cash-Book';
 
   Future<List<CashBookEntry>> getAll() async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:my_new_project/application/auth/auth_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/monthlysummary.dart';
 
 final monthlySummaryServiceProvider = Provider<MonthlySummaryService>((ref) {
@@ -18,7 +19,7 @@ Future<List<MonthlySummary>> getMonthlySummaries() async {
   final token = _ref.read(authNotifierProvider).user?.accessToken;
 
   final response = await _dio.get(
-    'http://192.168.29.29:5000/api/monthly-summary',
+    '$HbaseUrl/monthly-summary',
     options: Options(headers: {'Authorization': 'Bearer $token'}),
   );
 

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/broker.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
 
@@ -24,7 +25,7 @@ class BrokerService {
     if (token == null) throw Exception('User not authenticated');
 
     final response = await _dio.get(
-      'http://192.168.29.29:5000/api/brokers',
+      '$HbaseUrl/brokers',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
@@ -41,7 +42,7 @@ class BrokerService {
     if (token == null) throw Exception('User not authenticated');
 
     final response = await _dio.post(
-      'http://192.168.29.29:5000/api/brokers',
+      '$HbaseUrl/brokers',
       data: broker.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -58,7 +59,7 @@ class BrokerService {
     if (token == null) throw Exception('User not authenticated');
 
     final response = await _dio.delete(
-      'http://192.168.29.29:5000/api/brokers/$id',
+      '$HbaseUrl/brokers/$id',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
@@ -72,7 +73,7 @@ class BrokerService {
     if (token == null) throw Exception('User not authenticated');
 
     final response = await _dio.put(
-      'http://192.168.29.29:5000/api/brokers/$id',
+      '$HbaseUrl/brokers/$id',
       data: data,
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );

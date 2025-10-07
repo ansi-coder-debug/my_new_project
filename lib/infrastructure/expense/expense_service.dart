@@ -21,7 +21,7 @@
 //       if (token == null) throw Exception('User not authenticated');
 
 //       final response = await _dio.get(
-//         'http://192.168.29.29:5000/api/expenses',
+//         '$HbaseUrl/expenses',
 //         options: Options(headers: {'Authorization': 'Bearer $token'}),
 //       );
 
@@ -45,7 +45,7 @@
 //   //      print('Sending expense to backend: ${expense.toJson()}');
 
 //   //     final response = await _dio.post(
-//   //       'http://192.168.29.29:5000/api/expenses',
+//   //       '$HbaseUrl/expenses',
 //   //       data: expense.toJson(),
 //   //       options: Options(headers: {'Authorization': 'Bearer $token'}),
 //   //     );
@@ -71,7 +71,7 @@
 //     print('🔵 Sending POST to backend with: ${expense.toJson()}');
 
 //     final response = await _dio.post(
-//       'http://192.168.29.29:5000/api/expenses',
+//       '$HbaseUrl/expenses',
 //       data: expense.toJson(),
 //       options: Options(headers: {'Authorization': 'Bearer $token'}),
 //     );
@@ -94,7 +94,7 @@
 //       if (token == null) throw Exception('User not authenticated');
 
 //       final response = await _dio.delete(
-//         'http://192.168.29.29:5000/api/expenses/$id',
+//         '$HbaseUrl/expenses/$id',
 //         options: Options(headers: {'Authorization': 'Bearer $token'}),
 //       );
 
@@ -111,6 +111,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expense.dart';
 
 final expenseServiceProvider = Provider<ExpenseService>((ref) {
@@ -127,7 +128,7 @@ class ExpenseService {
   Future<List<Expense>> getExpenses() async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.get(
-      'http://192.168.29.29:5000/api/expenses',
+      '$HbaseUrl/expenses',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
@@ -138,7 +139,7 @@ class ExpenseService {
   Future<Expense> addExpense(Expense expense) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.post(
-      'http://192.168.29.29:5000/api/expenses',
+      '$HbaseUrl/expenses',
       data: expense.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -152,7 +153,7 @@ class ExpenseService {
     }
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.put(
-      'http://192.168.29.29:5000/api/expenses/${expense.id}',
+      '$HbaseUrl/expenses/${expense.id}',
       data: expense.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -163,7 +164,7 @@ class ExpenseService {
   Future<void> deleteExpense(int id) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     await _dio.delete(
-      'http://192.168.29.29:5000/api/expenses/$id',
+      '$HbaseUrl/expenses/$id',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }

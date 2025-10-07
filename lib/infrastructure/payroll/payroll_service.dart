@@ -2,6 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/payroll.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
 
@@ -16,7 +17,7 @@ class PayrollService {
 
   PayrollService(this._dio, this._ref);
 
-  String get _baseUrl => 'http://192.168.29.29:5000/api/employee-payroll';
+  String get _baseUrl => '$HbaseUrl/employee-payroll';
 
   Future<List<Payroll>> getPayrolls() async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;

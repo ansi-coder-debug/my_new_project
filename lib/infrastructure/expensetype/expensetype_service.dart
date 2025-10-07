@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expensetype.dart';
 
 final expenseTypeServiceProvider = Provider<ExpenseTypeService>((ref) {
@@ -17,7 +18,7 @@ class ExpenseTypeService {
   Future<List<ExpenseType>> getExpenseTypes() async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.get(
-      'http://192.168.29.29:5000/api/expense-type',
+      '$HbaseUrl/expense-type',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
@@ -28,7 +29,7 @@ class ExpenseTypeService {
   Future<ExpenseType> addExpenseType(ExpenseType expenseType) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.post(
-      'http://192.168.29.29:5000/api/expense-type',
+      '$HbaseUrl/expense-type',
       data: expenseType.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -42,7 +43,7 @@ class ExpenseTypeService {
     }
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.put(
-      'http://192.168.29.29:5000/api/expense-type/${expenseType.id}',
+      '$HbaseUrl/expense-type/${expenseType.id}',
       data: expenseType.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -53,7 +54,7 @@ class ExpenseTypeService {
   Future<void> deleteExpenseType(int id) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     await _dio.delete(
-      'http://192.168.29.29:5000/api/expense-type/$id',
+      '$HbaseUrl/expense-type/$id',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }

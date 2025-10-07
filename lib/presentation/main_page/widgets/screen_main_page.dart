@@ -110,34 +110,7 @@ final List<Widget> _drawerPages = [
         ),
 
         actions: [
-          // Padding(
-          //   padding: EdgeInsets.only(right: 2),
-          //   child: Stack(
-          //     clipBehavior: Clip.none,
-          //     children: [
-          //       IconButton(
-          //         icon: const Icon(Icons.notifications_none),
-          //         onPressed: () {
-          //           Navigator.of(context).push(
-          //             MaterialPageRoute(builder: (_) => ScreenNotifications()),
-          //           );
-          //         },
-          //       ),
-          //       Positioned(
-          //         right: 10,
-          //         top: 10,
-          //         child: Container(
-          //           width: 8,
-          //           height: 8,
-          //           decoration: BoxDecoration(
-          //             shape: BoxShape.circle,
-          //             color: Colors.red,
-          //           ),
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+         
           Padding(
             padding: EdgeInsets.only(right: 10),
             child: IconButton(

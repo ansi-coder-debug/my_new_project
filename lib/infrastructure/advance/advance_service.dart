@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/advance.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
 
@@ -18,7 +19,7 @@ class AdvanceService {
     
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.get(
-      'http://192.168.29.29:5000/api/advances',
+      '$HbaseUrl/advances',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
     final data = response.data as List;
@@ -28,7 +29,7 @@ class AdvanceService {
   Future<Advance> addAdvance(Advance advance) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.post(
-      'http://192.168.29.29:5000/api/advances',
+      '$HbaseUrl/advances',
       data: advance.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -42,7 +43,7 @@ class AdvanceService {
     
     final response = await _dio.put(
       
-      'http://192.168.29.29:5000/api/advances/${advance.id}',
+      '$HbaseUrl/advances/${advance.id}',
       data: advance.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -52,7 +53,7 @@ class AdvanceService {
   Future<void> deleteAdvance(int id) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     await _dio.delete(
-      'http://192.168.29.29:5000/api/advances/$id',
+      '$HbaseUrl/advances/$id',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }

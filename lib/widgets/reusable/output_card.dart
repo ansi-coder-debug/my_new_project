@@ -110,54 +110,43 @@ class OutputCard extends StatelessWidget {
               ],
             ),
 
-           subtitle: isSummaryView 
-    ? Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // ✅ Left Side (Expenses)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  subtitle, // e.g. "Expenses: 3"
-                  style: const TextStyle(color: Colors.grey),
-                ),
-              ],
-            ),
+            subtitle: isSummaryView
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // ✅ Left Side (Expenses)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              subtitle, // e.g. "Expenses: 3"
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
 
-            // ✅ Right Side (Paid & Balance stacked vertically)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'Paid: ₹${received?.toStringAsFixed(2) ?? '0.00'}',
-                  style: const TextStyle(color: Colors.green),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Balance: ₹${balance?.toStringAsFixed(2) ?? '0.00'}',
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ],
-            ),
-          ],
-        ),
-      )
-    
-   //monthly summarry
-
-
-
-
-
-
-
-
-                  
-                   
+                        // ✅ Right Side (Paid & Balance stacked vertically)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Paid: ₹${received?.toStringAsFixed(2) ?? '0.00'}',
+                              style: const TextStyle(color: Colors.green),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Balance: ₹${balance?.toStringAsFixed(2) ?? '0.00'}',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  )
+                //monthly summarry
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -289,6 +278,7 @@ class OutputCard extends StatelessWidget {
 
   Widget _buildPopupMenu() {
     return PopupMenuButton<String>(
+      color: Colors.white,
       icon: const Icon(Icons.more_vert),
       onSelected: (value) {
         switch (value) {
@@ -303,41 +293,66 @@ class OutputCard extends StatelessWidget {
             break;
         }
       },
+
+      // You can add offset to position it better (optional)
+      offset: Offset(0, 60),
+
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+
       itemBuilder: (context) => [
         if (onView != null)
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: 'view',
-            child: Row(
-              children: [
-                Icon(Icons.remove_red_eye, color: Colors.blue),
-                SizedBox(width: 8),
-                Text("View"),
-              ],
+            child: _buildCustomMenuItem(
+              icon: Icons.remove_red_eye_outlined,
+              iconColor: Colors.blue,
+              text: "View",
             ),
           ),
+
         if (onEdit != null)
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: 'edit',
-            child: Row(
-              children: [
-                Icon(Icons.edit, color: Colors.black87),
-                SizedBox(width: 8),
-                Text("Edit"),
-              ],
+            child: _buildCustomMenuItem(
+              icon: Icons.edit_square,
+              iconColor: Colors.black,
+              text: "Edit",
             ),
           ),
         if (onDelete != null)
-          const PopupMenuItem<String>(
+          PopupMenuItem<String>(
             value: 'delete',
-            child: Row(
-              children: [
-                Icon(Icons.delete, color: Colors.red),
-                SizedBox(width: 8),
-                Text("Delete"),
-              ],
+            child: _buildCustomMenuItem(
+              icon: Icons.delete,
+              iconColor: Colors.red,
+              text: 'Delete',
             ),
           ),
       ],
+    );
+  }
+
+  // 👇 Custom method to build each menu item as you like
+  Widget _buildCustomMenuItem({
+    required IconData icon,
+    required Color iconColor,
+    required String text,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      width: 100, // Customize width
+      child: Row(
+        children: [
+          Icon(icon, color: iconColor, size: 20),
+          const SizedBox(width: 16), // 👈 space between icon and text
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

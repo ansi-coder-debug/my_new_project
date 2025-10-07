@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
 
@@ -18,7 +19,7 @@ class AccountService {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     print("🔑 Access token: $token");
     final response = await _dio.get(
-      'http://192.168.29.29:5000/api/account',
+      '$HbaseUrl/account',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
     print("🌐 Raw Response: ${response.data}");
@@ -43,7 +44,7 @@ class AccountService {
   Future<Account> addAccount(Account account) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.post(
-      'http://192.168.29.29:5000/api/account',
+      '$HbaseUrl/account',
       data: account.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -57,7 +58,7 @@ class AccountService {
     }
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     final response = await _dio.put(
-      'http://192.168.29.29:5000/api/account/${account.id}',
+      '$HbaseUrl/account/${account.id}',
       data: account.toJson(),
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
@@ -68,7 +69,7 @@ class AccountService {
   Future<void> deleteAccount(String id) async {
     final token = _ref.read(authNotifierProvider).user?.accessToken;
     await _dio.delete(
-      'http://192.168.29.29:5000/api/account/$id',
+      '$HbaseUrl/account/$id',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }

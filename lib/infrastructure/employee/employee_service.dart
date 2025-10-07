@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/employee.dart';
 
 final employeeServiceProvider = Provider<EmployeeService>((ref) {
@@ -50,7 +51,7 @@ class EmployeeService {
     if (token == null) throw Exception('User not authenticated');
 
     final response = await _dio.get(
-      'http://192.168.29.29:5000/api/employees',
+      '$HbaseUrl/employees',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
@@ -95,7 +96,7 @@ class EmployeeService {
       if (token == null) throw Exception('User not authenticated');
 
       final response = await _dio.post(
-        'http://192.168.29.29:5000/api/employees', // Replace with your API URL
+        '$HbaseUrl/employees', // Replace with your API URL
         data: employee.toJson(),
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
@@ -118,7 +119,7 @@ class EmployeeService {
       if (token == null) throw Exception('User not authenticated');
 
       final response = await _dio.delete(
-        'http://192.168.29.29:5000/api/employees/$id', // Replace with your API URL
+        '$HbaseUrl/employees/$id', // Replace with your API URL
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
 
