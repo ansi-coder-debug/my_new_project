@@ -113,3 +113,27 @@ InputDecoration buildInputDecoration(String hintText, {IconData? icon}) {
     ),
   );
 }
+
+
+  Widget _buildIconButton(IconData icon, VoidCallback? onPressed) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: SizedBox(
+        width: 36,
+        height: 36,
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Icon(icon, size: 18),
+          style: IconButton.styleFrom(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: Colors.grey.shade300),
+            ),
+            padding: EdgeInsets.zero,
+            iconSize: 18,
+          ),
+        ),
+      ),
+    );
+  }

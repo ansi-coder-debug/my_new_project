@@ -35,7 +35,7 @@ class VehicleService {
         '$HbaseUrl/vehicles/paginated',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-
+          print('Raw response data: ${response.data}');
       
       if (response.statusCode == 200) {
         final data = response.data;

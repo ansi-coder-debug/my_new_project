@@ -4,7 +4,7 @@ import 'package:my_new_project/core/constants/constant.dart';
 class CustomDialog extends StatelessWidget {
   final String title;
   final Widget bodyContent;
-  final VoidCallback onSubmit;
+  final VoidCallback? onSubmit;
   final VoidCallback onCancel;
   final double? width;
   final double? height; // ✅ Manually adjustable height
@@ -13,7 +13,8 @@ class CustomDialog extends StatelessWidget {
     Key? key,
     required this.title,
     required this.bodyContent,
-    required this.onSubmit,
+    // required this.onSubmit,
+    this.onSubmit,
     required this.onCancel,
     this.width,
     this.height,

@@ -27,6 +27,7 @@ class _SaleFormState extends ConsumerState<SaleForm> {
   final _addressController = TextEditingController();
   final _dateController = TextEditingController();
 
+
   // Dropdown values
   String? _advancePayment;
   String? _selectedMode;
@@ -62,6 +63,7 @@ class _SaleFormState extends ConsumerState<SaleForm> {
       TextEditingController();
   final TextEditingController paymentStatusController = TextEditingController(
     text: 'Pending',
+
   );
 
   bool isReceivedEnabled = false;
@@ -477,6 +479,7 @@ class _SaleFormState extends ConsumerState<SaleForm> {
                             paymentStatus: paymentStatusController.text
                                 .trim()
                                 .toLowerCase(),
+
                           );
 
                           final brokerEntry = brokersList.isNotEmpty
@@ -494,6 +497,8 @@ class _SaleFormState extends ConsumerState<SaleForm> {
                                 .replaceAll(',', ''),
                             'sale_mode_of_payment': saleInfo.modeOfPayment,
                             'sale_payment_status': saleInfo.paymentStatus,
+  
+                            
 
                             // Single broker flattened fields
                             if (brokerEntry != null &&

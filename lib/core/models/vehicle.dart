@@ -1,3 +1,4 @@
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/brokerage.dart';
 import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/purchase.dart';
@@ -91,7 +92,19 @@ final Purchase purchaseInfo; // 👈 required field
   }
 
   factory Vehicle.fromJson(Map<String, dynamic> json) {
-    const baseUrl = 'http://192.168.29.29:5000'; // Your backend URL
+     print("Vehicle JSON: $json");  // debug print
+
+    const baseUrl = '$HbaseUrl'; // Your backend URL
+
+    // Parse saleInfo first so we can print it
+  SaleInfo? saleInfo;
+  if (json['sale_info'] != null) {
+    saleInfo = SaleInfo.fromJson(json['sale_info']);
+    print('🔥 SaleInfo JSON received: ${json['sale_info']}');
+    print('Sale Info object: $saleInfo');
+    print('Received in account: ${saleInfo.accountId}');
+    print('Address: ${saleInfo.address}');
+  }
     return Vehicle(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
       make: json['make'] ?? '',

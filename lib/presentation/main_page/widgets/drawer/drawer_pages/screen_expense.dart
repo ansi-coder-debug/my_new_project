@@ -28,7 +28,7 @@ class ScreenExpense extends ConsumerWidget {
               onBack: () {
                 //last index wanna do at later
               },
-              onFilter: ( ) {
+              onFilter: () {
                 // TODO: Open filter
               },
               onRefresh: () {
@@ -89,13 +89,62 @@ class ScreenExpense extends ConsumerWidget {
                           receivedLabel: "Paid",
                           showMenu: true,
                           onView: () {
-                            // You can show a dialog or navigate to a detail screen
+                            showDialog(
+                              context: context,
+                              builder: (_) =>
+                                  AddExpenseDialog(expense: expense,
+                                  isViewOnly: true,
+                                  // readOnly: true,
+                                  ),
+                            );
                           },
                           onEdit: () {
-                            debugPrint("Edit ${expense.expenseTypeName}");
+                            showDialog(
+                              context: context,
+                              builder: (_) =>
+                                  AddExpenseDialog(expense: expense,
+                                  isViewOnly: false,
+                                  
+                                  // readOnly: false,
+                                  ),
+                            );
                           },
-                          onDelete: () {
-                            debugPrint("Delete ${expense.expenseTypeName}");
+                          onDelete: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('Confirm Delete'),
+                                content: const Text(
+                                  'Are you sure you want to delete this expense?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true) {
+                              await ref
+                                  .read(expenseProvider.notifier)
+                                  .deleteExpense(expense.id!);
+                              ref.read(expenseProvider.notifier).loadExpenses();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Expense deleted"),
+                                  ),
+                                );
+                              }
+                            }
                           },
                         );
                       },
@@ -107,3 +156,12 @@ class ScreenExpense extends ConsumerWidget {
     );
   }
 }
+
+
+
+
+
+
+
+
+

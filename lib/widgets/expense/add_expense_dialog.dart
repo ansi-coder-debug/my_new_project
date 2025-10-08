@@ -1,289 +1,320 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:my_new_project/application/accounts/account_provider.dart';
-// import 'package:my_new_project/application/expense/expense_provider.dart';
-// import 'package:my_new_project/application/expensetype/expensetype_provider.dart';
-// import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
-// import 'package:my_new_project/core/models/account.dart';
-// import 'package:my_new_project/core/models/expense.dart';
-// import 'package:my_new_project/core/models/expensetype.dart';
-// import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/accounts/account_provider.dart';
+import 'package:my_new_project/application/expense/expense_provider.dart';
+import 'package:my_new_project/application/expensetype/expensetype_provider.dart';
+import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/account.dart';
+import 'package:my_new_project/core/models/expense.dart';
+import 'package:my_new_project/core/models/expensetype.dart';
+import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
 
-// class AddExpenseDialog extends ConsumerStatefulWidget {
-//   final Vehicle? vehicle;
-//   const AddExpenseDialog({super.key, this.vehicle});
+class AddExpenseDialog extends ConsumerStatefulWidget {
+  final Vehicle? vehicle;
+  final Expense? expense;
+  final bool isViewOnly;
 
-//   @override
-//   ConsumerState<AddExpenseDialog> createState() => _AddExpenseDialogState();
-// }
+  const AddExpenseDialog({
+    super.key,
+    this.vehicle,
+    this.expense,
+    this.isViewOnly = false,
+  });
 
-// class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
-//   final _formKey = GlobalKey<FormState>();
+  @override
+  ConsumerState<AddExpenseDialog> createState() => _AddExpenseDialogState();
+}
 
-//   ExpenseType? selectedExpenseType;
-//   Vehicle? selectedVehicle;
-//   Account? selectedAccount;
-//   DateTime selectedDate = DateTime.now();
+class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
+  bool isEdit = false;
+  bool get isViewOnly => widget.isViewOnly;
 
-//   final _amountController = TextEditingController();
-//   final _paidAmountController = TextEditingController();
-//   final _descriptionController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     selectedVehicle = widget.vehicle;
-//   }
+  ExpenseType? selectedExpenseType;
+  Vehicle? selectedVehicle;
+  Account? selectedAccount;
+  DateTime selectedDate = DateTime.now();
 
-//   @override
-//   void dispose() {
-//     _amountController.dispose();
-//     _paidAmountController.dispose();
-//     _descriptionController.dispose();
-//     super.dispose();
-//   }
+  final _amountController = TextEditingController();
+  final _paidAmountController = TextEditingController();
+  final _descriptionController = TextEditingController();
 
-//   InputDecoration _inputDecoration(String hintText, {IconData? icon}) {
-//     return InputDecoration(
-//       hintText: hintText,
-//       hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-//       filled: true,
-//       fillColor: const Color(0xFFF5F6FA),
-//       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-//       suffixIcon: icon != null ? Icon(icon, color: Colors.grey) : null,
-//       border: OutlineInputBorder(
-//         borderRadius: BorderRadius.circular(12),
-//         borderSide: BorderSide.none,
-//       ),
-//     );
-//   }
+  @override
+  void initState() {
+    super.initState();
+    selectedVehicle = widget.vehicle;
 
-//   Future<void> _submitForm() async {
-//     if (!_formKey.currentState!.validate()) return;
+    if (widget.expense != null) {
+      final e = widget.expense!;
+      _amountController.text = e.amount.toString();
+      _paidAmountController.text = e.expensePaid.toString();
+      _descriptionController.text = e.description ?? '';
+      selectedDate = e.date;
+      isEdit = !widget.isViewOnly;
 
-//     try {
-//       final double amount = double.parse(_amountController.text.trim());
-//       final double paid = double.parse(_paidAmountController.text.trim());
+      // Load related dropdown selections (optional - depends on data source)
+      Future.delayed(Duration.zero, () {
+        final vehicles = ref.read(vehicleProvider).vehicles;
+        final accounts = ref.read(accountProvider).accounts;
+        final types = ref.read(expenseTypeProvider).expenseTypes;
 
-//       final String paymentStatus =
-//           paid == amount ? 'paid' : (paid == 0 ? 'pending' : 'partial');
+        setState(() {
+          selectedVehicle = vehicles.firstWhere(
+            (v) => v.id == e.vehicleId.toString(),
+          );
+          selectedAccount = accounts.firstWhere(
+            (a) => a.id == e.fromAccount.toString(),
+          );
+          selectedExpenseType = types.firstWhere(
+            (t) => t.id == e.expenseTypeId,
+          );
+        });
+      });
+    }
+  }
 
-//       final newExpense = Expense(
-//         id: null,
-//         userId: 0,
-//         expenseTypeId: selectedExpenseType!.id!,
-//         vehicleId: int.tryParse(selectedVehicle!.id),
-//         fromAccount: int.parse(selectedAccount!.id!),
-//         amount: amount,
-//         description: _descriptionController.text.trim(),
-//         paymentStatus: paymentStatus,
-//         expensePaid: paid,
-//         date: selectedDate,
-//         employeeId: null,
-//       );
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _paidAmountController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
-//       await ref.read(expenseProvider.notifier).addExpense(newExpense);
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
 
-//       if (mounted) {
-//         Navigator.of(context).pop();
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Expense added successfully')),
-//         );
-//       }
-//     } catch (e) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         SnackBar(content: Text('Failed to add expense: $e')),
-//       );
-//     }
-//   }
+    try {
+      final double amount = double.parse(_amountController.text.trim());
+      final double paid = double.parse(_paidAmountController.text.trim());
 
-//   @override
-//   Widget build(BuildContext context) {
-//     final expenseTypeState = ref.watch(expenseTypeProvider);
-//     final vehicleState = ref.watch(vehicleProvider);
-//     final accountState = ref.watch(accountProvider);
+      final String paymentStatus = paid == amount
+          ? 'paid'
+          : (paid == 0 ? 'pending' : 'partial');
 
-//     final availableVehicles =
-//         vehicleState.vehicles.where((v) => v.status == 'available').toList();
+      final expense = Expense(
+        id: widget.expense?.id,
+        userId: 0,
+        expenseTypeId: selectedExpenseType!.id!,
+        vehicleId: int.tryParse(selectedVehicle!.id),
+        fromAccount: int.parse(selectedAccount!.id!),
+        amount: amount,
+        description: _descriptionController.text.trim(),
+        paymentStatus: paymentStatus,
+        expensePaid: paid,
+        date: selectedDate,
+        employeeId: null,
+      );
 
-//     return Dialog(
-//       backgroundColor: Colors.white,
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-//       child: Padding(
-//         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             // Title + Close
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 const Text(
-//                   "Add Expense",
-//                   style: TextStyle(
-//                     fontSize: 18,
-//                     fontWeight: FontWeight.w600,
-//                     color: Color(0xFF1B1B3A),
-//                   ),
-//                 ),
-//                 IconButton(
-//                   icon: const Icon(Icons.close, color: Color(0xFF1B1B3A)),
-//                   onPressed: () => Navigator.of(context).pop(),
-//                 )
-//               ],
-//             ),
-//             const SizedBox(height: 16),
+      final notifier = ref.read(expenseProvider.notifier);
 
-//             Form(
-//               key: _formKey,
-//               child: SingleChildScrollView(
-//                 child: Column(
-//                   children: [
-//                     // Date
-//                     TextFormField(
-//                       readOnly: true,
-//                       decoration: _inputDecoration("Date", icon: Icons.calendar_today),
-//                       controller: TextEditingController(
-//                         text: "${selectedDate.toLocal()}".split(' ')[0],
-//                       ),
-//                       onTap: () async {
-//                         final picked = await showDatePicker(
-//                           context: context,
-//                           initialDate: selectedDate,
-//                           firstDate: DateTime(2020),
-//                           lastDate: DateTime.now(),
-//                         );
-//                         if (picked != null) {
-//                           setState(() => selectedDate = picked);
-//                         }
-//                       },
-//                     ),
-//                     const SizedBox(height: 16),
+      if (widget.expense != null) {
+        await notifier.updateExpense(expense);
+      } else {
+        await notifier.addExpense(expense);
+      }
 
-//                     // Expense Type
-//                     DropdownButtonFormField<ExpenseType>(
-//                       value: selectedExpenseType,
-//                       decoration: _inputDecoration("Select Expense Type"),
-//                       items: expenseTypeState.expenseTypes.map((type) {
-//                         return DropdownMenuItem(
-//                           value: type,
-//                           child: Text(type.name),
-//                         );
-//                       }).toList(),
-//                       onChanged: (val) => setState(() => selectedExpenseType = val),
-//                       validator: (val) => val == null ? 'Please select expense type' : null,
-//                     ),
-//                     const SizedBox(height: 16),
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.expense != null ? 'Expense updated' : 'Expense added',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed: $e')));
+    }
+  }
 
-//                     // Vehicle
-//                     DropdownButtonFormField<Vehicle>(
-//                       value: selectedVehicle,
-//                       decoration: _inputDecoration("Select Vehicle"),
-//                       items: availableVehicles.map((vehicle) {
-//                         return DropdownMenuItem(
-//                           value: vehicle,
-//                           child: Text('${vehicle.model} - ${vehicle.registrationId}'),
-//                         );
-//                       }).toList(),
-//                       onChanged: widget.vehicle == null
-//                           ? (val) => setState(() => selectedVehicle = val)
-//                           : null,
-//                       validator: (val) => val == null ? 'Please select a vehicle' : null,
-//                     ),
-//                     const SizedBox(height: 16),
+  @override
+  Widget build(BuildContext context) {
+    final expenseTypeState = ref.watch(expenseTypeProvider);
+    final vehicleState = ref.watch(vehicleProvider);
+    final accountState = ref.watch(accountProvider);
 
-//                     // Amount
-//                     TextFormField(
-//                       controller: _amountController,
-//                       keyboardType: TextInputType.number,
-//                       decoration: _inputDecoration("Amount", icon: Icons.calculate),
-//                       validator: (val) =>
-//                           val == null || val.isEmpty ? 'Enter amount' : null,
-//                     ),
-//                     const SizedBox(height: 16),
+    final availableVehicles = vehicleState.vehicles
+        .where((v) => v.status == 'available')
+        .toList();
 
-//                     // Paid Amount
-//                     TextFormField(
-//                       controller: _paidAmountController,
-//                       keyboardType: TextInputType.number,
-//                       decoration: _inputDecoration("Paid Amount", icon: Icons.calculate),
-//                       validator: (val) =>
-//                           val == null || val.isEmpty ? 'Enter paid amount' : null,
-//                     ),
-//                     const SizedBox(height: 16),
+    return CustomDialog(
+      // width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+      width: MediaQuery.of(context).size.width,
+      title: isViewOnly
+          ? "View Expense"
+          : (widget.expense != null ? "Edit Expense" : "Add Expense"),
+      // onSubmit: _submitForm,
+    onSubmit: isViewOnly ? null : () => _submitForm(),
 
-//                     // Account
-//                     DropdownButtonFormField<Account>(
-//                       value: selectedAccount,
-//                       decoration: _inputDecoration("From Account"),
-//                       items: accountState.accounts.map((account) {
-//                         return DropdownMenuItem(
-//                           value: account,
-//                           child: Text(account.name),
-//                         );
-//                       }).toList(),
-//                       onChanged: (val) => setState(() => selectedAccount = val),
-//                       validator: (val) => val == null ? 'Please select account' : null,
-//                     ),
-//                     const SizedBox(height: 16),
 
-//                     // Description
-//                     TextFormField(
-//                       controller: _descriptionController,
-//                       maxLines: 2,
-//                       decoration: _inputDecoration("Description (Optional)"),
-//                     ),
-//                     const SizedBox(height: 24),
+      onCancel: () => Navigator.of(context).pop(),
+      bodyContent: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Date
+              FractionallySizedBox(
+                widthFactor: 0.5, // 50% width
 
-//                     // Buttons
-//                     Row(
-//                       mainAxisAlignment: MainAxisAlignment.end,
-//                       children: [
-//                         OutlinedButton(
-//                           onPressed: () => Navigator.of(context).pop(),
-//                           style: OutlinedButton.styleFrom(
-//                             side: const BorderSide(color: Color(0xFF1B1B3A)),
-//                             padding: const EdgeInsets.symmetric(
-//                                 horizontal: 20, vertical: 12),
-//                             shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(8)),
-//                           ),
-//                           child: const Text(
-//                             "Cancel",
-//                             style: TextStyle(
-//                               color: Color(0xFF1B1B3A),
-//                               fontWeight: FontWeight.w500,
-//                             ),
-//                           ),
-//                         ),
-//                         const SizedBox(width: 12),
-//                         ElevatedButton(
-//                           onPressed: _submitForm,
-//                           style: ElevatedButton.styleFrom(
-//                             backgroundColor: const Color(0xFF0A0A33),
-//                             padding: const EdgeInsets.symmetric(
-//                                 horizontal: 24, vertical: 12),
-//                             shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(8)),
-//                           ),
-//                           child: const Text(
-//                             "Submit",
-//                             style: TextStyle(
-//                                 color: Colors.white, fontWeight: FontWeight.bold),
-//                           ),
-//                         ),
-//                       ],
-//                     )
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+                child: TextFormField(
+                  readOnly: true,
+                  enabled: !isViewOnly,
+
+                  controller: TextEditingController(
+                    text:
+                        "${selectedDate.month.toString().padLeft(2, '0')}/"
+                        "${selectedDate.day.toString().padLeft(2, '0')}/"
+                        "${selectedDate.year}",
+                  ),
+                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                  decoration: buildInputDecoration(
+                    "Date",
+                    icon: Icons.calendar_today,
+                  ),
+                  onTap: isViewOnly
+                      ? null // Disable tap if view only
+                      : () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime.now(),
+                          );
+                          if (picked != null) {
+                            setState(() => selectedDate = picked);
+                          }
+                        },
+                ),
+              ),
+
+              KHeight16,
+
+              // Expense Type Dropdown
+              DropdownButtonFormField<ExpenseType>(
+                value: selectedExpenseType,
+                decoration: buildInputDecoration("Select Expense Type"),
+                items: expenseTypeState.expenseTypes.map((type) {
+                  return DropdownMenuItem(value: type, child: Text(type.name));
+                }).toList(),
+                onChanged: isViewOnly
+                    ? null
+                    : (val) => setState(() => selectedExpenseType = val),
+                validator: (val) =>
+                    val == null ? 'Please select expense type' : null,
+              ),
+              KHeight16,
+
+              // Vehicle Dropdown
+              DropdownButtonFormField<Vehicle>(
+                value: selectedVehicle,
+                decoration: buildInputDecoration("Select Vehicle"),
+                items: availableVehicles.map((vehicle) {
+                  return DropdownMenuItem(
+                    value: vehicle,
+                    child: Text('${vehicle.model} - ${vehicle.registrationId}'),
+                  );
+                }).toList(),
+                onChanged: isViewOnly
+                    ? null
+                    : (val) => setState(() => selectedVehicle = val),
+
+                validator: (val) =>
+                    val == null ? 'Please select a vehicle' : null,
+              ),
+              KHeight16,
+
+              // Amount
+              TextFormField(
+                controller: _amountController,
+                style: TextStyle(color: Colors.black),
+                enabled: !isViewOnly,
+                keyboardType: TextInputType.number,
+                decoration: buildInputDecoration(
+                  "Amount",
+                  icon: Icons.calculate,
+                ),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Enter amount' : null,
+              ),
+              KHeight16,
+
+              // Paid Amount
+              TextFormField(
+                controller: _paidAmountController,
+                enabled: !isViewOnly,
+                style: TextStyle(color: Colors.black),
+                keyboardType: TextInputType.number,
+                decoration: buildInputDecoration(
+                  "Paid Amount",
+                  icon: Icons.calculate,
+                ),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Enter paid amount' : null,
+              ),
+              KHeight16,
+
+              // Account Dropdown
+              DropdownButtonFormField<Account>(
+                value: selectedAccount,
+                decoration: buildInputDecoration("From Account"),
+                items: accountState.accounts.map((account) {
+                  return DropdownMenuItem(
+                    value: account,
+                    child: Text(account.name),
+                  );
+                }).toList(),
+                onChanged: isViewOnly
+                    ? null
+                    : (val) => setState(() => selectedAccount = val),
+                validator: (val) =>
+                    val == null ? 'Please select account' : null,
+              ),
+              KHeight16,
+
+              // Description
+              TextFormField(
+                controller: _descriptionController,
+                maxLines: 2,
+                decoration: buildInputDecoration("Description (Optional)"),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -300,9 +331,10 @@ import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
 
 class AddExpenseDialog extends ConsumerStatefulWidget {
   final Vehicle? vehicle;
+  
   const AddExpenseDialog({super.key, this.vehicle});
 
-  @override
+  @override 
   ConsumerState<AddExpenseDialog> createState() => _AddExpenseDialogState();
 }
 
@@ -514,3 +546,4 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
     );
   }
 }
+*/

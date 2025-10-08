@@ -1,30 +1,3 @@
-// class Sales {
-//   final String id; // ✅ Unique ID for each sale
-
-//   final String vehicleId;
-
-//   final String buyerName;
-
-//   final String buyerPhone;
-
-//   final String buyerAddress;
-
-//   final String modeOfPayment;
-
-//   final String date;
-
-//   Sales({
-//     required this.id,
-//     required this.vehicleId,
-//     required this.buyerName,
-//     required this.buyerPhone,
-//     required this.buyerAddress,
-//     required this.modeOfPayment,
-//     required this.date,
-//   });
-// }
-
-
 class SaleInfo {
   final String? id;
   final String name;
@@ -35,6 +8,8 @@ class SaleInfo {
   final String receivedPrice;
   final String modeOfPayment;
   final String paymentStatus;
+  final String? accountId;
+  final String? accountName; // holds the account name (e.g., "Federal Bank")
 
   SaleInfo({
     this.id,
@@ -46,9 +21,12 @@ class SaleInfo {
     required this.receivedPrice,
     required this.modeOfPayment,
     required this.paymentStatus,
+    this.accountId,
+    this.accountName,
   });
 
   factory SaleInfo.fromJson(Map<String, dynamic> json) {
+    print('🔥 SaleInfo JSON received: $json');
     return SaleInfo(
       id: json['id']?.toString(),
       name: json['name'] ?? '',
@@ -58,7 +36,10 @@ class SaleInfo {
       price: json['price']?.toString() ?? '0',
       receivedPrice: json['received_price']?.toString() ?? '0',
       modeOfPayment: json['mode_of_payment'] ?? '',
+
       paymentStatus: json['payment_status'] ?? 'pending',
+      accountId: json['account_id']?.toString(), // PARSE HERE
+      accountName: json['account_name'] ?? '', // NEW field added
     );
   }
 
@@ -79,6 +60,7 @@ class SaleInfo {
       'received_price': cleanNumeric(receivedPrice),
       'mode_of_payment': modeOfPayment,
       'payment_status': paymentStatus,
+      'account_id': accountId, // INCLUDE HERE TOO
     };
   }
 }
