@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/expense.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 
@@ -14,6 +15,7 @@ class ProfitSummaryCard extends StatelessWidget {
     required this.expenses,
   }) : super(key: key);
 
+  // Helper method to parse string to double safely
   double _parseAmount(String? value) {
     if (value == null) return 0.0;
     return double.tryParse(value.replaceAll(',', '')) ?? 0.0;
@@ -21,128 +23,121 @@ class ProfitSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   final purchasePrice = vehicle.purchaseInfo.price;
+    // Get purchase price directly from the vehicle model
+    final purchasePrice = vehicle.purchaseInfo.price;
+    // Get sale price from saleInfo
     final salePrice = _parseAmount(vehicle.saleInfo?.price);
-//     final totalExpenses = (expenses ?? []).fold<double>(
-//   0.0,
-//   (sum, e) => sum + (double.tryParse(e.amount.replaceAll(',', '')) ?? 0.0),
-// );
 
-final totalExpenses = (expenses ?? []).fold<double>(
+
+final totalExpenses = expenses.fold<double>(
   0.0,
   (sum, e) => sum + (e.amount ?? 0.0),
 );
 
 
-    final totalCost = purchasePrice + totalExpenses;
-    final profit = salePrice - totalCost;
+    // Total cost = purchase price + all expenses
+    final double totalCost = purchasePrice + totalExpenses;
 
-    final totalPartnerSharePercentage = vehicle.partnerships?.fold<double>(
+    // Gross profit = sale price - total cost
+    final double grossProfit = salePrice - totalCost;
+
+    // Calculate total partner share percentage
+    final double totalPartnerPercentage =
+        vehicle.partnerships?.fold<double>(
           0.0,
-          (sum, p) => sum + (double.tryParse(p.sharePercentage ?? '0') ?? 0),
+          (sum, p) => sum + (double.tryParse(p.sharePercentage ?? '0') ?? 0.0),
         ) ??
         0.0;
 
-    final ownerShare = profit * ((100 - totalPartnerSharePercentage) / 100);
+    // Owner's profit = gross profit * (100 - partner %) / 100
+    final double ownerProfit =
+        grossProfit * ((100.0 - totalPartnerPercentage) / 100.0);
 
-    final cardColor = profit > 0
-        ? Colors.green.shade50
-        : profit < 0
-            ? Colors.red.shade50
-            : Colors.grey.shade200;
+    // Partner payout = total profit - owner share
+    final double partnerPayout = grossProfit - ownerProfit;
+
+    // Color profit amount green if positive, red if negative, black if 0
+    final Color profitColor = grossProfit > 0
+        ? Colors.green
+        : grossProfit < 0
+        ? Colors.red
+        : Colors.black;
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 20),
       padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: cardColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: profit > 0
-              ? Colors.green
-              : profit < 0
-                  ? Colors.red
-                  : Colors.grey,
-          width: 1.5,
-        ),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Title
           Text(
-            "Profit Summary",
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-          ),
-          const SizedBox(height: 16),
-
-          _buildRow("Purchase Price", "₹${purchasePrice.toStringAsFixed(2)}"),
-          _buildRow("Total Expenses", "₹${totalExpenses.toStringAsFixed(2)}"),
-          _buildRow("Total Cost", "₹${totalCost.toStringAsFixed(2)}"),
-          _buildRow("Sale Price", "₹${salePrice.toStringAsFixed(2)}"),
-          const Divider(height: 24, color: Colors.black),
-          _buildRow(
-            "Total Profit",
-            "₹${profit.toStringAsFixed(2)}",
-            valueColor: profit > 0
-                ? Colors.green
-                : profit < 0
-                    ? Colors.red
-                    : Colors.black,
-          ),
-          _buildRow(
-            "Owner's Share",
-            "₹${ownerShare.toStringAsFixed(2)}",
-            valueColor: Colors.blueGrey,
-          ),
-
-          const SizedBox(height: 12),
-
-          if ((vehicle.partnerships?.isNotEmpty ?? false)) ...[
-            const Divider(height: 24),
-            Text(
-              "Partner Shares",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+            "Profit / Loss Summary",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
-            const SizedBox(height: 8),
-            ...vehicle.partnerships!.map((p) {
-              final sharePercent =
-                  double.tryParse(p.sharePercentage ?? '0') ?? 0.0;
-              final shareAmount = profit * (sharePercent / 100);
-              return _buildRow(
-                "${p.partnerName ?? 'Partner'} (${sharePercent.toStringAsFixed(0)}%)",
-                "₹${shareAmount.toStringAsFixed(2)}",
-              );
-            }).toList(),
-          ],
+          ),
+          KHeight,
+          const Divider(color: Colors.grey, thickness: 0.5),
+          KHeight,
+
+          // Data rows
+          _buildRow("Sale Price", _formatINR(salePrice)),
+          _buildRow("Total Cost", _formatINR(totalCost)),
+          _buildRow(
+            "Gross Profit",
+            _formatINR(grossProfit),
+            valueColor: profitColor,
+          ),
+          Kheight6,
+          _buildRow("Owners Profit", _formatINR(ownerProfit)),
+          _buildRow("Partners Payout", _formatINR(partnerPayout)),
         ],
       ),
     );
   }
 
+  // Helper to build one line row: Label on left, Value on right
   Widget _buildRow(String label, String value, {Color? valueColor}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label,
-              style: TextStyle(
-                color: Colors.black87,
-                fontWeight: FontWeight.w500,
-              )),
-          Text(value,
-              style: TextStyle(
-                color: valueColor ?? Colors.black,
-                fontWeight: FontWeight.bold,
-              )),
+           style:
+            TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold
+            )),
+
+          Text(
+            value,
+            style: TextStyle(
+              color: valueColor ?? Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  // Helper to format numbers like ₹1,50,000.00
+  String _formatINR(double amount) {
+    return "₹${amount.toStringAsFixed(2)}";
   }
 }

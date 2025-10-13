@@ -1,3 +1,5 @@
+import 'package:my_new_project/core/models/finance.dart';
+
 class SaleInfo {
   final String? id;
   final String name;
@@ -10,6 +12,9 @@ class SaleInfo {
   final String paymentStatus;
   final String? accountId;
   final String? accountName; // holds the account name (e.g., "Federal Bank")
+  final Finance? financeInfo;
+
+  
 
   SaleInfo({
     this.id,
@@ -23,6 +28,7 @@ class SaleInfo {
     required this.paymentStatus,
     this.accountId,
     this.accountName,
+    this.financeInfo
   });
 
   factory SaleInfo.fromJson(Map<String, dynamic> json) {
@@ -36,10 +42,13 @@ class SaleInfo {
       price: json['price']?.toString() ?? '0',
       receivedPrice: json['received_price']?.toString() ?? '0',
       modeOfPayment: json['mode_of_payment'] ?? '',
-
       paymentStatus: json['payment_status'] ?? 'pending',
       accountId: json['account_id']?.toString(), // PARSE HERE
       accountName: json['account_name'] ?? '', // NEW field added
+       // ✅ Parse nested finance_info using your existing Finance class
+    financeInfo: json['finance_info'] != null
+        ? Finance.fromJson(json['finance_info'])
+        : null,
     );
   }
 

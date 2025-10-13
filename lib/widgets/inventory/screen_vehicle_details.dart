@@ -2,17 +2,20 @@
 // import 'package:flutter/foundation.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 // import 'package:intl/intl.dart';
 // import 'package:my_new_project/application/expense/expense_provider.dart';
-
+// import 'package:my_new_project/application/finance/finance_provider.dart';
 // import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 // import 'package:my_new_project/core/constants/constant.dart';
-
 // import 'package:my_new_project/core/models/partnership.dart';
-
 // import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
 // import 'package:my_new_project/widgets/expense/add_expense_dialog.dart';
+// import 'package:my_new_project/widgets/inventory/highlight_reusable_card.dart';
+// import 'package:my_new_project/widgets/inventory/reusable_info_card.dart';
+// import 'package:my_new_project/widgets/inventory/reusable_section_card.dart';
+// import 'package:my_new_project/widgets/inventory/vehicle_info_card.dart';
+// import 'package:my_new_project/widgets/partnerships/add_partnership_details.dart';
+// import 'package:my_new_project/widgets/reusable/output_card.dart';
 // import 'package:my_new_project/widgets/sales/profit_summary_card.dart';
 // import 'package:my_new_project/widgets/sales/sale_form.dart';
 
@@ -38,12 +41,36 @@
 // class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
 //   String _selectedStatus = "available";
 
+//   @override
+//   void initState() {
+//     super.initState();
+
+//     // ⚠️ DON'T call ref.watch or ref.read for providers that depend on context here
+//     // So we delay that work to AFTER the first frame
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       // Load expenses if not already loaded
+//       ref.read(expenseProvider.notifier).loadExpenses();
+
+//       // Read vehicle and set status
+//       final vehicleState = ref.read(vehicleProvider);
+//       final vehicle = vehicleState.vehicles.firstWhere(
+//         (v) => v.id == widget.vehicleId,
+//         orElse: () => throw Exception("Vehicle not found"),
+//       );
+
+//       setState(() {
+//         _selectedStatus = vehicle.status.toLowerCase();
+//       });
+//     });
+//   }
+
 //   final List<String> _paymentModes = [
 //     "Cash",
 //     "Card",
 //     "Bank Transfer",
 //     "Finance",
 //   ];
+
 //   String? _selectedMode;
 
 //   void _deletePartnership(Partnership partnership) async {
@@ -78,17 +105,12 @@
 //     }
 //   }
 
-//   // keep this in your State
-
-//   bool _showExpenseForm = false;
-
-//   // sales inline
 //   // Controllers
 //   final TextEditingController _nameController = TextEditingController();
 //   final TextEditingController _phoneController = TextEditingController();
 //   final TextEditingController _addressController = TextEditingController();
 //   // Dropdown value
-//   String? _advancePayment; // 👈 add this line
+//   String? _advancePayment;
 //   final TextEditingController _dateController = TextEditingController();
 //   DateTime? _selectedDate;
 //   final DateFormat _dateFormat = DateFormat('dd-MM-yyyy');
@@ -100,7 +122,6 @@
 //     // Promote to non-nullable by assigning and returning early
 //     final vehicle = vehicleState.vehicles.firstWhere(
 //       (v) => v.id == widget.vehicleId,
-//       // orElse: () => ,
 //     );
 
 //     if (vehicle == null) {
@@ -108,27 +129,70 @@
 //     }
 
 //     final expenseState = ref.watch(expenseProvider);
+//     // final expenseForThisVehicle = expenseState.expenses
+//     //     .where((e) => e.vehicleId == vehicle.id)
+//     //     .toList();
 //     final expenseForThisVehicle = expenseState.expenses
-//         .where((e) => e.vehicleId == vehicle!.id)
+//         .where((e) => e.vehicleId.toString() == vehicle.id.toString())
 //         .toList();
 
 //     final totalExpenseAmount = expenseForThisVehicle.fold<double>(
 //       0.0,
-//       (sum, e) => sum + (double.tryParse(e.amount) ?? 0),
+//       (sum, e) => sum + e.amount,
+//       // (double.tryParse(e.amount) ?? 0),
 //     );
 
-//     //sold green card
+//     //Finance Details
+//     final allFinances = ref.watch(financeProvider).finances;
+//     final vehicleFinances = allFinances
+//         .where((f) => f.vehicleId == vehicle.id)
+//         .toList();
+
+
+//         // 🟢 Purchase Info
+// final double purchasePrice = double.tryParse('${vehicle.purchaseInfo?.price}') ?? 0.0;
+// final double purchasePaid = double.tryParse('${vehicle.purchaseInfo?.paidAmount }') ?? 0.0;
+// final double purchaseBalance = purchasePrice - purchasePaid;
+// final double buyingPrice = purchasePrice;//confusion
+
+
+// // 🟢 Sale Info
+// final double salePrice = double.tryParse(vehicle.saleInfo?.price ?? '0') ?? 0.0;
+// final double saleReceived = double.tryParse(vehicle.saleInfo?.receivedPrice ?? '0') ?? 0.0;
+// final double financeReceived =
+//     vehicle.saleInfo?.financeInfo?.receivedPrice ?? 0.0;
+// final double totalSaleReceived = saleReceived + financeReceived;
+// final double saleBalance = salePrice - totalSaleReceived;
+
+// // 🟢 Grand Total (purchase + expenses)
+// final double grandTotal = purchasePrice + totalExpenseAmount;
+
+// // 🟢 Brokerage
+// final double totalBrokerage = (vehicle.brokerageInfo ?? []).fold(
+//   0.0,
+//   (sum, item) => sum + (double.tryParse(item.amount ?? '0') ?? 0.0),
+// );
+
+// // 🟢 Profit Calculations
+// final double grossProfit = salePrice - grandTotal - totalBrokerage;
+// final double partnerProfitShare = 0.0; // set dynamically if needed
+// final double ownerProfit = grossProfit - partnerProfitShare;
+
+
+ 
+
+
 
 //     return Scaffold(
-//       body: SingleChildScrollView(
-//         padding: EdgeInsets.all(16),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start, //align all left
-//           children: [
-//             Column(
+//       body: Column(
+//         children: [
+//           // Fixed Header Section
+//           Padding(
+//             padding: const EdgeInsets.all(16.0),
+//             child: Column(
 //               crossAxisAlignment: CrossAxisAlignment.start,
 //               children: [
-//                 // First line: Back button
+//                 // Back Button
 //                 Container(
 //                   decoration: BoxDecoration(
 //                     border: Border.all(color: Colors.black54),
@@ -140,8 +204,21 @@
 //                   ),
 //                 ),
 
-//                 const SizedBox(height: 20), // spacing between lines
-//                 // Second line: Edit + Delete buttons (aligned right)
+//                 KHeight16,
+
+//                 // Vehicle Title
+//                 Text(
+//                   "${vehicle.make} ${vehicle.model} (${vehicle.year}) ${vehicle.registrationId}",
+//                   style: const TextStyle(
+//                     color: Colors.black,
+//                     fontSize: 20,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
+
+//                 KHeight16,
+
+//                 // Edit + Delete buttons
 //                 Row(
 //                   mainAxisAlignment: MainAxisAlignment.end,
 //                   children: [
@@ -152,15 +229,11 @@
 //                         border: Border.all(color: Colors.blueAccent),
 //                         borderRadius: BorderRadius.circular(8),
 //                       ),
-
 //                       child: IconButton(
 //                         onPressed: () {
-//                           print('IconButton pressed');
 //                           ref
 //                               .read(vehicleProvider.notifier)
 //                               .setVehicleToEdit(vehicle);
-
-//                           // Notify parent widget about edit action (optional)
 //                           if (widget.onEdit != null) {
 //                             widget.onEdit!();
 //                           }
@@ -192,838 +265,443 @@
 //                 ),
 //               ],
 //             ),
+//           ),
 
-//             KHeight16,
-//             Text(
-//               "${vehicle.make} ${vehicle.model} (${vehicle.model})",
-//               style: const TextStyle(
-//                 color: Colors.black,
-//                 fontSize: 20,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             KHeight16,
-//             Text(
-//               vehicle.registrationId,
-//               style: const TextStyle(fontSize: 16, color: Colors.black),
-//             ),
-//             KHeight16,
-
-//             // cost Acquisition Card
-//             Container(
-//               width: double.infinity,
+//           // Scrollable Content Section
+//           Expanded(
+//             child: SingleChildScrollView(
 //               padding: const EdgeInsets.all(16),
-//               decoration: BoxDecoration(
-//                 borderRadius: BorderRadius.circular(16),
-//                 gradient: const LinearGradient(
-//                   colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
-//                   begin: Alignment.center,
-//                   end: Alignment.bottomCenter,
-//                 ),
-//               ),
 //               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
 //                 children: [
-//                   const Text(
-//                     "Total Cost of Acquisition",
-//                     style: TextStyle(color: Colors.white, fontSize: 14),
-//                   ),
-//                   KHeight,
-//                   Text(
-//                     "₹${vehicle.purchaseInfo.price}",
-//                     style: const TextStyle(
-//                       color: Colors.white,
-//                       fontSize: 26,
-//                       fontWeight: FontWeight.bold,
-//                     ),
-//                   ),
-//                   KHeight,
-
-//                   Text(
-//                     "(Buying Price: ₹${vehicle.purchaseInfo.price} + Total Expenses: ₹${totalExpenseAmount.toStringAsFixed(2)})",
-
-//                     style: const TextStyle(color: Colors.white70, fontSize: 12),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//             KHeight20,
-
-//             //total profit
-//             if (vehicle.status.toLowerCase() == "sold") ...[
-//               Container(
-//                 width: double.infinity,
-//                 padding: const EdgeInsets.all(16),
-//                 decoration: BoxDecoration(
-//                   borderRadius: BorderRadius.circular(16),
-//                   gradient: const LinearGradient(
-//                     colors: [Color(0xFF43A047), Color(0xFF2E7D32)],
-//                     begin: Alignment.center,
-//                     end: Alignment.bottomCenter,
-//                   ),
-//                 ),
-//                 child: Column(
-//                   children: [
-//                     const Text(
-//                       "Total Profit",
-//                       style: TextStyle(color: Colors.white, fontSize: 14),
-//                     ),
-//                     const SizedBox(height: 8),
-//                     Text(
-//                       "total profit",
-//                       // "₹${totalProfit.toStringAsFixed(0)}",
-//                       style: const TextStyle(
-//                         color: Colors.white,
-//                         fontSize: 26,
-//                         fontWeight: FontWeight.bold,
+//                    // 1. Always show Cost of Acquisition
+//                    HighlightCard(
+//                     title: "Total Cost of Acquisition",
+//                      amount:  "₹${grandTotal.toStringAsFixed(0)}",
+//                      breakdown: "(Buying Price: ₹${buyingPrice.toStringAsFixed(0)} + Expenses: ₹${totalExpenseAmount.toStringAsFixed(0)})",
+//                       backgroundColor: const Color(0xFF1565C0),
 //                       ),
+//                    /// 2. Show Purchase Balance if vehicle is not sold
+//     if (vehicle.status.toLowerCase() != 'sold' && purchaseBalance > 0)
+//       HighlightCard(
+//         title: "Purchase Balance",
+//         amount: "₹${purchaseBalance.toStringAsFixed(0)}",
+//         breakdown: "(Total: ₹${purchasePrice.toStringAsFixed(0)} - Paid: ₹${purchasePaid.toStringAsFixed(0)})",
+//         backgroundColor: Colors.orange.shade700,
+//       ),
+
+//     /// 3. If sold, show sale balance and profit
+//     if (vehicle.status.toLowerCase() == 'sold') ...[
+//       if (saleBalance != 0)
+//         HighlightCard(
+//           title: "Sale Balance",
+//           amount: "₹${saleBalance.toStringAsFixed(0)}",
+//           breakdown: "(Sale Amount: ₹${salePrice.toStringAsFixed(0)} - Received: ₹${totalSaleReceived.toStringAsFixed(0)})",
+//           backgroundColor: Colors.deepPurple.shade700,
+//         ),
+
+//       HighlightCard(
+//         title: grossProfit >= 0 ? "Total Profit" : "Total Loss",
+//         amount: "₹${grossProfit.toStringAsFixed(0)}",
+//         breakdown: "(Owner: ₹${ownerProfit.toStringAsFixed(0)} + Partners: ₹${partnerProfitShare.toStringAsFixed(0)})",
+//         backgroundColor: grossProfit >= 0 ? Colors.green.shade700 : Colors.red.shade700,
+//       ),
+//     ],
+       
+//          // Profit Summary or Sale Form
+//      if (vehicle.status.toLowerCase() == "sold") ...[
+//                     ProfitSummaryCard(
+//                       vehicle: vehicle,
+//                       expenses: expenseForThisVehicle,
 //                     ),
-//                     const SizedBox(height: 8),
-//                     Text(
-//                       "ownera profit",
-//                       // "(Owner Profit: ₹${ownerProfit.toStringAsFixed(0)} + Partners Profit: ₹${partnersProfit.toStringAsFixed(0)})",
-//                       style: const TextStyle(
-//                         color: Colors.white70,
-//                         fontSize: 12,
-//                       ),
-//                     ),
+//                   ] else if (_selectedStatus == "sold") ...[
+//                     SaleForm(vehicle: vehicle),
 //                   ],
-//                 ),
-//               ),
-//               const SizedBox(height: 20),
-//             ],
+//   ],
+// ),
 
-//             //vehicle image
-//             ClipRRect(
-//               borderRadius: BorderRadius.circular(12),
-//               child: AspectRatio(
-//                 aspectRatio: 16 / 9,
-//                 child: vehicle.photos.isNotEmpty
-//                     ? PageView.builder(
-//                         itemCount: vehicle.photos.length,
-//                         itemBuilder: (context, index) {
-//                           return Image.network(
-//                             vehicle.photos[index],
-//                             fit: BoxFit.cover,
-//                           );
-//                         },
-//                       )
-//                     : Image.network(
-//                         "https://wallpaperaccess.com/full/472325.jpg", // fallback if no photo
-//                         fit: BoxFit.cover,
-//                       ),
-//               ),
-//             ),
+              
 
-//             KHeight16,
-
-//             // ================= Vehicle Info & Status Section =================
-//             Container(
-//               width: double.infinity,
-//               padding: const EdgeInsets.all(12),
-//               decoration: BoxDecoration(
-//                 borderRadius: BorderRadius.circular(8),
-//                 color: Colors.white,
-//                 border: Border.all(color: Colors.grey.shade300),
-//               ),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   const Text(
-//                     "Vehicle Information",
-//                     style: TextStyle(
-//                       fontSize: 30,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.black,
-//                     ),
-//                   ),
-//                   const Divider(color: Colors.grey),
-
-//                   const SizedBox(height: 8),
-
-//                   // Color
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Color:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(
-//                         height: 5,
-//                       ), // Add a small space after the label
-//                       Text(
-//                         vehicle.color,
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   KHeight,
-
-//                   // Mileage
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Mileage:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         "${vehicle.mileage} km",
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   KHeight,
-
-//                   // Fuel Type
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Fuel Type:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         vehicle.fuelType,
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   KHeight,
-
-//                   // Purchase Date
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Purchase Date:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         vehicle.purchaseInfo.date.toString().split("T").first,
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   KHeight,
-
-//                   // Notes
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Notes:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         vehicle.description ?? "No additional notes.",
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(
-//                     height: 12,
-//                   ), // Adjust spacing before the status
-
-//                   const Divider(
-//                     color: Colors.grey,
-//                   ), // Add a divider between sections
-
-//                   const SizedBox(height: 12),
-
-//                   // Status section (now inside the same container)
-//                   Row(
-//                     children: [
-//                       const Text(
-//                         "Status:",
-//                         style: TextStyle(
-//                           fontSize: 16,
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(width: 8),
-//                       Expanded(
-//                         // Wrap the dropdown button in an expanded widget
-//                         child: Container(
-//                           padding: EdgeInsets.symmetric(
-//                             horizontal: 6,
-//                             vertical: 2,
-//                           ),
-//                           decoration: BoxDecoration(
-//                             border: Border.all(color: Colors.grey.shade400),
-//                             borderRadius: BorderRadius.circular(8),
-//                           ),
-//                           child: DropdownButton<String>(
-//                             isExpanded:
-//                                 true, // This helps the dropdown fill available space
-//                             value: _selectedStatus,
-//                             underline: const SizedBox(),
-//                             borderRadius: BorderRadius.circular(8),
-//                             items: const [
-//                               DropdownMenuItem(
-//                                 value: "available",
-//                                 child: Text("Available"),
-//                               ),
-//                               DropdownMenuItem(
-//                                 value: "maintenance",
-//                                 child: Text("Maintenance"),
-//                               ),
-//                               DropdownMenuItem(
-//                                 value: "sold",
-//                                 child: Text("Sold"),
-//                               ),
-//                             ],
-//                             onChanged: (value) async {
-//                               if (value == null) return;
-
-//                               setState(() {
-//                                 _selectedStatus = value;
-//                               });
-
-//                               try {
-//                                 await ref
-//                                     .read(vehicleRepositoryProvider)
-//                                     .updateVehicleStatus(vehicle.id, value);
-
-//                                 ScaffoldMessenger.of(context).showSnackBar(
-//                                   SnackBar(
-//                                     content: Text("Status updated to $value"),
-//                                   ),
+//                   // Vehicle Image
+//                   ClipRRect(
+//                     borderRadius: BorderRadius.circular(12),
+//                     child: AspectRatio(
+//                       aspectRatio: 16 / 9,
+//                       child: vehicle.photos.isNotEmpty
+//                           ? PageView.builder(
+//                               itemCount: vehicle.photos.length,
+//                               itemBuilder: (context, index) {
+//                                 return Image.network(
+//                                   vehicle.photos[index],
+//                                   fit: BoxFit.cover,
 //                                 );
-//                               } catch (e) {
-//                                 ScaffoldMessenger.of(context).showSnackBar(
-//                                   const SnackBar(
-//                                     content: Text("Failed to update status"),
-//                                   ),
-//                                 );
-//                               }
-//                             },
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   //
-//                 ],
-//               ),
-//             ),
-
-//             KHeight16,
-
-//             // // Now conditionally render when status == "sold"
-//             // if (_selectedStatus == "sold") ...[
-//             // SaleForm(vehicle: vehicle,)
-//             // ],
-
-//             // ✅ Instead of this
-//             // if (_selectedStatus == "sold") ...[
-//             //   SaleForm(vehicle: vehicle,)
-//             // ],
-
-//             // ✅ Do this
-//             if (vehicle.status.toLowerCase() == "sold") ...[
-//               ProfitSummaryCard(
-//                 vehicle: vehicle,
-//                 expenses:
-//                     expenseForThisVehicle, // Make sure this is a List<Expense>
-//               ),
-//             ] else if (_selectedStatus == "sold") ...[
-//               SaleForm(vehicle: vehicle),
-//             ],
-
-//             // ================= Seller Details Section =================
-//             KHeight30,
-//             Container(
-//               width: double.infinity,
-//               padding: const EdgeInsets.all(12),
-//               decoration: BoxDecoration(
-//                 borderRadius: BorderRadius.circular(8),
-//                 color: Colors.white,
-//                 border: Border.all(color: Colors.grey.shade300),
-//               ),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   const Text(
-//                     "Seller Details",
-//                     style: TextStyle(
-//                       fontSize: 30,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.black,
-//                     ),
-//                   ),
-//                   const Divider(color: Colors.grey),
-
-//                   KHeight,
-
-//                   // Name
-//                   Column(
-//                     children: [
-//                       const Text(
-//                         "Name:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         vehicle.purchaseInfo.name,
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   KHeight,
-
-//                   // Phone
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Phone:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         vehicle.purchaseInfo.phone,
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   KHeight,
-
-//                   // Address
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Address:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         vehicle.purchaseInfo.address,
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   KHeight,
-
-//                   // Payment Mode
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Payment Mode:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         vehicle.purchaseInfo.modeOfPayment,
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                   KHeight,
-
-//                   // Buying Price
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const Text(
-//                         "Buying Price:",
-//                         style: TextStyle(
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       const SizedBox(height: 5),
-//                       Text(
-//                         vehicle.purchaseInfo.price.toString(),
-//                         style: const TextStyle(color: Colors.black),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-
-//             // Add this section after the Seller Details section and before the ElevatedButton
-
-//             // Expenses Section
-//             KHeight30,
-
-//             Container(
-//               width: double.infinity,
-//               padding: EdgeInsets.all(
-//                 20,
-//               ), // More generous padding like original
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 borderRadius: BorderRadius.circular(12),
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.black12,
-//                     blurRadius: 6,
-//                     offset: Offset(0, 2),
-//                   ),
-//                 ],
-//               ),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   // Expenses Header with + Button
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       const Text(
-//                         "Expenses",
-//                         style: TextStyle(
-//                           fontSize: 16,
-//                           fontWeight: FontWeight.w600,
-//                           color: Colors.black,
-//                           decoration: TextDecoration.underline,
-//                         ),
-//                       ),
-
-//                       IconButton(
-//                         onPressed: () {
-//                           showModalBottomSheet(
-//                             context: context,
-//                             isScrollControlled: true,
-//                             backgroundColor: Colors.transparent,
-//                             builder: (context) {
-//                               return DraggableScrollableSheet(
-//                                 initialChildSize: 0.8,
-//                                 minChildSize: 0.4,
-//                                 maxChildSize: 0.95,
-//                                 expand: false,
-//                                 builder: (context, scrollController) {
-//                                   return SingleChildScrollView(
-//                                     controller: scrollController,
-//                                     child: AddExpenseDialog(
-//                                       vehicle: vehicle,
-//                                       // onSubmit: (data) {
-//                                       //   // Handle submit logic
-//                                       // },
-//                                     ),
-//                                   );
-//                                 },
-//                               );
-//                             },
-//                           );
-//                         },
-//                         icon: const Icon(Icons.add, color: Colors.blue),
-//                         style: IconButton.styleFrom(
-//                           backgroundColor: Colors.white,
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(8),
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-
-//                   SizedBox(height: 40), // Increased spacing
-//                   // Body (empty state)
-//                   expenseForThisVehicle.isEmpty
-//                       ? Center(
-//                           child: Text(
-//                             "No expenses have been recorded for this vehicle.",
-//                             style: TextStyle(
-//                               color: Colors.black,
-//                               fontSize: 14,
-//                               fontWeight: FontWeight.bold,
+//                               },
+//                             )
+//                           : Image.network(
+//                               "https://wallpaperaccess.com/full/472325.jpg",
+//                               fit: BoxFit.cover,
 //                             ),
-//                             textAlign: TextAlign.center,
-//                           ),
-//                         )
-//                       : Column(
-//                           children: expenseForThisVehicle.map((expense) {
-//                             return ListTile(
-//                               title: Text("₹${expense.amount}"),
-//                               subtitle: Text(
-//                                 "${expense.description ?? "No description"}",
-//                               ),
-//                               trailing: Text(expense.date),
-//                             );
-//                           }).toList(),
-//                         ),
-//                 ],
-//               ),
-//             ),
-
-//             // partnership dialog
-//             KHeight20,
-//             Container(
-//               width: double.infinity,
-//               padding: EdgeInsets.all(
-//                 20,
-//               ), // More generous padding like original
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 borderRadius: BorderRadius.circular(12),
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Colors.black12,
-//                     blurRadius: 6,
-//                     offset: Offset(0, 2),
+//                     ),
 //                   ),
-//                 ],
-//               ),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   // Expenses Header with + Button
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       const Text(
-//                         "Partnerships",
-//                         style: TextStyle(
-//                           fontSize: 16,
-//                           fontWeight: FontWeight.w600,
-//                           color: Colors.black,
-//                           decoration: TextDecoration.underline,
-//                         ),
+//                   KHeight16,
+
+//                   // Vehicle Information Section
+//                   VehicleInfoCard(
+//                     vehicle: vehicle,
+//                     selectedStatus: _selectedStatus,
+//                     onStatusChanged: (newStatus) async {
+//                       setState(() {
+//                         _selectedStatus = newStatus;
+//                       });
+
+//                       try {
+//                         await ref
+//                             .read(vehicleRepositoryProvider)
+//                             .updateVehicleStatus(vehicle.id, newStatus);
+
+//                         ScaffoldMessenger.of(context).showSnackBar(
+//                           SnackBar(
+//                             content: Text("Status updated to $newStatus"),
+//                           ),
+//                         );
+//                       } catch (e) {
+//                         ScaffoldMessenger.of(context).showSnackBar(
+//                           const SnackBar(
+//                             content: Text("Failed to update status"),
+//                           ),
+//                         );
+//                       }
+//                     },
+//                   ),
+
+//                   // Profit Summary or Sale Form
+//                   // if (vehicle.status.toLowerCase() == "sold") ...[
+//                   //   ProfitSummaryCard(
+//                   //     vehicle: vehicle,
+//                   //     expenses: expenseForThisVehicle,
+//                   //   ),
+//                   // ] else if (_selectedStatus == "sold") ...[
+//                   //   SaleForm(vehicle: vehicle),
+//                   // ],
+             
+                  
+//                   KHeight30,
+
+//                   // Seller Details Section
+//                   ReusableInfoCard(
+//                     title: "Seller Details",
+//                     dataRows: [
+//                       MapEntry("Name", vehicle.purchaseInfo.name),
+//                       MapEntry("Phone", vehicle.purchaseInfo.phone),
+//                       MapEntry("Address", vehicle.purchaseInfo.address),
+//                       MapEntry(
+//                         "Payment Mode",
+//                         vehicle.purchaseInfo.modeOfPayment,
+//                       ),
+//                       MapEntry(
+//                         "Buying Price",
+//                         vehicle.purchaseInfo.paidAmount.toString(),
 //                       ),
 //                     ],
 //                   ),
+//                   KHeight20,
 
-//                   SizedBox(height: 40), // Increased spacing
-//                   // Body (empty state)
-//                   vehicle.partnerships != null &&
-//                           vehicle.partnerships!.isNotEmpty
-//                       ? ListView.separated(
-//                           shrinkWrap: true,
-//                           physics: NeverScrollableScrollPhysics(),
-//                           itemCount: vehicle.partnerships!.length,
-//                           separatorBuilder: (_, __) => Divider(),
-//                           itemBuilder: (context, index) {
-//                             final partnership = vehicle.partnerships![index];
-//                             return ListTile(
-//                               title: Text(
-//                                 partnership.partnerName ?? 'Unnamed Partner',
-//                                 style: TextStyle(fontWeight: FontWeight.bold),
-//                               ),
-//                               subtitle: Column(
-//                                 crossAxisAlignment: CrossAxisAlignment.start,
-//                                 children: [
-//                                   if (partnership.contribution != null)
-//                                     Text(
-//                                       'Contribution: ₹${partnership.contribution}',
-//                                     ),
-//                                   if (partnership.sharePercentage != null)
-//                                     Text(
-//                                       'Profit Share: ${partnership.sharePercentage}%',
-//                                     ),
-//                                   if (partnership.paymentMode != null)
-//                                     Text(
-//                                       'Payment Mode: ${partnership.paymentMode}',
-//                                     ),
-//                                   if (partnership.contributionStatus != null)
-//                                     Text(
-//                                       'Status: ${partnership.contributionStatus}',
-//                                     ),
-//                                 ],
-//                               ),
-//                               trailing: IconButton(
-//                                 icon: Icon(Icons.delete, color: Colors.red),
-//                                 onPressed: () {
-//                                   _deletePartnership(partnership);
-//                                 },
+//                   ReusableInfoCard(
+//                     title: "Buyer Details",
+//                     dataRows: [
+//                       MapEntry("Name", vehicle.saleInfo?.name ?? ""),
+//                       MapEntry("Phone", vehicle.saleInfo?.phone ?? ""),
+//                       MapEntry("Address", vehicle.saleInfo?.address ?? ""),
+//                       MapEntry(
+//                         "Sale Price",
+//                         vehicle.saleInfo?.price?.toString() ?? "",
+//                       ),
+//                       MapEntry(
+//                         "Sale Date",
+//                         vehicle.saleInfo?.date?.toString() ?? "",
+//                       ),
+//                       MapEntry(
+//                         "Payment Mode",
+//                         vehicle.saleInfo?.modeOfPayment ?? "",
+//                       ),
+//                       MapEntry(
+//                         "Payment Status",
+//                         vehicle.saleInfo?.paymentStatus ?? "",
+//                       ),
+//                     ],
+//                   ),
+//                   KHeight30,
+
+//                   // Expenses Section
+//                   ReusableSectionCard(
+//                     title: "Expenses",
+//                     isAddEnabled: vehicle.status.toLowerCase() != 'sold',
+//                     onAddPressed: () {
+//                       showDialog(
+//                         context: context,
+//                         builder: (context) {
+//                           return AddExpenseDialog(vehicle: vehicle);
+//                         },
+//                       );
+//                     },
+//                     isEmpty: expenseForThisVehicle.isEmpty,
+//                     emptyMessage:
+//                         "No expenses have been recorded for this vehicle.",
+//                     children: [
+//                       ...expenseForThisVehicle.map((expense) {
+//                         final date = DateFormat('d/M/y').format(expense.date);
+
+//                         return OutputCard(
+//                           title:
+//                               expense.expenseTypeName?.toUpperCase() ??
+//                               "UNKNOWN",
+//                           subtitle: "${expense.paymentStatus} - $date",
+//                           amount: expense.amount,
+//                           received: expense.expensePaid,
+//                           receivedLabel: "Paid",
+//                           showMenu: true,
+//                           onView: () {
+//                             showDialog(
+//                               context: context,
+//                               builder: (_) => AddExpenseDialog(
+//                                 vehicle: vehicle,
+//                                 expense: expense,
+//                                 isViewOnly: true,
 //                               ),
 //                             );
 //                           },
-//                         )
-//                       : Center(
-//                           child: Text(
-//                             "No partnerships have been recorded for this vehicle.",
-//                             style: TextStyle(
-//                               color: Colors.black,
-//                               fontSize: 14,
-//                               fontWeight: FontWeight.bold,
-//                             ),
-//                             textAlign: TextAlign.center,
-//                             softWrap: true,
-//                           ),
-//                         ),
+//                           onEdit: () {
+//                             showDialog(
+//                               context: context,
+//                               builder: (_) => AddExpenseDialog(
+//                                 vehicle: vehicle,
+//                                 expense: expense,
+//                                 isViewOnly: false,
+//                               ),
+//                             );
+//                           },
+//                           onDelete: () async {
+//                             final confirm = await showDialog<bool>(
+//                               context: context,
+//                               builder: (_) => AlertDialog(
+//                                 title: const Text('Confirm Delete'),
+//                                 content: const Text(
+//                                   'Are you sure you want to delete this expense?',
+//                                 ),
+//                                 actions: [
+//                                   TextButton(
+//                                     onPressed: () =>
+//                                         Navigator.pop(context, false),
+//                                     child: const Text('Cancel'),
+//                                   ),
+//                                   ElevatedButton(
+//                                     onPressed: () =>
+//                                         Navigator.pop(context, true),
+//                                     child: const Text('Delete'),
+//                                   ),
+//                                 ],
+//                               ),
+//                             );
+
+//                             if (confirm == true) {
+//                               await ref
+//                                   .read(expenseProvider.notifier)
+//                                   .deleteExpense(expense.id!);
+//                               ref.read(expenseProvider.notifier).loadExpenses();
+//                               if (context.mounted) {
+//                                 ScaffoldMessenger.of(context).showSnackBar(
+//                                   const SnackBar(
+//                                     content: Text("Expense deleted"),
+//                                   ),
+//                                 );
+//                               }
+//                             }
+//                           },
+//                         );
+//                       }).toList(),
+//                     ],
+//                   ),
+//                   KHeight20,
+
+//                   // Partnership Section
+//                   ReusableSectionCard(
+//                     title: "Partnership",
+//                     isAddEnabled: vehicle.status.toLowerCase() != 'sold',
+//                     // onAddPressed: (){
+//                     //  // dont have a add option
+//                     // },
+//                     isEmpty:
+//                         vehicle.partnerships == null ||
+//                         vehicle.partnerships!.isEmpty,
+//                     emptyMessage:
+//                         "No partnerships have been recorded for this vehicle.",
+//                     children: vehicle.partnerships != null
+//                         ? vehicle.partnerships!.map((partnership) {
+//                             final contribution =
+//                                 double.tryParse(
+//                                   partnership.contribution ?? '0',
+//                                 ) ??
+//                                 0.0;
+//                             final received = contribution;
+
+//                             // Optional: calculate dynamic label
+//                             String status;
+//                             if (received >= contribution && contribution > 0) {
+//                               status = 'paid';
+//                             } else if (received > 0 &&
+//                                 received < contribution) {
+//                               status = 'partial';
+//                             } else {
+//                               status = 'pending';
+//                             }
+
+//                             final receivedLabel =
+//                                 status[0].toUpperCase() + status.substring(1);
+
+//                             return OutputCard(
+//                               title:
+//                                   partnership.partnerName ?? 'Unnamed Partner',
+//                               subtitle: vehicle.make + ' ' + vehicle.model,
+//                               amount: contribution,
+//                               received: received,
+//                               receivedLabel: receivedLabel,
+//                               paymentMode: partnership.paymentMode,
+//                               status: status,
+//                               showMenu: true,
+//                               onEdit: () {},
+//                               onDelete: () {},
+//                               onView: () {},
+//                             );
+//                           }).toList()
+//                         : [],
+//                   ),
+
+                  
+//                   // Finance Details Section (if sold)
+//                   if (_selectedStatus == "sold") ...[
+//                     KHeight20,
+
+//                     ReusableSectionCard(
+//                       title: "Finance Details",
+//                       isEmpty: vehicleFinances.isEmpty,
+//                       emptyMessage:
+//                           "No Financial details have been recorded for this vehicle.",
+//                       children: vehicleFinances.map((finance) {
+//                         final vehicleName =
+//                             finance.vehicle?.name ?? 'Unknown Vehicle';
+//                         final financierName =
+//                             finance.financier?.companyName ??
+//                             'Unknown Financier';
+//                         final amount = finance.amount;
+//                         final received = finance.receivedPrice;
+//                         final paymentMode = finance.toAccount ?? 'Unknown';
+//                         final status = finance.paymentStatus ?? 'Unknown';
+
+//                         // Dynamic label logic
+//                         String receivedLabel;
+//                         if (received >= amount && amount > 0) {
+//                           receivedLabel = 'Paid';
+//                         } else if (received > 0 && received < amount) {
+//                           receivedLabel = 'Partial';
+//                         } else {
+//                           receivedLabel = 'Pending';
+//                         }
+
+//                         return OutputCard(
+//                           title: vehicleName.toUpperCase(),
+//                           subtitle: financierName,
+//                           amount: amount,
+//                           received: received,
+//                           balance: amount - received,
+//                           receivedLabel: receivedLabel,
+//                           paymentMode: paymentMode,
+//                           status: status,
+//                           receivedLabelColor: Colors.green,
+//                           showBalanceBelowPaid: true,
+//                           showMenu: true,
+//                           onView: () {
+//                             // Optional: show view-only dialog
+//                           },
+//                           onEdit: () {
+//                             // Optional: show edit form
+//                           },
+//                           onDelete: () {
+//                             // Optional: confirm and delete
+//                           },
+//                         );
+//                       }).toList(),
+//                     ),
+//                     KHeight30,
+
+//                     // Brokerage Details Section
+//                     ReusableSectionCard(
+//                       title: "Brokerage",
+//                       isAddEnabled: vehicle.status.toLowerCase() != 'sold',
+//                       // Optional: implement onAddPressed
+//                       isEmpty:
+//                           vehicle.brokerageInfo == null ||
+//                           vehicle.brokerageInfo!.isEmpty,
+//                       emptyMessage:
+//                           "No brokerage records have been recorded for this vehicle.",
+//                       children: vehicle.brokerageInfo != null
+//                           ? vehicle.brokerageInfo!.map((brokerage) {
+//                               final doubleAmount =
+//                                   double.tryParse(brokerage.amount) ?? 0.0;
+//                               final doublePaid =
+//                                   double.tryParse(
+//                                     brokerage.brokeragePaid ?? '0',
+//                                   ) ??
+//                                   0.0;
+//                               final doubleBalance = doubleAmount - doublePaid;
+
+//                               // Status calculation
+//                               String computedStatus;
+//                               if (doublePaid == 0) {
+//                                 computedStatus = 'pending';
+//                               } else if (doublePaid < doubleAmount) {
+//                                 computedStatus = 'partial';
+//                               } else {
+//                                 computedStatus = 'paid';
+//                               }
+
+//                               // Capitalize first letter of label
+//                               final receivedLabel =
+//                                   computedStatus[0].toUpperCase() +
+//                                   computedStatus.substring(1);
+
+//                               return OutputCard(
+//                                 title: brokerage.brokerName.toUpperCase(),
+//                                 subtitle: '',
+
+//                                 amount: doubleAmount,
+
+//                                 titleStyle: const TextStyle(
+//                                   fontWeight: FontWeight.bold,
+//                                 ),
+//                                 showMenu: true,
+//                                 addTopSubtitleSpacing: false,
+//                                 showBalanceBelowPaid: true,
+//                                 onView: () {
+//                                   // TODO: Add view logic
+//                                 },
+//                                 onEdit: () {
+//                                   // TODO: Add edit logic
+//                                 },
+//                                 onDelete: () {
+//                                   // TODO: Add delete logic
+//                                 },
+//                               );
+//                             }).toList()
+//                           : [],
+//                     ),
+//                   ],
 //                 ],
+      
 //               ),
 //             ),
-
-//             // 👇 Only show when status is "sold"
-//             if (_selectedStatus == "sold") ...[
-//               const SizedBox(height: 20),
-
-//               /// Finance Details Section
-//               Container(
-//                 width: double.infinity,
-//                 padding: EdgeInsets.all(
-//                   20,
-//                 ), // More generous padding like original
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.circular(12),
-//                   boxShadow: [
-//                     BoxShadow(
-//                       color: Colors.black12,
-//                       blurRadius: 6,
-//                       offset: Offset(0, 2),
-//                     ),
-//                   ],
-//                 ),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     // Expenses Header with + Button
-//                     Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         const Text(
-//                           "Finance Details",
-//                           style: TextStyle(
-//                             fontSize: 16,
-//                             fontWeight: FontWeight.w600,
-//                             color: Colors.black,
-//                             decoration: TextDecoration.underline,
-//                           ),
-//                         ),
-//                         Container(
-//                           width: 24,
-//                           height: 24,
-//                           decoration: BoxDecoration(
-//                             color: Colors.blue.shade50,
-//                             shape: BoxShape.circle,
-//                           ),
-//                           child: Center(
-//                             child: Icon(
-//                               Icons.add,
-//                               color: Colors.blue,
-//                               size: 16,
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-
-//                     SizedBox(height: 40), // Increased spacing
-//                     // Body (empty state)
-//                     Center(
-//                       child: Text(
-//                         "No Finance  have been recorded for this vehicle.",
-//                         style: TextStyle(
-//                           color: Colors.grey.shade600,
-//                           fontSize: 14,
-//                           fontWeight: FontWeight.w400,
-//                         ),
-//                         textAlign: TextAlign.center,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               KHeight30,
-
-//               /// Brokerage Details Section
-//               Container(
-//                 width: double.infinity,
-//                 padding: EdgeInsets.all(
-//                   20,
-//                 ), // More generous padding like original
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.circular(12),
-//                   boxShadow: [
-//                     BoxShadow(
-//                       color: Colors.black12,
-//                       blurRadius: 6,
-//                       offset: Offset(0, 2),
-//                     ),
-//                   ],
-//                 ),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     // Expenses Header with + Button
-//                     Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         const Text(
-//                           "Brokerage details",
-//                           style: TextStyle(
-//                             fontSize: 16,
-//                             fontWeight: FontWeight.w600,
-//                             color: Colors.black,
-//                             decoration: TextDecoration.underline,
-//                           ),
-//                         ),
-//                         Container(
-//                           width: 24,
-//                           height: 24,
-//                           decoration: BoxDecoration(
-//                             color: Colors.blue.shade50,
-//                             shape: BoxShape.circle,
-//                           ),
-//                           child: Center(
-//                             child: Icon(
-//                               Icons.add,
-//                               color: Colors.blue,
-//                               size: 16,
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-
-//                     SizedBox(height: 40), // Increased spacing
-//                     // Body (empty state)
-//                     Center(
-//                       child: Text(
-//                         "No Brokerage  have been recorded for this vehicle.",
-//                         style: TextStyle(
-//                           color: Colors.grey.shade600,
-//                           fontSize: 14,
-//                           fontWeight: FontWeight.w400,
-//                         ),
-//                         textAlign: TextAlign.center,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ],
-//         ),
+            
+        
+//         ]
 //       ),
 //     );
 //   }
@@ -1057,7 +735,7 @@
 //     }
 //   }
 
-//   //date format
+//   // Date format
 //   Future<void> _pickDate(BuildContext context) async {
 //     final DateTime? picked = await showDatePicker(
 //       context: context,
@@ -1068,13 +746,34 @@
 //     if (picked != null) {
 //       setState(() {
 //         _selectedDate = picked;
-//         _dateController.text = _dateFormat.format(picked); // 👈 format applied
+//         _dateController.text = _dateFormat.format(picked);
 //       });
 //     }
 //   }
 // }
 
-//new code
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -1082,11 +781,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/expense/expense_provider.dart';
+import 'package:my_new_project/application/finance/finance_provider.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
 import 'package:my_new_project/widgets/expense/add_expense_dialog.dart';
+import 'package:my_new_project/widgets/inventory/highlight_reusable_card.dart';
+import 'package:my_new_project/widgets/inventory/reusable_info_card.dart';
+import 'package:my_new_project/widgets/inventory/reusable_section_card.dart';
+import 'package:my_new_project/widgets/inventory/vehicle_info_card.dart';
+import 'package:my_new_project/widgets/partnerships/add_partnership_details.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
 import 'package:my_new_project/widgets/sales/profit_summary_card.dart';
 import 'package:my_new_project/widgets/sales/sale_form.dart';
 
@@ -1112,12 +818,36 @@ class ScreenVehicleDetails extends ConsumerStatefulWidget {
 class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
   String _selectedStatus = "available";
 
+  @override
+  void initState() {
+    super.initState();
+
+    // ⚠️ DON'T call ref.watch or ref.read for providers that depend on context here
+    // So we delay that work to AFTER the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Load expenses if not already loaded
+      ref.read(expenseProvider.notifier).loadExpenses();
+
+      // Read vehicle and set status
+      final vehicleState = ref.read(vehicleProvider);
+      final vehicle = vehicleState.vehicles.firstWhere(
+        (v) => v.id == widget.vehicleId,
+        orElse: () => throw Exception("Vehicle not found"),
+      );
+
+      setState(() {
+        _selectedStatus = vehicle.status.toLowerCase();
+      });
+    });
+  }
+
   final List<String> _paymentModes = [
     "Cash",
     "Card",
     "Bank Transfer",
     "Finance",
   ];
+
   String? _selectedMode;
 
   void _deletePartnership(Partnership partnership) async {
@@ -1127,12 +857,11 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
         .firstWhere((v) => v.id == widget.vehicleId);
 
     final updatedPartnerships =
-        List<Partnership>.from(vehicle.partnerships ?? [])..removeWhere(
-          (p) =>
+        List<Partnership>.from(vehicle.partnerships ?? [])
+          ..removeWhere((p) =>
               p.partnerName == partnership.partnerName &&
               p.contribution == partnership.contribution &&
-              p.sharePercentage == partnership.sharePercentage,
-        );
+              p.sharePercentage == partnership.sharePercentage);
 
     final updatedVehicle = vehicle.copyWith(partnerships: updatedPartnerships);
 
@@ -1142,9 +871,8 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
       // Refresh local state
       await ref.read(vehicleProvider.notifier).loadVehicles();
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Partnership deleted')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Partnership deleted')));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to delete partnership')),
@@ -1177,14 +905,50 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
 
     final expenseState = ref.watch(expenseProvider);
     final expenseForThisVehicle = expenseState.expenses
-        .where((e) => e.vehicleId == vehicle.id)
+        .where((e) => e.vehicleId.toString() == vehicle.id.toString())
         .toList();
 
     final totalExpenseAmount = expenseForThisVehicle.fold<double>(
       0.0,
-      (sum, e) => sum + e.amount
-      // (double.tryParse(e.amount) ?? 0),
+      (sum, e) => sum + e.amount,
     );
+
+    //Finance Details
+    final allFinances = ref.watch(financeProvider).finances;
+    final vehicleFinances =
+        allFinances.where((f) => f.vehicleId == vehicle.id).toList();
+
+    // 🟢 Purchase Info
+    final double purchasePrice =
+        double.tryParse('${vehicle.purchaseInfo?.price}') ?? 0.0;
+    final double purchasePaid =
+        double.tryParse('${vehicle.purchaseInfo?.paidAmount}') ?? 0.0;
+    final double purchaseBalance = purchasePrice - purchasePaid;
+    final double buyingPrice = purchasePrice; //confusion
+
+    // 🟢 Sale Info
+    final double salePrice =
+        double.tryParse(vehicle.saleInfo?.price ?? '0') ?? 0.0;
+    final double saleReceived =
+        double.tryParse(vehicle.saleInfo?.receivedPrice ?? '0') ?? 0.0;
+    final double financeReceived =
+        vehicle.saleInfo?.financeInfo?.receivedPrice ?? 0.0;
+    final double totalSaleReceived = saleReceived + financeReceived;
+    final double saleBalance = salePrice - totalSaleReceived;
+
+    // 🟢 Grand Total (purchase + expenses)
+    final double grandTotal = purchasePrice + totalExpenseAmount;
+
+    // 🟢 Brokerage
+    final double totalBrokerage = (vehicle.brokerageInfo ?? []).fold(
+      0.0,
+      (sum, item) => sum + (double.tryParse(item.amount ?? '0') ?? 0.0),
+    );
+
+    // 🟢 Profit Calculations
+    final double grossProfit = salePrice - grandTotal - totalBrokerage;
+    final double partnerProfitShare = 0.0; // set dynamically if needed
+    final double ownerProfit = grossProfit - partnerProfitShare;
 
     return Scaffold(
       body: Column(
@@ -1206,9 +970,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                     icon: const Icon(Icons.arrow_back, size: 20),
                   ),
                 ),
-
                 KHeight16,
-
                 // Vehicle Title
                 Text(
                   "${vehicle.make} ${vehicle.model} (${vehicle.year}) ${vehicle.registrationId}",
@@ -1218,9 +980,7 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 KHeight16,
-
                 // Edit + Delete buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -1248,7 +1008,6 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                         ),
                       ),
                     ),
-
                     // Delete button
                     Container(
                       decoration: BoxDecoration(
@@ -1269,7 +1028,6 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
               ],
             ),
           ),
-
           // Scrollable Content Section
           Expanded(
             child: SingleChildScrollView(
@@ -1277,93 +1035,63 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Cost Acquisition Card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF1E88E5), Color(0xFF1565C0)],
-                        begin: Alignment.center,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          "Total Cost of Acquisition",
-                          style: TextStyle(color: Colors.white, fontSize: 14),
-                        ),
-                        KHeight,
-                        Text(
-                          "₹${vehicle.purchaseInfo.price}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        KHeight,
-                        Text(
-                          "(Buying Price: ₹${vehicle.purchaseInfo.price} + Total Expenses: ₹${totalExpenseAmount.toStringAsFixed(2)})",
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
+                  // 1. Always show Cost of Acquisition
+                  HighlightCard(
+                    title: "Total Cost of Acquisition",titleColor: Colors.black,
+                    amount: "₹${grandTotal.toStringAsFixed(0)}",amountColor: Colors.blue,
+                    breakdown:
+                        "(Buying Price: ₹${buyingPrice.toStringAsFixed(0)} + Expenses: ₹${totalExpenseAmount.toStringAsFixed(0)})",breakdownColor: Colors.black,
+                    backgroundColor: Colors.white70,
                   ),
+                    KHeight,
+
+                  /// 2. Show Purchase Balance if vehicle is not sold
+                  if (vehicle.status.toLowerCase() != 'sold' && purchaseBalance > 0)
+                    HighlightCard(
+                      title: "Purchase Balance",titleColor: Colors.white,
+                      amount: "₹${purchaseBalance.toStringAsFixed(0)}",amountColor: Colors.white,
+                      breakdown:
+                          "(Total: ₹${purchasePrice.toStringAsFixed(0)} - Paid: ₹${purchasePaid.toStringAsFixed(0)})",breakdownColor: Colors.white,
+                      backgroundColor: purchasePaid<purchasePrice
+                      ?Colors.red.shade300 // Unpaid → red
+                      :Colors.green.shade100,// Fully paid → green
+
+                    ),
+                    KHeight,
+
+                  /// 3. If sold, show sale balance and profit
+                  if (vehicle.status.toLowerCase() == 'sold') ...[
+                    if (saleBalance != 0)
+                      HighlightCard(
+                        title: "Sale Balance",titleColor: Colors.white,
+                        amount: "₹${saleBalance.toStringAsFixed(0)}",amountColor: Colors.white,
+                        breakdown:
+                            "(Sale Amount: ₹${salePrice.toStringAsFixed(0)} - Received Balance: ₹${totalSaleReceived.toStringAsFixed(0)})",breakdownColor: Colors.white,
+                        backgroundColor:totalSaleReceived < salePrice
+                       ? Colors.red.shade700   // Not fully received → red
+                        : Colors.green.shade600, // Fully received → green
+                      ),
+                        KHeight,
+
+                    HighlightCard(
+                      title: grossProfit >= 0 ? "Total Profit" : "Total Loss",titleColor: Colors.white,
+                      amount: "₹${grossProfit.toStringAsFixed(0)}",amountColor: Colors.white,
+                      breakdown:
+                          "(Owner: ₹${ownerProfit.toStringAsFixed(0)} + Partners: ₹${partnerProfitShare.toStringAsFixed(0)})",breakdownColor: Colors.white,
+                      backgroundColor: grossProfit >= 0
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                  ],
                   KHeight20,
 
-                  // Total Profit (if sold)
-                  if (vehicle.status.toLowerCase() == "sold") ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF43A047), Color(0xFF2E7D32)],
-                          begin: Alignment.center,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          const Text(
-                            "Total Profit",
-                            style: TextStyle(color: Colors.white, fontSize: 14),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "total profit",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "ownera profit",
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
+                 
 
                   // Vehicle Image
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: AspectRatio(
-                      aspectRatio: 16 / 9,
+                      aspectRatio: 16 / 16,
                       child: vehicle.photos.isNotEmpty
                           ? PageView.builder(
                               itemCount: vehicle.photos.length,
@@ -1380,226 +1108,84 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                             ),
                     ),
                   ),
-                  KHeight16,
+                  KHeight30,
 
                   // Vehicle Information Section
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Vehicle Information",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                  VehicleInfoCard(
+                    vehicle: vehicle,
+                    selectedStatus: _selectedStatus,
+                    onStatusChanged: (newStatus) async {
+                      setState(() {
+                        _selectedStatus = newStatus;
+                      });
+
+                      try {
+                        await ref
+                            .read(vehicleRepositoryProvider)
+                            .updateVehicleStatus(vehicle.id, newStatus);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Status updated to $newStatus"),
                           ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        const SizedBox(height: 8),
-
-                        // Color
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Color:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.color,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        KHeight,
-
-                        // Mileage
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Mileage:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              "${vehicle.mileage} km",
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        KHeight,
-
-                        // Fuel Type
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Fuel Type:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.fuelType,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        KHeight,
-
-                        // Purchase Date
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Purchase Date:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.purchaseInfo.date
-                                  .toString()
-                                  .split("T")
-                                  .first,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        KHeight,
-
-                        // Notes
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Notes:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.description ?? "No additional notes.",
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        const Divider(color: Colors.grey),
-                        const SizedBox(height: 12),
-
-                        // Status section
-                        Row(
-                          children: [
-                            const Text(
-                              "Status:",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Colors.grey.shade400,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: DropdownButton<String>(
-                                  isExpanded: true,
-                                  value: _selectedStatus,
-                                  underline: const SizedBox(),
-                                  borderRadius: BorderRadius.circular(8),
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: "available",
-                                      child: Text("Available"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "maintenance",
-                                      child: Text("Maintenance"),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "sold",
-                                      child: Text("Sold"),
-                                    ),
-                                  ],
-                                  onChanged: (value) async {
-                                    if (value == null) return;
-
-                                    setState(() {
-                                      _selectedStatus = value;
-                                    });
-
-                                    try {
-                                      await ref
-                                          .read(vehicleRepositoryProvider)
-                                          .updateVehicleStatus(
-                                            vehicle.id,
-                                            value,
-                                          );
-
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            "Status updated to $value",
-                                          ),
-                                        ),
-                                      );
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Failed to update status",
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Failed to update status"),
+                          ),
+                        );
+                      }
+                    },
                   ),
-                  KHeight16,
+                  KHeight30,
 
-                  // Profit Summary or Sale Form
+                  // Seller Details Section
+                  ReusableInfoCard(
+                    title: "Seller Details",
+                    dataRows: [
+                      MapEntry("Name", vehicle.purchaseInfo.name),
+                      MapEntry("Phone", vehicle.purchaseInfo.phone),
+                      MapEntry("Address", vehicle.purchaseInfo.address),
+                      MapEntry(
+                        "Payment Mode",
+                        vehicle.purchaseInfo.modeOfPayment,
+                      ),
+                      MapEntry(
+                        "Buying Price",
+                        vehicle.purchaseInfo.paidAmount.toString(),
+                      ),
+                    ],
+                  ),
+                  KHeight20,
+
+                  ReusableInfoCard(
+                    title: "Buyer Details",
+                    dataRows: [
+                      MapEntry("Name", vehicle.saleInfo?.name ?? ""),
+                      MapEntry("Phone", vehicle.saleInfo?.phone ?? ""),
+                      MapEntry("Address", vehicle.saleInfo?.address ?? ""),
+                      MapEntry(
+                        "Sale Price",
+                        vehicle.saleInfo?.price?.toString() ?? "",
+                      ),
+                      MapEntry(
+                        "Sale Date",
+                        vehicle.saleInfo?.date?.toString() ?? "",
+                      ),
+                      MapEntry(
+                        "Payment Mode",
+                        vehicle.saleInfo?.modeOfPayment ?? "",
+                      ),
+                      MapEntry(
+                        "Payment Status",
+                        vehicle.saleInfo?.paymentStatus ?? "",
+                      ),
+                    ],
+                  ),
+                  KHeight30,
+
+                   // Profit Summary or Sale Form
                   if (vehicle.status.toLowerCase() == "sold") ...[
                     ProfitSummaryCard(
                       vehicle: vehicle,
@@ -1609,567 +1195,253 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                     SaleForm(vehicle: vehicle),
                   ],
 
-                  // Seller Details Section
-                  KHeight30,
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Seller Details",
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        KHeight,
-
-                        // Name
-                        Column(
-                          children: [
-                            const Text(
-                              "Name:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.purchaseInfo.name,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        KHeight,
-
-                        // Phone
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Phone:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.purchaseInfo.phone,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        KHeight,
-
-                        // Address
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Address:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.purchaseInfo.address,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        KHeight,
-
-                        // Payment Mode
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Payment Mode:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.purchaseInfo.modeOfPayment,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                        KHeight,
-
-                        // Buying Price
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Buying Price:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              vehicle.purchaseInfo.price.toString(),
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
                   // Expenses Section
-                  KHeight30,
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Expenses Header with + Button
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Expenses",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
+                  ReusableSectionCard(
+                    title: "Expenses",
+                    isAddEnabled: vehicle.status.toLowerCase() != 'sold',
+                    onAddPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AddExpenseDialog(vehicle: vehicle);
+                        },
+                      );
+                    },
+                    isEmpty: expenseForThisVehicle.isEmpty,
+                    emptyMessage:
+                        "No expenses have been recorded for this vehicle.",
+                    children: [
+                      ...expenseForThisVehicle.map((expense) {
+                        final date = DateFormat('d/M/y').format(expense.date);
 
-                            IconButton(
-                              onPressed: vehicle.status.toLowerCase() == 'sold'
-                                  ? null
-                                  : () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (context) {
-                                          return DraggableScrollableSheet(
-                                            initialChildSize: 0.8,
-                                            minChildSize: 0.4,
-                                            maxChildSize: 0.95,
-                                            expand: false,
-                                            builder:
-                                                (context, scrollController) {
-                                                  return SingleChildScrollView(
-                                                    controller:
-                                                        scrollController,
-                                                    child: AddExpenseDialog(
-                                                      vehicle: vehicle,
-                                                    ),
-                                                  );
-                                                },
-                                          );
-                                        },
-                                      );
-                                    },
-                              icon: const Icon(Icons.add, color: Colors.blue),
-                              style: IconButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                        return OutputCard(
+                          title: expense.expenseTypeName?.toUpperCase() ??
+                              "UNKNOWN",
+                          subtitle: "${expense.paymentStatus} - $date",
+                          amount: expense.amount,
+                          received: expense.expensePaid,
+                          receivedLabel: "Paid",
+                          showMenu: true,
+                          onView: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AddExpenseDialog(
+                                vehicle: vehicle,
+                                expense: expense,
+                                isViewOnly: true,
+                              ),
+                            );
+                          },
+                          onEdit: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AddExpenseDialog(
+                                vehicle: vehicle,
+                                expense: expense,
+                                isViewOnly: false,
+                              ),
+                            );
+                          },
+                          onDelete: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('Confirm Delete'),
+                                content: const Text(
+                                  'Are you sure you want to delete this expense?',
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 40),
-
-                        // Body (empty state)
-                        expenseForThisVehicle.isEmpty
-                            ? Center(
-                                child: Text(
-                                  "No expenses have been recorded for this vehicle.",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('Cancel'),
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                            : Column(
-                                children: expenseForThisVehicle.map((expense) {
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 16),
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "#${expense.id}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text("Type:"),
-                                           Text((expense.expenseTypeName ?? "N/A").toUpperCase())
-
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text("Amount:"),
-                                            Text("₹${expense.amount}"),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text("Date:"),
-                                            // Text(expense.date),
-                                            Text("${expense.date.toLocal()}".split(' ')[0]),
-                                          ],
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text("Description:"),
-                                            Expanded(
-                                              child: Text(
-                                                expense.description ?? "",
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 8),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            TextButton.icon(
-                                              icon: Icon(Icons.visibility),
-                                              label: Text("View"),
-                                              onPressed: () {
-                                                // Your view logic here
-                                              },
-                                            ),
-                                            SizedBox(width: 8),
-                                            TextButton.icon(
-                                              icon: Icon(Icons.edit),
-                                              label: Text("Edit"),
-                                              onPressed: () {
-                                                // Your edit logic here
-                                              },
-                                            ),
-                                            SizedBox(width: 8),
-                                            TextButton.icon(
-                                              icon: Icon(
-                                                Icons.delete,
-                                                color: Colors.red,
-                                              ),
-                                              label: Text(
-                                                "Delete",
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                              onPressed: () {
-                                                // Your delete logic here
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
+                                  ElevatedButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
                               ),
+                            );
 
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: Text(
-                            // "Total: ₹${expenseForThisVehicle.fold<double>(0.0, (sum, item) => sum + (double.tryParse(item.amount) ?? 0.0)).toStringAsFixed(2)}",
-                                "Total: ₹${expenseForThisVehicle.fold<double>(0.0, (sum, item) => sum + (item.amount ?? 0.0)).toStringAsFixed(2)}",
-
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                            if (confirm == true) {
+                              await ref
+                                  .read(expenseProvider.notifier)
+                                  .deleteExpense(expense.id!);
+                              ref.read(expenseProvider.notifier).loadExpenses();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Expense deleted"),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        );
+                      }).toList(),
+                    ],
                   ),
+                  KHeight20,
 
                   // Partnership Section
-                  KHeight20,
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Expenses Header with + Button
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Partnerships",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 40),
-                        // Body (empty state)
-                        vehicle.partnerships != null &&
-                                vehicle.partnerships!.isNotEmpty
-                            ? ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: vehicle.partnerships!.length,
-                                separatorBuilder: (_, __) => Divider(),
-                                itemBuilder: (context, index) {
-                                  final partnership =
-                                      vehicle.partnerships![index];
-                                  return ListTile(
-                                    title: Text(
-                                      partnership.partnerName ??
-                                          'Unnamed Partner',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        if (partnership.contribution != null)
-                                          Text(
-                                            'Contribution: ₹${partnership.contribution}',
-                                          ),
-                                        if (partnership.sharePercentage != null)
-                                          Text(
-                                            'Profit Share: ${partnership.sharePercentage}%',
-                                          ),
-                                        if (partnership.paymentMode != null)
-                                          Text(
-                                            'Payment Mode: ${partnership.paymentMode}',
-                                          ),
-                                        if (partnership.contributionStatus !=
-                                            null)
-                                          Text(
-                                            'Status: ${partnership.contributionStatus}',
-                                          ),
-                                      ],
-                                    ),
-                                    trailing: IconButton(
-                                      icon: Icon(
-                                        Icons.delete,
-                                        color: Colors.red,
-                                      ),
-                                      onPressed: () {
-                                        _deletePartnership(partnership);
-                                      },
-                                    ),
-                                  );
-                                },
-                              )
-                            : Center(
-                                child: Text(
-                                  "No partnerships have been recorded for this vehicle.",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  softWrap: true,
-                                ),
-                              ),
-                      ],
-                    ),
+                  ReusableSectionCard(
+                    title: "Partnership",
+                    isAddEnabled: vehicle.status.toLowerCase() != 'sold',
+                    isEmpty: vehicle.partnerships == null ||
+                        vehicle.partnerships!.isEmpty,
+                    emptyMessage:
+                        "No partnerships have been recorded for this vehicle.",
+                    children: vehicle.partnerships != null
+                        ? vehicle.partnerships!.map((partnership) {
+                            final contribution =
+                                double.tryParse(partnership.contribution ?? '0') ??
+                                    0.0;
+                            final received = contribution;
+
+                            // Optional: calculate dynamic label
+                            String status;
+                            if (received >= contribution && contribution > 0) {
+                              status = 'paid';
+                            } else if (received > 0 && received < contribution) {
+                              status = 'partial';
+                            } else {
+                              status = 'pending';
+                            }
+
+                            final receivedLabel =
+                                status[0].toUpperCase() + status.substring(1);
+
+                            return OutputCard(
+                              title:
+                                  partnership.partnerName ?? 'Unnamed Partner',
+                              subtitle: vehicle.make + ' ' + vehicle.model,
+                              amount: contribution,
+                              received: received,
+                              receivedLabel: receivedLabel,
+                              paymentMode: partnership.paymentMode,
+                              status: status,
+                              showMenu: true,
+                              onEdit: () {},
+                              onDelete: () {},
+                              onView: () {},
+                            );
+                          }).toList()
+                        : [],
                   ),
 
                   // Finance Details Section (if sold)
                   if (_selectedStatus == "sold") ...[
-                    const SizedBox(height: 20),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 6,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Finance Details",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                              Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.shade50,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Colors.blue,
-                                    size: 16,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 40),
-                          Center(
-                            child: Text(
-                              "No Finance have been recorded for this vehicle.",
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
+                    KHeight20,
+                    ReusableSectionCard(
+                      title: "Finance Details",
+                      isEmpty: vehicleFinances.isEmpty,
+                      emptyMessage:
+                          "No Financial details have been recorded for this vehicle.",
+                      children: vehicleFinances.map((finance) {
+                        final vehicleName =
+                            finance.vehicle?.name ?? 'Unknown Vehicle';
+                        final financierName =
+                            finance.financier?.companyName ??
+                                'Unknown Financier';
+                        final amount = finance.amount;
+                        final received = finance.receivedPrice;
+                        final paymentMode = finance.toAccount ?? 'Unknown';
+                        final status = finance.paymentStatus ?? 'Unknown';
+
+                        // Dynamic label logic
+                        String receivedLabel;
+                        if (received >= amount && amount > 0) {
+                          receivedLabel = 'Paid';
+                        } else if (received > 0 && received < amount) {
+                          receivedLabel = 'Partial';
+                        } else {
+                          receivedLabel = 'Pending';
+                        }
+
+                        return OutputCard(
+                          title: vehicleName.toUpperCase(),
+                          subtitle: financierName,
+                          amount: amount,
+                          received: received,
+                          balance: amount - received,
+                          receivedLabel: receivedLabel,
+                          paymentMode: paymentMode,
+                          status: status,
+                          receivedLabelColor: Colors.green,
+                          showBalanceBelowPaid: true,
+                          showMenu: true,
+                          onView: () {
+                            // Optional: show view-only dialog
+                          },
+                          onEdit: () {
+                            // Optional: show edit form
+                          },
+                          onDelete: () {
+                            // Optional: confirm and delete
+                          },
+                        );
+                      }).toList(),
                     ),
                     KHeight30,
 
                     // Brokerage Details Section
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 6,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                "Brokerage details",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                  decoration: TextDecoration.underline,
+                    ReusableSectionCard(
+                      title: "Brokerage",
+                      isAddEnabled: vehicle.status.toLowerCase() != 'sold',
+                      // Optional: implement onAddPressed
+                      isEmpty: vehicle.brokerageInfo == null ||
+                          vehicle.brokerageInfo!.isEmpty,
+                      emptyMessage:
+                          "No brokerage records have been recorded for this vehicle.",
+                      children: vehicle.brokerageInfo != null
+                          ? vehicle.brokerageInfo!.map((brokerage) {
+                              final doubleAmount =
+                                  double.tryParse(brokerage.amount) ?? 0.0;
+                              final doublePaid =
+                                  double.tryParse(
+                                          brokerage.brokeragePaid ?? '0') ??
+                                      0.0;
+                              final doubleBalance = doubleAmount - doublePaid;
+
+                              // Status calculation
+                              String computedStatus;
+                              if (doublePaid == 0) {
+                                computedStatus = 'pending';
+                              } else if (doublePaid < doubleAmount) {
+                                computedStatus = 'partial';
+                              } else {
+                                computedStatus = 'paid';
+                              }
+
+                              // Capitalize first letter of label
+                              final receivedLabel =
+                                  computedStatus[0].toUpperCase() +
+                                      computedStatus.substring(1);
+
+                              return OutputCard(
+                                title: brokerage.brokerName.toUpperCase(),
+                                subtitle: '',
+                                amount: doubleAmount,
+                                titleStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ),
-                              Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.shade50,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Colors.blue,
-                                    size: 16,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 40),
-                          Center(
-                            child: Text(
-                              "No Brokerage have been recorded for this vehicle.",
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
+                                showMenu: true,
+                                addTopSubtitleSpacing: false,
+                                showBalanceBelowPaid: true,
+                                onView: () {
+                                  // TODO: Add view logic
+                                },
+                                onEdit: () {
+                                  // TODO: Add edit logic
+                                },
+                                onDelete: () {
+                                  // TODO: Add delete logic
+                                },
+                              );
+                            }).toList()
+                          : [],
                     ),
                   ],
                 ],

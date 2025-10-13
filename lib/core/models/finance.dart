@@ -10,7 +10,7 @@ class Finance {
   final double amount;
   final double receivedPrice;
   final Financier? financier;
-   final VehicleSummary? vehicle;
+  final VehicleSummary? vehicle;
 
   Finance({
     required this.id,
@@ -23,67 +23,64 @@ class Finance {
     this.vehicle,
   });
 
-factory Finance.fromJson(Map<String, dynamic> json) {
-  try {
-    print('🔍 Parsing Finance from JSON: $json');
+  factory Finance.fromJson(Map<String, dynamic> json) {
+    try {
+      print('🔍 Parsing Finance from JSON: $json');
 
-    VehicleSummary? vehicleSummary;
+      VehicleSummary? vehicleSummary;
 
-    if (json['vehicle'] != null && json['vehicle'] is Map<String, dynamic>) {
-      final vehicleJson = json['vehicle'] as Map<String, dynamic>;
+      if (json['vehicle'] != null && json['vehicle'] is Map<String, dynamic>) {
+        final vehicleJson = json['vehicle'] as Map<String, dynamic>;
 
-      // Create a new map with flat keys for VehicleSummary.fromJson
-      final flatVehicleJson = {
-        'vehicle_name': '${vehicleJson['make'] ?? ''} ${vehicleJson['model'] ?? ''}'.trim(),
-        'vehicle_reg_no': vehicleJson['reg_no'],
-      };
+        // Create a new map with flat keys for VehicleSummary.fromJson
+        final flatVehicleJson = {
+          'vehicle_name':
+              '${vehicleJson['make'] ?? ''} ${vehicleJson['model'] ?? ''}'
+                  .trim(),
+          'vehicle_reg_no': vehicleJson['reg_no'],
+        };
 
-      vehicleSummary = VehicleSummary.fromJson(flatVehicleJson);
+        vehicleSummary = VehicleSummary.fromJson(flatVehicleJson);
+      }
+
+      return Finance(
+        id: json['id']?.toString() ?? '',
+        vehicleId: json['vehicle_id']?.toString() ?? '',
+        toAccount: json['to_account']?.toString() ?? '',
+        paymentStatus: json['payment_status']?.toString() ?? '',
+        amount: (json['amount'] is num)
+            ? (json['amount'] as num).toDouble()
+            : double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
+        receivedPrice: (json['received_price'] is num)
+            ? (json['received_price'] as num).toDouble()
+            : double.tryParse(json['received_price']?.toString() ?? '') ?? 0.0,
+        financier: json['financier_name'] != null
+            ? Financier(
+                id: json['financier_id'] is int
+                    ? json['financier_id']
+                    : int.tryParse(json['financier_id']?.toString() ?? ''),
+                companyName: json['financier_name'],
+                contactPerson: '',
+                contactNumber: '',
+                address: '',
+              )
+            : null,
+        vehicle: vehicleSummary,
+      );
+    } catch (e, stack) {
+      print('⚠️ Error parsing Finance JSON: $e\n$stack');
+      return Finance(
+        id: '',
+        vehicleId: '',
+        toAccount: '',
+        paymentStatus: '',
+        amount: 0,
+        receivedPrice: 0,
+        financier: null,
+        vehicle: null,
+      );
     }
-
-    return Finance(
-      id: json['id']?.toString() ?? '',
-      vehicleId: json['vehicle_id']?.toString() ?? '',
-      toAccount: json['to_account']?.toString() ?? '',
-      paymentStatus: json['payment_status']?.toString() ?? '',
-      amount: (json['amount'] is num)
-          ? (json['amount'] as num).toDouble()
-          : double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
-      receivedPrice: (json['received_price'] is num)
-          ? (json['received_price'] as num).toDouble()
-          : double.tryParse(json['received_price']?.toString() ?? '') ?? 0.0,
-      financier: json['financier_name'] != null
-          ? Financier(
-              id: json['financier_id'] is int
-                  ? json['financier_id']
-                  : int.tryParse(json['financier_id']?.toString() ?? ''),
-              companyName: json['financier_name'],
-              contactPerson: '',
-              contactNumber: '',
-              address: '',
-            )
-          : null,
-      vehicle: vehicleSummary,
-    );
-  } catch (e, stack) {
-    print('⚠️ Error parsing Finance JSON: $e\n$stack');
-    return Finance(
-      id: '',
-      vehicleId: '',
-      toAccount: '',
-      paymentStatus: '',
-      amount: 0,
-      receivedPrice: 0,
-      financier: null,
-      vehicle: null,
-    );
   }
-}
-
-
-
-
-
 
   Map<String, dynamic> toJson() {
     return {
@@ -105,7 +102,6 @@ factory Finance.fromJson(Map<String, dynamic> json) {
     double? receivedPrice,
     Financier? financier,
     VehicleSummary? vehicle,
-
   }) {
     return Finance(
       id: id ?? this.id,
@@ -115,7 +111,7 @@ factory Finance.fromJson(Map<String, dynamic> json) {
       amount: amount ?? this.amount,
       receivedPrice: receivedPrice ?? this.receivedPrice,
       financier: financier ?? this.financier,
-      vehicle: vehicle?? this.vehicle,
+      vehicle: vehicle ?? this.vehicle,
     );
   }
 }

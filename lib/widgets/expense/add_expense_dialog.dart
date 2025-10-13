@@ -13,7 +13,7 @@ import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
 
 class AddExpenseDialog extends ConsumerStatefulWidget {
   final Vehicle? vehicle;
-  final Expense? expense;
+  final Expense? expense; 
   final bool isViewOnly;
 
   const AddExpenseDialog({

@@ -6,7 +6,14 @@ import 'package:my_new_project/core/models/expensetype.dart';
 import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
 
 class AddExpenseTypeDialog extends ConsumerStatefulWidget {
-  const AddExpenseTypeDialog({super.key});
+  final ExpenseType? expenseType; // ✅ added
+final bool isViewOnly; // ✅ added
+
+  const AddExpenseTypeDialog({
+    super.key,
+     this.expenseType, // ✅ added
+  this.isViewOnly = false, // ✅ added
+    });
 
   @override
   ConsumerState<AddExpenseTypeDialog> createState() =>
@@ -16,6 +23,16 @@ class AddExpenseTypeDialog extends ConsumerStatefulWidget {
 class _AddExpenseTypeDialogState extends ConsumerState<AddExpenseTypeDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+
+
+  @override
+void initState() {
+  super.initState();
+  if (widget.expenseType != null) { // ✅ added
+    _nameController.text = widget.expenseType!.name; // ✅ added
+  }
+}
+
 
   @override
   void dispose() {
@@ -45,20 +62,34 @@ class _AddExpenseTypeDialogState extends ConsumerState<AddExpenseTypeDialog> {
     );
   }
 
-  Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
+ Future<void> _submitForm() async {
+  if (!_formKey.currentState!.validate()) return;
 
-    try {
-      final newExpenseType = ExpenseType(
-        userId: 0, // Optionally omit if backend uses token to infer this
-        name: _nameController.text.trim(),
-      );
+  try {
+    final updatedExpenseType = ExpenseType(
+      id: widget.expenseType?.id, // ✅ added to support editing
+      userId: 0, // Optionally omit if backend uses token
+      name: _nameController.text.trim(),
+    );
 
-      print('📤 Adding expense type: ${newExpenseType.toJson()}');
-
+    if (widget.expenseType != null) {
+      // ✅ Editing existing expense type
       await ref
           .read(expenseTypeProvider.notifier)
-          .addExpenseType(newExpenseType);
+          .updateExpenseType(updatedExpenseType); // ✅ updated method
+      await ref.read(expenseTypeProvider.notifier).loadExpenseTypes();
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Expense type updated')), // ✅ message
+        );
+      }
+    } else {
+      // ✅ Adding new expense type
+      await ref
+          .read(expenseTypeProvider.notifier)
+          .addExpenseType(updatedExpenseType); // ✅ existing add logic
       await ref.read(expenseTypeProvider.notifier).loadExpenseTypes();
 
       if (mounted) {
@@ -67,12 +98,14 @@ class _AddExpenseTypeDialogState extends ConsumerState<AddExpenseTypeDialog> {
           const SnackBar(content: Text('Expense type added successfully')),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Failed to add expense type: $e')));
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to save expense type: $e')), // ✅ generic error
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +113,12 @@ class _AddExpenseTypeDialogState extends ConsumerState<AddExpenseTypeDialog> {
       // width: MediaQuery.of(context).size.width * 0.9,
       height: MediaQuery.of(context).size.height * 0.25,
 
-      title: "Add Expense Type",
-      onSubmit: _submitForm,
+      title: widget.isViewOnly
+    ? "View Expense Type"
+    : (widget.expenseType != null ? "Edit Expense Type" : "Add Expense Type"), // ✅ modified
+
+     onSubmit: widget.isViewOnly ? null : _submitForm, // ✅ modified
+
       onCancel: () => Navigator.of(context).pop(),
       bodyContent:SingleChildScrollView(
         child: 
@@ -99,6 +136,7 @@ class _AddExpenseTypeDialogState extends ConsumerState<AddExpenseTypeDialog> {
                 }
                 return null;
               },
+              enabled: !widget.isViewOnly, // ✅ added
             ),
             // KHeight30,
           ],

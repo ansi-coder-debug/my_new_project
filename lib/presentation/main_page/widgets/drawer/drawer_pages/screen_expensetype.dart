@@ -62,14 +62,53 @@ class ScreenExpenseTypes extends ConsumerWidget {
                           receivedLabel: '',
                           showMenu: true,
                           onView: () {
-                            // You can show a dialog or navigate to a detail screen
+                          showDialog(
+    context: context,
+    builder: (_) => AddExpenseTypeDialog(
+      expenseType: type, // ✅ pre-fill data
+      isViewOnly: true,  // ✅ read-only mode
+    ),
+  );
                           },
                           onEdit: () {
-                            //////
+                            showDialog(
+    context: context,
+    builder: (_) => AddExpenseTypeDialog(
+      expenseType: type, // ✅ pre-fill data
+      isViewOnly: false, // ✅ editable mode
+    ),
+  );
                           },
-                          onDelete: () {
-                            //
-                          },
+                        onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: Text('Are you sure you want to delete "${type.name}"?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancel'),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    await ref.read(expenseTypeProvider.notifier).deleteExpenseType(type.id!); // ✅ call delete
+    await ref.read(expenseTypeProvider.notifier).loadExpenseTypes(); // ✅ refresh list
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Expense type deleted')),
+      );
+    }
+  }
+},
+
                           showAmount: false,
                           titleStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         );

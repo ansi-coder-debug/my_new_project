@@ -57,32 +57,41 @@ class ScreenPartnerships extends ConsumerWidget {
                         final Vehicle vehicle = item['vehicle'];
                         final Partnership partnership = item['partnership'];
 
-                       final partnerName =
-    partnership.partnerName ?? partnership.partner?.name ?? 'Unknown';
-final vehicleName = '${vehicle.make} ${vehicle.model}';
-final contribution =
-    double.tryParse(partnership.contribution ?? '0') ?? 0.0;
-final paymentMode = partnership.paymentMode ?? 'N/A';
+                        final partnerName =
+                            partnership.partnerName ??
+                            partnership.partner?.name ??
+                            'Unknown';
+                        final vehicleName = '${vehicle.make} ${vehicle.model}';
+                        final contribution =
+                            double.tryParse(partnership.contribution ?? '0') ??
+                            0.0;
+                        final paymentMode = partnership.paymentMode ?? 'N/A';
 
-// ✅ NEW STATUS LOGIC:
-final total = double.tryParse(partnership.contribution ?? '0') ?? 0.0;
-final received = contribution; // using the same value for now
+                        // ✅ NEW STATUS LOGIC:
+                        final total =
+                            double.tryParse(partnership.contribution ?? '0') ??
+                            0.0;
+                        final received =
+                            contribution; // using the same value for now
 
-String contributionStatus;
-if (received >= total && total > 0) {
-  contributionStatus = 'paid';
-} else if (received > 0 && received < total) {
-  contributionStatus = 'partial';
-} else {
-  contributionStatus = 'pending';
-}
+                        String contributionStatus;
+                        if (received >= total && total > 0) {
+                          contributionStatus = 'paid';
+                        } else if (received > 0 && received < total) {
+                          contributionStatus = 'partial';
+                        } else {
+                          contributionStatus = 'pending';
+                        }
 
                         return OutputCard(
                           title: partnerName,
                           subtitle: vehicleName,
                           amount: contribution,
                           received: contribution,
-                          receivedLabel: 'Paid',
+                          receivedLabel:
+                              contributionStatus[0].toUpperCase() +
+                              contributionStatus.substring(1),
+
                           paymentMode: paymentMode,
                           status: contributionStatus,
                           showMenu: true,

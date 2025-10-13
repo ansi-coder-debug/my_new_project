@@ -71,7 +71,7 @@ class CustomHeader extends StatelessWidget {
                 ),
               ),
             ],
-          ),
+          ),  
 
           const SizedBox(height: 12),
 
@@ -120,5 +120,8 @@ class CustomHeader extends StatelessWidget {
         ],
       ),
     );
+    
   }
+
+ 
 }

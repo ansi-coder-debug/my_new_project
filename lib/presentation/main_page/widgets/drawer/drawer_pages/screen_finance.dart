@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/accounts/account_provider.dart';
 import 'package:my_new_project/application/finance/finance_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/finance.dart';
@@ -13,6 +14,7 @@ class ScreenFinance extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(financeProvider);
     final List<Finance> finances = state.finances;
+    final account = ref.watch(accountProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -36,43 +38,42 @@ class ScreenFinance extends ConsumerWidget {
               child: state.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : finances.isEmpty
-                      ? const Center(child: Text('No finance records found.'))
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(12),
-                          itemCount: finances.length,
-                          itemBuilder: (context, index) {
-                            final finance = finances[index];
-                            final vehicleName = finance.vehicle?.name ?? 'Unknown Vehicle';
-                            final financierName = finance.financier?.companyName ?? 'Unknown Financier';
-                            final amount = finance.amount;
-                            final received = finance.receivedPrice;
-                            final paymentMode = finance.toAccount ?? 'Unknown';
-                            final status = finance.paymentStatus ?? 'unknown';
+                  ? const Center(child: Text('No finance records found.'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: finances.length,
+                      itemBuilder: (context, index) {
+                        final finance = finances[index];
+                        final vehicleName =
+                            finance.vehicle?.name ?? 'Unknown Vehicle';
+                        final financierName =
+                            finance.financier?.companyName ??
+                            'Unknown Financier';
+                        final amount = finance.amount;
+                        final received = finance.receivedPrice;
+                        final paymentMode = finance.toAccount ?? 'Unknown';
+                        final status = finance.paymentStatus ?? 'unknown';
 
-                            return OutputCard(
-                              title: vehicleName.toUpperCase(),
-                              subtitle: financierName,
-                              amount: amount,
-                              received: received,
-                              balance: null,
-                              receivedLabel: 'Received',
-                              paymentMode: paymentMode,
-                              status: status,
-                              receivedLabelColor: Colors.green,
-                              showBalanceBelowPaid: true,
-                              showMenu: true,
-                              onView: () {
-                                // TODO: Implement view details if needed
-                              },
-                              onEdit: () {
-                                
-                              },
-                             onDelete: () {
-                               
-                             },
-                            );
+                        return OutputCard(
+                          title: vehicleName.toUpperCase(),
+                          subtitle: financierName,
+                          amount: amount,
+                          received: received,
+                          balance: null,
+                          receivedLabel: 'Received',
+                          paymentMode: paymentMode,
+                          status: status,
+                          receivedLabelColor: Colors.green,
+                          showBalanceBelowPaid: true,
+                          showMenu: true,
+                          onView: () {
+                            // TODO: Implement view details if needed
                           },
-                        ),
+                          onEdit: () {},
+                          onDelete: () {},
+                        );
+                      },
+                    ),
             ),
           ],
         ),
