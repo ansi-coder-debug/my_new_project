@@ -40,59 +40,63 @@ class ScreenMainPage extends ConsumerStatefulWidget {
 }
 
 class _ScreenMainPageState extends ConsumerState<ScreenMainPage> {
-
+  String? _inventoryStatus; // 👈 track status like "Available", "Sold"
 
   int _selectedDrawerIndex = 0;
-final List<Widget> _drawerPages = [
-  ScreenDashboard(),          // 0: Dashboard
-  ScreenInventory(),          // 1: Vehicles
-  ScreenSales(),              // 2: Sales
-  ScreenPurchase(),           // 3: Purchase
-  ScreenExpense(),            // 4: Expenses
-  ScreenExpenseTypes(),       // 5: Expense Type
-  ScreenBrokerage(),          // 6: Brokerage
-  ScreenCashbook(),           // 7: Cashbook
-  ScreenMonthlySummary(),     // 8: Monthly Summary
-  ScreenDailySummary(),       // 9: Daily Summary
-  ScreenFinance(),            // 10: Finance
-  ScreenPartnerships(),       // 11: Partnerships
-  ScreenAccounts(),           // 12: Account
-  ScreenAdvance(),            // 13: Advance
-  ScreenBrokers(),            // 14: Broker
-  ScreenEmployees(),          // 15: Employees
-  ScreenPayroll(),            // 16: Payroll
-  ScreenAttendance(),         // 17: Attendance
-  ScreenFinanciers(),         // 18: Financier
-  PartnersPage(),             // 19: Partner
-  ScreenSubscription(),       // 20: Subscription
-  ScreenSettings(),           // 21: Settings
-];
 
+  List<Widget> get _drawerPages => [
+    ScreenDashboard(
+      onCardTap: (int index, {String? status}) {
+        setState(() {
+          _selectedDrawerIndex = index;
+          // Only set _inventoryStatus for index 1 (Vehicles)
+          if (index == 1) {
+            _inventoryStatus = status ?? 'Available';
+          } else {
+            _inventoryStatus = null; //Reset for other screens
+          }
+        });
+      },
+    ),
+
+    ScreenInventory(initialStatus: _inventoryStatus), // 1: Vehicles
+    ScreenSales(), // 2: Sales
+    ScreenPurchase(), // 3: Purchase
+    ScreenExpense(), // 4: Expenses
+    ScreenExpenseTypes(), // 5: Expense Type
+    ScreenBrokerage(), // 6: Brokerage
+    ScreenCashbook(), // 7: Cashbook
+    ScreenMonthlySummary(), // 8: Monthly Summary
+    ScreenDailySummary(), // 9: Daily Summary
+    ScreenFinance(), // 10: Finance
+    ScreenPartnerships(), // 11: Partnerships
+    ScreenAccounts(), // 12: Account
+    ScreenAdvance(), // 13: Advance
+    ScreenBrokers(), // 14: Broker
+    ScreenEmployees(), // 15: Employees
+    ScreenPayroll(), // 16: Payroll
+    ScreenAttendance(), // 17: Attendance
+    ScreenFinanciers(), // 18: Financier
+    PartnersPage(), // 19: Partner
+    ScreenSubscription(), // 20: Subscription
+    ScreenSettings(), // 21: Settings
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
-          children: const[
-             Text(
-          'Wheelx',   
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        // KHeight,
-        // Text(
-        //   'Vehicle Inventory',
-        //   style: TextStyle(
-        //     fontSize: 12,
-        //     color: Colors.grey
-        //   ),
-        // )
+          children: const [
+            Text(
+              'Wheelx',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
           ],
         ),
-        
-        
+
         leading: Builder(
           builder: (context) => Padding(
             padding: const EdgeInsets.all(10),
@@ -110,7 +114,6 @@ final List<Widget> _drawerPages = [
         ),
 
         actions: [
-         
           Padding(
             padding: EdgeInsets.only(right: 10),
             child: IconButton(
@@ -123,13 +126,12 @@ final List<Widget> _drawerPages = [
             ),
           ),
         ],
-        bottom: PreferredSize(preferredSize: Size.fromHeight(1),
-         child: Container(
-          color: Colors.grey.shade300,
-          height: 1,
-         )),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Container(color: Colors.grey.shade300, height: 1),
+        ),
       ),
-       
+
       drawer: MainDrawer(
         selectedIndex: _selectedDrawerIndex,
         onItemSelected: (index) {
@@ -140,8 +142,8 @@ final List<Widget> _drawerPages = [
         },
       ),
       body: _drawerPages[_selectedDrawerIndex],
-     
-      // bottomNavigationBar: const BottomNavigationWidget(),
+
+       bottomNavigationBar: const BottomNavigationWidget(),
     );
   }
 }

@@ -11,7 +11,7 @@ class BottomNavigationWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          CircleAvatar(backgroundColor: Colors.blue, child: Icon(Icons.menu)),
+          // CircleAvatar(backgroundColor: Colors.blue, child: Icon(Icons.menu)),
         ],
       ),
     );
