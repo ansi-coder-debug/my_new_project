@@ -79,4 +79,35 @@ class Advance {
     }
   }
 
+   /// ✅ copyWith method
+  Advance copyWith({
+    int? id,
+    int? userId,
+    int? vehicleId,
+    double? amount,
+    DateTime? date,
+    String? note,
+    String? buyerName,
+    String? buyerPhone,
+    String? buyerAddress,
+    String? make,
+    String? model,
+    VehicleSummary? vehicle,
+  }) {
+    return Advance(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      vehicleId: vehicleId ?? this.vehicleId,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      note: note ?? this.note,
+      buyerName: buyerName ?? this.buyerName,
+      buyerPhone: buyerPhone ?? this.buyerPhone,
+      buyerAddress: buyerAddress ?? this.buyerAddress,
+      make: make ?? this.make,
+      model: model ?? this.model,
+      vehicle: vehicle ?? this.vehicle,
+    );
+  }
+
 }

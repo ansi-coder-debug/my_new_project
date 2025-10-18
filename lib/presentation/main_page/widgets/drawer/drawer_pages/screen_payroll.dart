@@ -37,7 +37,7 @@ class ScreenPayroll extends ConsumerWidget {
               onAdd: () {
                 showDialog(
                   context: context,
-                  builder: (_) => const AddPayrollDialog(),
+                  builder: (_) => PayrollDialog(),
                 );
               },
             ),
@@ -62,11 +62,55 @@ class ScreenPayroll extends ConsumerWidget {
                           subtitle: 'Role: ${payroll.position}',
                           date:
                               'Pay Date: ${DateFormat('dd-MM-yyyy').format(payroll.payDate)}',
-                          onView: () {
-                            // You can show a dialog or navigate to a detail screen
-                          },
-                          onEdit: () {},
-                          onDelete: () {},
+                         onView: () {
+  showDialog(
+    context: context,
+    builder: (_) => PayrollDialog(
+      payroll: payroll, // pass payroll object
+      isViewOnly: true,
+    ),
+  );
+},
+
+onEdit: () {
+  showDialog(
+    context: context,
+    builder: (_) => PayrollDialog(
+      payroll: payroll,
+      isViewOnly: false,
+    ),
+  );
+},
+
+onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text(
+        'Are you sure you want to delete this payroll record?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    await ref.read(payrollProvider.notifier).deletePayroll(payroll.id!);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Payroll record deleted')),
+    );
+  }
+},
+
                         );
                       },
                     ),

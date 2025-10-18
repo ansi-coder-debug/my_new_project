@@ -39,19 +39,33 @@ class PartnerNotifier extends StateNotifier<PartnerState> {
     }
   }
 
-  // Update partner
-  Future<void> updatePartner(String id, Map<String, dynamic> data) async {
-    try {
-      final updated = await _repository.updatePartner(id, data);
-      final updatedList = state.partners.map((p) {
-        return p.id == updated.id ? updated : p;
-      }).toList();
-      // state = state.copyWith(partners: updatedList);
-      await loadPartners();
-    } catch (e) {
-      state = state.copyWith(errorMessage: e.toString());
-    }
+  // // Update partner
+  // Future<void> updatePartner(String id, Map<String, dynamic> data) async {
+  //   try {
+  //     final updated = await _repository.updatePartner(id, data);
+  //     final updatedList = state.partners.map((p) {
+  //       return p.id == updated.id ? updated : p;
+  //     }).toList();
+  //     // state = state.copyWith(partners: updatedList);
+  //     await loadPartners();
+  //   } catch (e) {
+  //     state = state.copyWith(errorMessage: e.toString());
+  //   }
+  // }
+
+  // In PartnerNotifier
+Future<void> updatePartner(Partner partner) async {
+  try {
+    final updated = await _repository.updatePartner(partner.id!, partner.toJson());
+    final updatedList = state.partners.map((p) {
+      return p.id == updated.id ? updated : p;
+    }).toList();
+    await loadPartners();
+  } catch (e) {
+    state = state.copyWith(errorMessage: e.toString());
   }
+}
+
 
   // Delete partner
   Future<void> deletePartner(String id) async {

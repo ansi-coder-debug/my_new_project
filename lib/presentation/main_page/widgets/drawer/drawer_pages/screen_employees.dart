@@ -12,6 +12,7 @@ import 'package:my_new_project/widgets/reusable/output_card.dart';
 class ScreenEmployees extends ConsumerWidget {
   const ScreenEmployees({super.key});
 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final employeeState = ref.watch(employeeProvider);
@@ -38,9 +39,22 @@ class ScreenEmployees extends ConsumerWidget {
               },
               showAdd: true,
               onAdd: () {
+                
+                // For adding new employee, you might pass an empty Employee
+                final newEmployee = Employee(
+                  id: null,
+                  name: '',
+                  email: '',
+                  phone: '',
+                  address: '',
+                  position: '',
+                  salary: 0,
+                  hireDate: DateTime.now().toIso8601String(),
+                );
+
                 showDialog(
                   context: context,
-                  builder: (_) => AddEmployeeModal(),
+                  builder: (_) => EmployeeDialog(employee: newEmployee),
                 );
               },
             ),
@@ -62,15 +76,53 @@ class ScreenEmployees extends ConsumerWidget {
                           subtitle:
                               '${employee.hireDate} • ${employee.position}',
                           amount: employee.salary,
-                           onView: () {
-                            // You can show a dialog or navigate to a detail screen
+                          onView: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => EmployeeDialog(
+                                employee: employee,
+                                isViewOnly: true,
+                              ),
+                            );
                           },
                           onEdit: () {
-                            
+                            showDialog(
+                              context: context,
+                              builder: (_) => EmployeeDialog(
+                                employee: employee,
+                                isViewOnly: false,
+                              ),
+                            );
                           },
-                          onDelete: () {
-                         
-                          },
+                         onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text('Are you sure you want to delete this employee record?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    await ref.read(employeeProvider.notifier).deleteEmployee(employee.id!);
+    
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Employee deleted')),
+      );
+    
+  }
+},
+
                         );
                       },
                     ),

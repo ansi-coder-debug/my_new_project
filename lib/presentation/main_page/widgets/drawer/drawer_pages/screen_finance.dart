@@ -4,6 +4,7 @@ import 'package:my_new_project/application/accounts/account_provider.dart';
 import 'package:my_new_project/application/finance/finance_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/finance.dart';
+import 'package:my_new_project/widgets/finance/finance_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
 import 'package:my_new_project/widgets/reusable/output_card.dart';
 
@@ -61,16 +62,61 @@ class ScreenFinance extends ConsumerWidget {
                           received: received,
                           balance: null,
                           receivedLabel: 'Received',
-                          paymentMode: paymentMode,
+                          // paymentMode: paymentMode,
                           status: status,
                           receivedLabelColor: Colors.green,
                           showBalanceBelowPaid: true,
                           showMenu: true,
-                          onView: () {
-                            // TODO: Implement view details if needed
-                          },
-                          onEdit: () {},
-                          onDelete: () {},
+                       onView: () {
+  showDialog(
+    context: context,
+    builder: (context) => AddFinanceDialog(
+      finance: finance,         // pass current finance data
+      isViewOnly: true,         // makes fields readonly
+    ),
+  );
+},
+
+onEdit: () {
+  showDialog(
+    context: context,
+    builder: (context) => AddFinanceDialog(
+      finance: finance,         // pass current finance data
+      isViewOnly: false,        // allows editing
+    ),
+  );
+},
+
+onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Confirm Deletion'),
+      content: const Text('Are you sure you want to delete this finance entry?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    // Access your provider and call delete
+    final notifier = ref.read(financeProvider.notifier);
+    await notifier.deleteFinance(finance.id); // or whatever your delete method is
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Finance deleted')),
+    );
+  }
+},
+
                         );
                       },
                     ),

@@ -28,4 +28,18 @@ class Broker {
       'address': address,
     };
   }
+  /// ✅ Creates a copy of this Broker with optional new values
+  Broker copyWith({
+    int? id,
+    String? name,
+    String? phone,
+    String? address,
+  }) {
+    return Broker(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      address: address ?? this.address,
+    );
+  }
 }

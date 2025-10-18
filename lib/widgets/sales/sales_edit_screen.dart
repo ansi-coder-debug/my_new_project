@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/accounts/account_provider.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 
@@ -31,12 +32,16 @@ class _SalesEditScreenState extends ConsumerState<SalesEditScreen> {
   final descriptionController = TextEditingController();
 
   late bool isEditMode;
+  String? selectedAccountId;
+
+
   void initState() {
     super.initState();
     isEditMode = widget.isEditMode;
 
     final sale = widget.vehicle.saleInfo;
     final account = accountProvider.notifier;
+    selectedAccountId = sale?.accountId; // existing account
 
     print("Sale Info: $sale");
     print("Received in account: ${sale?.modeOfPayment}");
@@ -59,15 +64,44 @@ class _SalesEditScreenState extends ConsumerState<SalesEditScreen> {
 
     priceController.text = sale?.price ?? '';
     recivedPriceController.text = sale?.receivedPrice ?? '';
-    bankController.text = sale?.modeOfPayment ?? '';
+
+    // bankController.text = sale?.modeOfPayment ?? '';
+   if (sale?.accountId != null) {
+  final accounts = ref.read(accountProvider).accounts; 
+  final match = accounts.firstWhere(
+    (a) => a.id == sale!.accountId,
+    orElse: () => Account(id: null, name: sale?.accountName ?? '', type: ''),
+  );
+  bankController.text = match.name;
+}
+
+
     buyerNameController.text = sale?.name ?? '';
     phoneController.text = sale?.phone ?? '';
     descriptionController.text = sale?.address ?? '';
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
+    
     final size = MediaQuery.of(context).size;
+
+    final sale = widget.vehicle.saleInfo;
+  final accounts = ref.watch(accountProvider).accounts;
+
+
+if (sale?.accountId != null && accounts.isNotEmpty) {
+  final match = accounts.firstWhere(
+    (a) => a.id == sale!.accountId,
+    orElse: () => Account(id: null, name: sale?.accountName ?? '', type: ''),
+  );
+  bankController.text = match.name;
+}
+
+print("Sale toAccount: ${sale?.accountId}, accountName: ${sale?.accountName}");
+
 
     return Scaffold(
       body: SafeArea(
@@ -158,11 +192,13 @@ class _SalesEditScreenState extends ConsumerState<SalesEditScreen> {
                           suffixIcon: const Icon(Icons.calculate_outlined),
                         ),
 
-                        _buildTextField(
-                          // label: 'Recieved in Account',
-                          controller: bankController,
-                          readOnly: !isEditMode,
-                        ),
+                        // _buildTextField(
+                        //   // label: 'Recieved in Account',
+                        //   controller: bankController,
+                        //   readOnly: !isEditMode,
+                        // ),
+                        _buildAccountDropdown(),
+
 
                         _buildTextField(
                           // label: 'Name',
@@ -307,7 +343,7 @@ class _SalesEditScreenState extends ConsumerState<SalesEditScreen> {
       "date": dateController.text,
       "amount": double.tryParse(priceController.text) ?? 0.0,
       "paid": double.tryParse(recivedPriceController.text) ?? 0.0,
-      "bank": bankController.text,
+      "accountId": selectedAccountId, // 👈 use selected dropdown value
       "buyerName": buyerNameController.text,
       "phone": phoneController.text,
       "description": descriptionController.text,
@@ -368,5 +404,69 @@ class _SalesEditScreenState extends ConsumerState<SalesEditScreen> {
         ),
       ),
     );
-  }
+  } 
+
+  Widget _buildAccountDropdown() {
+  final accounts = ref.watch(accountProvider).accounts;
+
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(bottom: 6),
+          child: Text(
+            'Received in Account',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1B1B3A),
+            ),
+          ),
+        ),
+        DropdownButtonFormField<String>(
+          value: selectedAccountId,
+          items: accounts.map((a) {
+            return DropdownMenuItem<String>(
+              value: a.id,
+              child: Text(a.name),
+            );
+          }).toList(),
+          onChanged: isEditMode
+              ? (String? id) {
+                  if (id != null) {
+                    setState(() {
+                      selectedAccountId = id;
+                      final account =
+                          accounts.firstWhere((a) => a.id == id);
+                      bankController.text = account.name;
+                    });
+                  }
+                }
+              : null, // read-only if not edit mode
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            filled: true,
+            fillColor: isEditMode ? Colors.white : const Color(0xFFF5F5F5),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(
+                color: Color(0xFF0A0A33),
+                width: 1,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 }

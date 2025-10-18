@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/employee/employee_provider.dart';
+import 'package:my_new_project/application/attendance/attendance_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
-
 import 'package:my_new_project/core/models/attendance.dart';
 import 'package:my_new_project/core/models/employee.dart';
-import 'package:my_new_project/application/attendance/attendance_provider.dart';
 import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
 
 class AddAttendanceDialog extends ConsumerStatefulWidget {
-  const AddAttendanceDialog({super.key});
+  final Attendance? attendance;
+  final bool isViewOnly;
+
+  const AddAttendanceDialog({
+    super.key,
+    this.attendance,
+    this.isViewOnly = false,
+  });
 
   @override
   ConsumerState<AddAttendanceDialog> createState() =>
@@ -19,41 +25,135 @@ class AddAttendanceDialog extends ConsumerStatefulWidget {
 
 class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
   final _formKey = GlobalKey<FormState>();
-  DateTime _selectedDate = DateTime.now();
-  Employee? _selectedEmployee;
-  String? _selectedStatus;
 
-  final List<String> _statusOptions = ['Present', 'Absent', 'Late', 'Half Day'];
+  DateTime selectedDate = DateTime.now();
+  Employee? selectedEmployee;
+  String? selectedStatus;
+  bool isEdit = false;
 
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedEmployee == null || _selectedStatus == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please select both employee and status'),
-          ),
-        );
-        return;
+   final List<String> statusOptions = ['Present', 'Absent', 'Late', 'Half Day'];
+ 
+final Map<String, String> statusMapping = {
+  'present': 'Present',
+  'absent': 'Absent',
+  'late': 'Late',
+  'half_day': 'Half Day',
+};
+
+
+  bool get isViewOnly => widget.isViewOnly;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.attendance != null) {
+      final a = widget.attendance!;
+      selectedDate = a.attendanceDate;
+
+
+  final backendStatus = a.attendanceStatus.trim().toLowerCase();
+
+selectedStatus = statusMapping[backendStatus] ?? statusOptions.first;
+
+print('Backend: "${a.attendanceStatus}" | Matched: $selectedStatus');
+
+
+      // load employee from provider based on ID
+      Future.delayed(Duration.zero, () {
+        final employees = ref.read(employeeProvider).employees;
+        if (employees.isNotEmpty) {
+          setState(() {
+            selectedEmployee = employees.firstWhere(
+              (e) => e.id == a.employeeId,
+            
+            ); // ✅ Safe fallback
+          });
+        }
+      });
+
+      isEdit = !widget.isViewOnly;
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (selectedEmployee == null || selectedStatus == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select employee and status')),
+      );
+      return;
+    }
+
+    final newAttendance = Attendance(
+      id: widget.attendance?.id,
+      employeeId: selectedEmployee!.id!,
+      attendanceStatus: selectedStatus!,
+      attendanceDate: selectedDate,
+    );
+
+    final notifier = ref.read(attendanceProvider.notifier);
+
+    try {
+      if (widget.attendance != null) {
+        await notifier.updateAttendance(newAttendance);
+      } else {
+        await notifier.addAttendance(newAttendance);
       }
 
-      final newAttendance = Attendance(
-        employeeId: _selectedEmployee!.id!,
-        attendanceStatus: _selectedStatus!,
-        attendanceDate: _selectedDate,
-      );
-
-      try {
-        await ref
-            .read(attendanceProvider.notifier)
-            .addAttendance(newAttendance);
+      if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Attendance added successfully')),
+          SnackBar(
+            content: Text(
+              widget.attendance != null
+                  ? 'Attendance updated'
+                  : 'Attendance added',
+            ),
+          ),
         );
-      } catch (e) {
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed: $e')));
+    }
+  }
+
+  Future<void> _deleteAttendance() async {
+    if (widget.attendance?.id == null) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirm Delete'),
+        content: const Text(
+          'Are you sure you want to delete this attendance record?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await ref
+          .read(attendanceProvider.notifier)
+          .deleteAttendance(widget.attendance!.id!);
+
+      if (mounted) {
+        Navigator.of(context).pop();
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Failed to add attendance: $e')));
+        ).showSnackBar(const SnackBar(content: Text('Attendance deleted')));
       }
     }
   }
@@ -63,289 +163,107 @@ class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
     final employees = ref.watch(employeeProvider).employees;
 
     return CustomDialog(
-      height: MediaQuery.of(context).size.height * 0.42,
-      title: "Add Attendance",
-      onSubmit: _submitForm,
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.45,
+      title: isViewOnly
+          ? "View Attendance"
+          : (widget.attendance != null ? "Edit Attendance" : "Add Attendance"),
+      onSubmit: isViewOnly ? null : () => _submitForm(),
       onCancel: () => Navigator.of(context).pop(),
       bodyContent: Form(
         key: _formKey,
         child: Column(
           children: [
-            // Date picker
-            // Date picker
-FractionallySizedBox(
-  widthFactor: 0.5, // half width
-  child: InkWell(
-    onTap: () async {
-      final picked = await showDatePicker(
-        context: context,
-        initialDate: _selectedDate,
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2100),
-      );
-      if (picked != null) {
-        setState(() {
-          _selectedDate = picked;
-        });
-      }
-    },
-    child: InputDecorator(
-      decoration: buildInputDecoration('Date').copyWith(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.blue.shade700, width: 1.5),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        labelText: 'Date',
-        labelStyle: const TextStyle(fontSize: 14, color: Colors.black54),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min, // shrink width to content
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            DateFormat('MM/dd/yyyy').format(_selectedDate),
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
-          ),
-          const Icon(Icons.calendar_today, size: 18, color: Colors.black54),
-        ],
-      ),
-    ),
-  ),
-),
-
-          KHeight16,
+            // Date
+            FractionallySizedBox(
+              widthFactor: 0.5,
+              child: TextFormField(
+                readOnly: true,
+                enabled: !isViewOnly,
+                controller: TextEditingController(
+                  text: DateFormat('MM/dd/yyyy').format(selectedDate),
+                ),
+                style: const TextStyle(color: Colors.black, fontSize: 14),
+                decoration: buildInputDecoration(
+                  "Date",
+                  icon: Icons.calendar_today,
+                ),
+                onTap: isViewOnly
+                    ? null
+                    : () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          setState(() => selectedDate = picked);
+                        }
+                      },
+              ),
+            ),
+            KHeight16,
 
             // Employee dropdown
+            // DropdownButtonFormField<Employee>(
+            //   value: selectedEmployee,
+            //   decoration: buildInputDecoration("Select Employee"),
+            //   items: employees
+            //       .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
+            //       .toList(),
+            //   onChanged: isViewOnly
+            //       ? null
+            //       : (val) => setState(() => selectedEmployee = val),
+            //   validator: (val) =>
+            //       val == null ? 'Please select an employee' : null,
+            // ),
             DropdownButtonFormField<Employee>(
-              value: _selectedEmployee,
+              value: selectedEmployee,
               decoration: buildInputDecoration("Select Employee"),
               items: employees
                   .map((e) => DropdownMenuItem(value: e, child: Text(e.name)))
                   .toList(),
-              onChanged: (value) => setState(() => _selectedEmployee = value),
+              onChanged: isViewOnly
+                  ? null
+                  : (val) => setState(() => selectedEmployee = val),
               validator: (val) =>
                   val == null ? 'Please select an employee' : null,
             ),
+
             KHeight16,
 
             // Status dropdown
-            DropdownButtonFormField<String>(
-              value: _selectedStatus,
-              decoration: buildInputDecoration("Select Status"),
-              items: _statusOptions
-                  .map(
-                    (status) =>
-                        DropdownMenuItem(value: status, child: Text(status)),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _selectedStatus = value),
-              validator: (val) => val == null ? 'Please select a status' : null,
-            ),
-            Kheight6,
+            // DropdownButtonFormField<String>(
+            //   value: selectedStatus,
+            //   decoration: buildInputDecoration("Select Status"),
+            //   items: statusOptions
+            //       .map((status) =>
+            //           DropdownMenuItem(value: status, child: Text(status)))
+            //       .toList(),
+            //   onChanged: isViewOnly
+            //       ? null
+            //       : (val) => setState(() => selectedStatus = val),
+            //   validator: (val) => val == null ? 'Please select a status' : null,
+            // ),
+          DropdownButtonFormField<String>(
+  value: selectedStatus,
+  decoration: buildInputDecoration("Select Status"),
+  items: statusOptions
+      .map((status) => DropdownMenuItem(
+            value: status,
+            child: Text(status),
+          ))
+      .toList(),
+  onChanged: isViewOnly
+      ? null
+      : (val) => setState(() => selectedStatus = val),
+  validator: (val) => val == null ? 'Please select a status' : null,
+)
+
           ],
         ),
       ),
     );
   }
 }
-/*import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:my_new_project/application/employee/employee_provider.dart';
-
-import 'package:my_new_project/core/models/attendance.dart';
-import 'package:my_new_project/core/models/employee.dart';
-import 'package:my_new_project/application/attendance/attendance_provider.dart';
-
-
-class AddAttendanceDialog extends ConsumerStatefulWidget {
-  const AddAttendanceDialog({super.key});
-
-  @override
-  ConsumerState<AddAttendanceDialog> createState() => _AddAttendanceDialogState();
-}
-
-class _AddAttendanceDialogState extends ConsumerState<AddAttendanceDialog> {
-  final _formKey = GlobalKey<FormState>();
-  DateTime _selectedDate = DateTime.now();
-  Employee? _selectedEmployee;
-  String? _selectedStatus;
-
-  final List<String> _statusOptions = ['Present', 'Absent', 'Late', 'Half Day'];
-
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedEmployee == null || _selectedStatus == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select both employee and status')),
-        );
-        return;
-      }
-
-      final newAttendance = Attendance(
-        employeeId: _selectedEmployee!.id!,
-        attendanceStatus: _selectedStatus!,
-        attendanceDate: _selectedDate,
-      );
-
-      try {
-        await ref.read(attendanceProvider.notifier).addAttendance(newAttendance);
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Attendance added successfully')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add attendance: $e')),
-        );
-      }
-    }
-  }
-
-  InputDecoration buildInputDecoration(String hintText) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-      filled: true,
-      fillColor: const Color(0xFFF5F6FA),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final employees = ref.watch(employeeProvider).employees;
-
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Add Attendance",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Color(0xFF1B1B3A)),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Color(0xFF1B1B3A)),
-                  onPressed: () => Navigator.of(context).pop(),
-                )
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Date picker
-                  InkWell(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedDate,
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime(2100),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          _selectedDate = picked;
-                        });
-                      }
-                    },
-                    child: InputDecorator(
-                      decoration: buildInputDecoration('Date'),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(DateFormat('MM/dd/yyyy').format(_selectedDate)),
-                          const Icon(Icons.calendar_today, size: 18)
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Employee dropdown
-                  DropdownButtonFormField<Employee>(
-                    value: _selectedEmployee,
-                    decoration: buildInputDecoration("Select Employee"),
-                    items: employees
-                        .map(
-                          (e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(e.name),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) => setState(() => _selectedEmployee = value),
-                    validator: (val) => val == null ? 'Please select an employee' : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Status dropdown
-                  DropdownButtonFormField<String>(
-                    value: _selectedStatus,
-                    decoration: buildInputDecoration("Select Status"),
-                    items: _statusOptions
-                        .map(
-                          (status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (value) => setState(() => _selectedStatus = value),
-                    validator: (val) => val == null ? 'Please select a status' : null,
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF1B1B3A)),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: const Text("Cancel", style: TextStyle(color: Color(0xFF1B1B3A))),
-                      ),
-                      const SizedBox(width: 12),
-                      ElevatedButton(
-                        onPressed: _submitForm,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0A0A33),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        child: const Text("Submit", style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-*/

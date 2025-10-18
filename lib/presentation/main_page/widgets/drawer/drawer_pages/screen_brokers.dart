@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/broker/broker_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/broker.dart';
 import 'package:my_new_project/widgets/broker/add_broker_dialog_form.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
 import 'package:my_new_project/widgets/reusable/output_card.dart';
@@ -49,7 +50,9 @@ class _ScreenBrokersState extends ConsumerState<ScreenBrokers> {
               onAdd: () {
                 showDialog(
                   context: context,
-                  builder: (_) => AddBrokerDialogForm(),
+                  builder: (_) => BrokerDialog(
+                    broker: Broker(name: '', phone: '', address: ''),
+                  ),
                 );
               },
             ),
@@ -70,15 +73,54 @@ class _ScreenBrokersState extends ConsumerState<ScreenBrokers> {
                           title: broker.name,
                           subtitle: broker.phone,
                           address: broker.address,
-                           onView: () {
-                            // You can show a dialog or navigate to a detail screen
+                          onView: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => BrokerDialog(
+                                broker: broker,
+                                isViewOnly: true,
+                              ),
+                            );
                           },
                           onEdit: () {
-                            
+                            showDialog(
+                              context: context,
+                              builder: (_) => BrokerDialog(
+                                broker: broker,
+                                isViewOnly: false,
+                              ),
+                            );
                           },
-                          onDelete: () {
-                         
-                          },
+                         onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text('Are you sure you want to delete this broker?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    await ref.read(brokerProvider.notifier).deleteBroker(broker.id!);
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Broker deleted')),
+      );
+    }
+  }
+},
+
                         );
                       },
                     ),

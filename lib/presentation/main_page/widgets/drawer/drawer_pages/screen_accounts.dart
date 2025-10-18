@@ -8,6 +8,7 @@ import 'package:my_new_project/widgets/reusable/custom_header.dart';
 import 'package:my_new_project/widgets/reusable/output_card.dart';
 
 class ScreenAccounts extends ConsumerWidget {
+  
   const ScreenAccounts({super.key});
 
   @override

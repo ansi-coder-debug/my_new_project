@@ -24,6 +24,8 @@ final Purchase purchaseInfo; // 👈 required field
   final double mileage; //required by backend
   final String fuelType;
   final List<Brokerage>? brokerageInfo;
+   final int? toAccount; // <-- add this
+     final String? accountName;
 
   Vehicle({
     required this.id,
@@ -44,6 +46,8 @@ final Purchase purchaseInfo; // 👈 required field
     required this.mileage,
     required this.fuelType,
     this.brokerageInfo, 
+     this.toAccount,
+     this.accountName
   });
   Vehicle copyWith({
     String? id,
@@ -161,6 +165,9 @@ final Purchase purchaseInfo; // 👈 required field
         .toList()
     : [],
 
+       toAccount: json['to_account'],      // map backend
+      accountName: json['account_name'],  // map backend
+
     );
   }
 
@@ -204,7 +211,10 @@ final Purchase purchaseInfo; // 👈 required field
 
       if (brokerageInfo != null && brokerageInfo!.isNotEmpty)
     'brokerage_info': brokerageInfo!.map((b) => b.toJson()).toList(),
+    
 
+    'to_account': toAccount,
+      'account_name': accountName,
 
     };
   }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/accounts/account_provider.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
+import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 
@@ -32,6 +33,7 @@ class _PurchaseEditScreenState extends ConsumerState<PurchaseEditScreen> {
   final accountController = TextEditingController();
 
   late bool isEditMode;
+  String? selectedAccountId;
 
   @override
   void initState() {
@@ -51,6 +53,18 @@ class _PurchaseEditScreenState extends ConsumerState<PurchaseEditScreen> {
       phoneController.text = purchase.phone;
       addressController.text = purchase.address;
       // account.read(accountProvider.notifier);
+      // NEW: initialize selected account
+      selectedAccountId =
+          purchase.accountId; // <-- if you store account ID in purchase
+
+      final accounts = ref.read(accountProvider).accounts;
+      if (selectedAccountId != null) {
+        final match = accounts.firstWhere(
+          (a) => a.id == selectedAccountId,
+          orElse: () => Account(id: null, name: '', type: ''),
+        );
+        accountController.text = match.name;
+      }
     }
   }
 
@@ -156,7 +170,7 @@ class _PurchaseEditScreenState extends ConsumerState<PurchaseEditScreen> {
                           Hint: 'Seller Address',
                           controller: addressController,
                           readOnly: !isEditMode,
-                           maxLines: 2,
+                          maxLines: 2,
                         ),
                         _buildTextField(
                           Hint: 'Phone',
@@ -164,12 +178,13 @@ class _PurchaseEditScreenState extends ConsumerState<PurchaseEditScreen> {
                           readOnly: !isEditMode,
                           keyboardType: TextInputType.phone,
                         ),
-                        _buildTextField(
-                          Hint: 'paid from Account ',
-                          controller: accountController,
-                          readOnly: !isEditMode,
-                         
-                        ),
+                        // _buildTextField(
+                        //   Hint: 'paid from Account ',
+                        //   controller: accountController,
+                        //   readOnly: !isEditMode,
+
+                        // ),
+                        _buildAccountDropdown(),
                       ],
                     ),
                   ),
@@ -296,7 +311,7 @@ class _PurchaseEditScreenState extends ConsumerState<PurchaseEditScreen> {
       "date": dateController.text,
       "price": double.tryParse(priceController.text) ?? 0.0,
       "paid_amount": double.tryParse(paidAmountController.text) ?? 0.0,
-      "mode_of_payment": paymentModeController.text,
+      "accountId": selectedAccountId,
       "name": nameController.text,
       "phone": phoneController.text,
       "address": addressController.text,
@@ -358,5 +373,66 @@ class _PurchaseEditScreenState extends ConsumerState<PurchaseEditScreen> {
     phoneController.dispose();
     addressController.dispose();
     super.dispose();
+  }
+
+  Widget _buildAccountDropdown() {
+    final accounts = ref.watch(accountProvider).accounts;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: Text(
+              'Paid From Account',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1B1B3A),
+              ),
+            ),
+          ),
+          DropdownButtonFormField<String>(
+            value: selectedAccountId,
+            items: accounts.map((a) {
+              return DropdownMenuItem<String>(value: a.id, child: Text(a.name));
+            }).toList(),
+            onChanged: isEditMode
+                ? (String? id) {
+                    if (id != null) {
+                      setState(() {
+                        selectedAccountId = id;
+                        final account = accounts.firstWhere((a) => a.id == id);
+                        accountController.text = account.name;
+                      });
+                    }
+                  }
+                : null,
+            decoration: InputDecoration(
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+              filled: true,
+              fillColor: isEditMode ? Colors.white : const Color(0xFFF5F5F5),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(
+                  color: Color(0xFF0A0A33),
+                  width: 1,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

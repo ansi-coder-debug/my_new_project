@@ -11,6 +11,8 @@ class Purchase {
   final String paymentStatus;
   // final  purchasePaid; // add this
   final double paidAmount; // 
+  final String? accountId;
+  final String? accountName; // holds the account name (e.g., "Federal Bank")
 
   Purchase({
     required this.id,
@@ -25,6 +27,8 @@ class Purchase {
     required this.paymentStatus,
     // required this.purchasePaid, //(partial , paid )
      required this.paidAmount,
+       this.accountId,
+    this.accountName,
   });
 
   factory Purchase.fromJson(Map<String, dynamic> json) {
@@ -47,6 +51,8 @@ class Purchase {
       //     json['purchase_paid'] == 1 ||
       //     json['purchase_paid'] == true, // adapt based on actual type
        paidAmount: double.tryParse(json['purchase_paid'].toString()) ?? 0.0,
+        accountId: json['account_id']?.toString(), // PARSE HERE
+      accountName: json['account_name'] ?? '', // NEW field added
     );
   }
 
@@ -64,6 +70,7 @@ class Purchase {
       'payment_status': paymentStatus,
       // 'purchase_paid': purchasePaid ? 1 : 0, // adapt type accordingly
       'purchase_paid': paidAmount, 
+       'account_id': accountId, // INCLUDE HERE TOO
     };
   }
 }

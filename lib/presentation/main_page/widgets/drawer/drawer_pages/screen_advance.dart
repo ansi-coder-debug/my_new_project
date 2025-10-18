@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/advance/advance_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/advance.dart';
 import 'package:my_new_project/widgets/advance/add_advance_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
 import 'package:my_new_project/widgets/reusable/output_card.dart';
@@ -35,12 +36,24 @@ class ScreenAdvance extends ConsumerWidget {
                 // TODO: Open search
               },
               showAdd: true,
-              onAdd: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => AddAdvanceDialog(),
-                );
-              },
+onAdd: () {
+  // Create a blank Advance with default values for adding
+  final newAdvance = Advance(
+    vehicleId: null,        // No vehicle selected yet
+    amount: 0.0,            // Default amount
+    date: DateTime.now(),   // Default date is today
+    buyerName: '',          // Empty buyer name
+  );
+
+  showDialog(
+    context: context,
+    builder: (_) => AddAdvanceDialog(
+      advance: newAdvance,  // ✅ Pass the blank Advance
+      isViewOnly: false,    // Editable since this is adding
+    ),
+  );
+},
+
             ),
             KHeight,
 
@@ -61,7 +74,8 @@ class ScreenAdvance extends ConsumerWidget {
                           phone: advance.buyerPhone?.isNotEmpty == true
                               ? advance.buyerPhone
                               : 'No phone',
-                         date: "${advance.date.day}/${advance.date.month}/${advance.date.year}",
+                          date:
+                              "${advance.date.day}/${advance.date.month}/${advance.date.year}",
 
                           showAmount: true,
                           amount: advance.amount,
@@ -71,14 +85,58 @@ class ScreenAdvance extends ConsumerWidget {
                           addTopSubtitleSpacing: true,
                           showBalanceBelowPaid: false,
                           onView: () {
-                            // TODO: handle view logic
+                            showDialog(
+                              context: context,
+                              builder: (_) => AddAdvanceDialog(
+                                advance: advance,
+                                isViewOnly: true,
+                              ),
+                            );
                           },
                           onEdit: () {
-                            // TODO: handle edit logic
+                            showDialog(
+                              context: context,
+                              builder: (_) => AddAdvanceDialog(
+                                advance: advance,
+                                isViewOnly: false,
+                              ),
+                            );
                           },
-                          onDelete: () {
-                            // TODO: handle delete logic
-                          },
+                         onDelete: () async {
+  // Show confirmation dialog
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text('Are you sure you want to delete this advance record?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text(
+            'Delete',
+            style: TextStyle(color: Colors.red),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  // If user confirmed, delete the advance
+  if (confirm == true) {
+    final advanceProviderNotifier = ref.read(advanceProvider.notifier);
+    await advanceProviderNotifier.deleteAdvance(advance.id!);
+
+   ScaffoldMessenger.of(context).showSnackBar(
+  const SnackBar(content: Text('Advance deleted')),
+);
+
+  }
+},
+
                         );
                       },
                     ),

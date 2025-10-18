@@ -11,6 +11,9 @@ class Finance {
   final double receivedPrice;
   final Financier? financier;
   final VehicleSummary? vehicle;
+    final int? accountId;
+
+  final String? accountName;
 
   Finance({
     required this.id,
@@ -21,6 +24,8 @@ class Finance {
     required this.receivedPrice,
     this.financier,
     this.vehicle,
+     this.accountId,
+    this.accountName,
   });
 
   factory Finance.fromJson(Map<String, dynamic> json) {
@@ -45,6 +50,12 @@ class Finance {
 
       return Finance(
         id: json['id']?.toString() ?? '',
+        
+      accountId: json['to_account'] is int
+    ? json['to_account']
+    : int.tryParse(json['to_account']?.toString() ?? ''),
+
+      accountName: json['account_name'] ?? '', // NEW field added
         vehicleId: json['vehicle_id']?.toString() ?? '',
         toAccount: json['to_account']?.toString() ?? '',
         paymentStatus: json['payment_status']?.toString() ?? '',
@@ -90,6 +101,7 @@ class Finance {
       'amount': amount,
       'received_price': receivedPrice,
       'financier_id': financier?.id,
+       'account_id': accountId, // INCLUDE HERE TOO
     };
   }
 

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/partnership/partnership_provider.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/core/models/partnership.dart';
+import 'package:my_new_project/widgets/partnerships/partnership_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
 import 'package:my_new_project/widgets/reusable/output_card.dart';
 
@@ -92,12 +94,57 @@ class ScreenPartnerships extends ConsumerWidget {
                               contributionStatus[0].toUpperCase() +
                               contributionStatus.substring(1),
 
-                          paymentMode: paymentMode,
+                          // paymentMode: paymentMode,
                           status: contributionStatus,
                           showMenu: true,
-                          onEdit: () {},
-                          onDelete: () {},
-                          onView: () {},
+
+                          onView: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AddPartnershipDialog(
+                                partnership:
+                                    partnership, // the current partnership object
+                                isViewOnly: true, // ✅ makes fields read-only
+                              ),
+                            );
+                          },
+                          onEdit: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AddPartnershipDialog(
+                                partnership:
+                                    partnership, // pass the object to edit
+                                isViewOnly: false, // ✅ allows editing
+                              ),
+                            );
+                          },
+                          onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text("Delete Partnership"),
+      content: const Text("Are you sure you want to delete this partnership?"),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: const Text("Cancel"),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: const Text("Delete"),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    ref.read(partnershipProvider.notifier).deletePartnership(partnership.id!);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Partnership deleted")),
+    );
+  }
+},
+
                         );
                       },
                     ),

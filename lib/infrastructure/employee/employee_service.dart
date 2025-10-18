@@ -132,4 +132,28 @@ class EmployeeService {
       );
     }
   }
+
+   Future<void> updateEmployee(int id, Map<String, dynamic> data) async {
+   try{
+     final token = _ref.read(authNotifierProvider).user?.accessToken;
+
+           if (token == null) throw Exception('User not authenticated');
+
+      final response = await _dio.put(
+        '$HbaseUrl/employees/$id', // Replace with your API URL
+        data: data,
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+     if (response.statusCode! < 200 || response.statusCode! >= 300) {
+  throw Exception('Failed to update employee');
+}
+
+   }
+   on DioException catch (e) {
+      throw Exception(
+        'Failed to update  employee: ${e.response?.data ?? e.message}',
+      );
+    }
+  }
 }

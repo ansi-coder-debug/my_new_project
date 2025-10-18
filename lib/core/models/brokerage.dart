@@ -6,7 +6,7 @@ class Brokerage {
   final String? remarks;
   final String? brokeragePaid;
 final String? paymentStatus;
-
+final int? saleId;
   
 
 
@@ -18,7 +18,8 @@ final String? paymentStatus;
     required this.amount,
     this.remarks,
     this.brokeragePaid,     
-  this.paymentStatus,  
+  this.paymentStatus, 
+  this.saleId 
 
   });
 
@@ -31,7 +32,7 @@ final String? paymentStatus;
       remarks: json['remarks'],
        brokeragePaid: json['brokerage_paid'],      // new
     paymentStatus: json['payment_status'],      // new
-     
+      saleId: json['sale_id'], // new
     );
   }
 
@@ -44,7 +45,7 @@ final String? paymentStatus;
       'remarks': remarks,
        'brokerage_paid': brokeragePaid,      // new
     'payment_status': paymentStatus,      // new
-      
+      'sale_id': saleId, // new
     };
   }
 }

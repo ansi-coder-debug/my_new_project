@@ -54,26 +54,36 @@ class EmployeeNotifier extends StateNotifier<EmployeeState> {
 
   }
 
-  /// Update a local employee (optimistic UI update)
-  void updateEmployee(Employee updatedEmployee) {
-    final index = state.employees.indexWhere((e) => e.id == updatedEmployee.id);
-    if (index == -1) {
-      state = state.copyWith(
-        status: EmployeeStatus.error,
-        error: 'Employee not found',
-      );
-      return;
-    }
+  // /// Update a local employee (optimistic UI update)
+  // void updateEmployee(Employee updatedEmployee) {
+  //   final index = state.employees.indexWhere((e) => e.id == updatedEmployee.id);
+  //   if (index == -1) {
+  //     state = state.copyWith(
+  //       status: EmployeeStatus.error,
+  //       error: 'Employee not found',
+  //     );
+  //     return;
+  //   }
 
-    final updatedList = [...state.employees];
-    updatedList[index] = updatedEmployee;
+  //   final updatedList = [...state.employees];
+  //   updatedList[index] = updatedEmployee;
 
-    state = state.copyWith(
-      employees: updatedList,
-      status: EmployeeStatus.success,
-      error: null,
-    );
+  //   state = state.copyWith(
+  //     employees: updatedList,
+  //     status: EmployeeStatus.success,
+  //     error: null,
+  //   );
+  // }
+
+  Future<void> updateEmployeeOnBackend(Employee updatedEmployee) async {
+  try {
+    await _repository.updateEmployee(updatedEmployee.id!, updatedEmployee.toJson());
+    await fetchEmployees(); // refresh after update
+  } catch (e) {
+    state = state.copyWith(status: EmployeeStatus.error, error: e.toString());
   }
+}
+
 
   /// Delete employee from backend and refresh
   Future<void> deleteEmployee(int id) async {

@@ -25,4 +25,9 @@ class EmployeeRepository {
   Future<void> deleteEmployee(int id) async {
     await _employeeService.deleteEmployee(id);
   }
+
+  // ✅ Add this method
+  Future<void> updateEmployee(int id, Map<String, dynamic> data) async {
+    await _employeeService.updateEmployee(id, data);
+  }
 }

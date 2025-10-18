@@ -120,13 +120,16 @@ class SalesVsPurchasePieChart extends StatelessWidget {
           ),
           KHeight20,
           // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              _buildLegendItem(purchasePaidColor, 'Purchase Paid'),
-              const SizedBox(width: 20),
-              _buildLegendItem(salesReceivedColor, 'Sales Received'),
-            ],
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _buildLegendItem(purchasePaidColor, 'Purchase Paid'),
+                const SizedBox(width: 20),
+                _buildLegendItem(salesReceivedColor, 'Sales Received'),
+              ],
+            ),
           ),
         ],
       ),

@@ -60,15 +60,56 @@ class ScreenFinanciers extends ConsumerWidget {
                           title: financier.companyName,
                           subtitle: financier.contactPerson,
                           phone: financier.contactNumber,
-                           onView: () {
-                            // You can show a dialog or navigate to a detail screen
-                          },
-                          onEdit: () {
-                            
-                          },
-                          onDelete: () {
-                         
-                          },
+                          onView: () {
+  showDialog(
+    context: context,
+    builder: (_) => AddFinancierDialog(
+      financier: financier,  // pass the current financier
+      isViewOnly: true,      // view-only mode
+    ),
+  );
+},
+
+onEdit: () {
+  showDialog(
+    context: context,
+    builder: (_) => AddFinancierDialog(
+      financier: financier,  // pass the current financier
+      isViewOnly: false,     // editable mode
+    ),
+  );
+},
+
+onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text(
+          'Are you sure you want to delete this financier record?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    await ref.read(financierProvider.notifier).deleteFinancier(financier.id!);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Financier deleted')),
+      );
+    }
+  }
+},
+
                         );
                       },
                     ),

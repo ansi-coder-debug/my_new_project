@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:my_new_project/application/brokerage/brokerage_provider.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/brokerage.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/infrastructure/broker/broker_repositary.dart';
+import 'package:my_new_project/widgets/brokerage/brokerage_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
 import 'package:my_new_project/widgets/reusable/output_card.dart';
 
@@ -92,9 +94,47 @@ class ScreenBrokerage extends ConsumerWidget {
                     showMenu: true,
                    addTopSubtitleSpacing: false,  // disables that 4px space only here
                    showBalanceBelowPaid: true,
-                    onView: () {},
-                    onEdit: () {},
-                    onDelete: () {},
+                   onView: () {
+  showDialog(
+    context: context,
+    builder: (_) => BrokerageDialog(
+      brokerage: brokerage,
+      isViewOnly: true,
+    ),
+  );
+},
+
+onEdit: () {
+  showDialog(
+    context: context,
+    builder: (_) => BrokerageDialog(
+      brokerage: brokerage,
+      isViewOnly: false,
+    ),
+  );
+},
+
+                 onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text('Are you sure you want to delete this brokerage record?'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    await ref.read(brokerageProvider.notifier).deleteBrokerage(brokerage.id!);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Brokerage deleted')),
+    );
+  }
+},
+
                   );
                 },
               ),

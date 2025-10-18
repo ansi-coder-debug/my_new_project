@@ -63,11 +63,49 @@ class ScreenAttendance extends ConsumerWidget {
                           title: attendance.employeeName!,
                           subtitle:
                               '${DateFormat('dd-MM-yyyy').format(attendance.attendanceDate)} • ${attendance.attendanceStatus}',
-                          onView: () {
-                            // You can show a dialog or navigate to a detail screen
-                          },
-                          onEdit: () {},
-                          onDelete: () {},
+                        onView: () {
+  showDialog(
+    context: context,
+    builder: (_) => AddAttendanceDialog(
+      attendance: attendance,
+      isViewOnly: true,
+    ),
+  );
+},
+
+onEdit: () {
+  showDialog(
+    context: context,
+    builder: (_) => AddAttendanceDialog(
+      attendance: attendance,
+      isViewOnly: false,
+    ),
+  );
+},
+
+onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text('Are you sure you want to delete this attendance record?'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    await ref.read(attendanceProvider.notifier).deleteAttendance(attendance.id!);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Attendance deleted')),
+      );
+    }
+  }
+},
+
                         );
                       },
                     ),

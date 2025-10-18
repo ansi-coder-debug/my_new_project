@@ -11,9 +11,17 @@ class Partnership {
   final String? startDate;
   final Partner? partner;
   final String? contribution;
+  final String? contributionPaid; // NEW field
   final String? paymentMode;
   final String? contributionStatus;
   final int? fromAccount;
+  final String? accountName;
+  final String? vehicleMake;
+final String? vehicleModel;
+final String? vehicleRegNo;
+
+
+
 
 
   Partnership({
@@ -29,49 +37,44 @@ class Partnership {
     this.contribution,
     this.paymentMode,
     this.contributionStatus,
-    this.fromAccount
+    this.fromAccount,
+    this.accountName,
+    this.contributionPaid,
+     this.vehicleMake,     // NEW
+  this.vehicleModel,    // NEW
+  this.vehicleRegNo, 
+
+
   });
 
-  factory Partnership.fromJson(Map<String, dynamic> json) {
+factory Partnership.fromJson(Map<String, dynamic> json) {
+    print('fromJson -> vehicle_make: ${json['vehicle_make']}, vehicle_model: ${json['vehicle_model']}');
+
     return Partnership(
       id: json['id']?.toString(),
-      partnerName: json['partner_name'] ?? '',
-      contactPerson: json['contact_person'] ?? '',
-      email: json['email'] ?? '',
-      phone: json['phone'] ?? '',
-      sharePercentage: json['share_percentage']?.toString() ?? '0',
-      // vehicleId: json['vehicle_id']?.toString(),
-      startDate: json['start_date'] ?? '',
-      partner: json['partner'] != null && json['partner'] is Map<String, dynamic>
-          ? Partner.fromJson(json['partner'])
-          : null,
+      partnerName: json['partner_name'],
+      phone: json['partner_phone'],
+      sharePercentage: json['profit_share']?.toString(),
+      vehicleId: json['vehicle_id']?.toString(),
+    
       contribution: json['contribution']?.toString(),
-      paymentMode: json['payment_mode'],
-      contributionStatus: json['contribution_status'],
+      contributionPaid: json['contribution_payment_paid']?.toString(),
+      contributionStatus: json['contribution_payment_status'],
+      paymentMode: json['profit_share_payment_status'],
       fromAccount: json['from_account'] is int
-    ? json['from_account']
-    : int.tryParse(json['from_account']?.toString() ?? ''),
+          ? json['from_account']
+          : int.tryParse(json['from_account']?.toString() ?? ''),
+      accountName: json['account_name'] ?? '',
+       vehicleMake: json['vehicle_make'],      // NEW
+    vehicleModel: json['vehicle_model'],    // NEW
+    vehicleRegNo: json['vehicle_reg_no'],   // NEW
 
+    
     );
+    
   }
 
-  // Map<String, dynamic> toJson() {
-  //   return {
-  //     'id': id,
-  //     'partner_id': partner?.id,
-  //     'partner_name': partner?.name,
-  //     'address': partner?.address,
-  //     'contact_person': contactPerson,
-  //     'email': email,
-  //     'phone': partner?.phone,
-  //     'share_percentage': sharePercentage,
-  //     'vehicle_id': vehicleId,
-  //     'start_date': startDate,
-  //     'contribution': contribution,
-  //     'payment_mode': paymentMode,
-  //     'contribution_status': contributionStatus,
-  //   };
-  // }
+  
 Map<String, dynamic> toJson() {
   return {
     
@@ -83,6 +86,7 @@ Map<String, dynamic> toJson() {
     'contribution_payment_status': contributionStatus ?? 'pending',
     'profit_share_payment_status': 'pending', // Backend requires this field
      'vehicle_id': int.tryParse(vehicleId ?? '0') ?? 0, 
+     
   };
 }
 
@@ -118,4 +122,5 @@ Map<String, dynamic> toJson() {
       contributionStatus: contributionStatus ?? this.contributionStatus,
     );
   }
+  
 }

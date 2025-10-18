@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/employee/employee_provider.dart';
@@ -170,33 +170,42 @@ class _AddEmployeeModalState extends ConsumerState<AddEmployeeModal> {
     );
   }
 }
-
-/*import 'package:flutter/material.dart';
+*/
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:my_new_project/application/employee/employee_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/employee.dart';
+import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
 
-class AddEmployeeModal extends ConsumerStatefulWidget {
-  const AddEmployeeModal({super.key});
+class EmployeeDialog extends ConsumerStatefulWidget {
+  final Employee employee;
+  final bool isViewOnly;
+
+  const EmployeeDialog({
+    super.key,
+    required this.employee,
+    this.isViewOnly = false,
+  });
 
   @override
-  ConsumerState<AddEmployeeModal> createState() => _AddEmployeeModalState();
+  ConsumerState<EmployeeDialog> createState() => _EmployeeDialogState();
 }
 
-class _AddEmployeeModalState extends ConsumerState<AddEmployeeModal> {
-  final _formKey = GlobalKey<FormState>();
+class _EmployeeDialogState extends ConsumerState<EmployeeDialog> {
+  bool isEdit = false;
 
-  // Controllers
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _phoneCtrl = TextEditingController();
   final TextEditingController _addressCtrl = TextEditingController();
   final TextEditingController _salaryCtrl = TextEditingController();
-
   String? _selectedPosition;
   DateTime _selectedDate = DateTime.now();
+  final TextEditingController _dateCtrl = TextEditingController();
+
 
   final List<String> _positions = [
     'Manager',
@@ -205,195 +214,270 @@ class _AddEmployeeModalState extends ConsumerState<AddEmployeeModal> {
     'Technician',
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    isEdit = !widget.isViewOnly;
+
+    _nameCtrl.text = widget.employee.name;
+    _emailCtrl.text = widget.employee.email;
+    _phoneCtrl.text = widget.employee.phone;
+    _addressCtrl.text = widget.employee.address;
+    _salaryCtrl.text = widget.employee.salary.toString();
+    _selectedPosition = widget.employee.position;
+// Initialize date controller with formatted string
+  _dateCtrl.text = DateFormat('MM/dd/yyyy').format(_selectedDate);  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _phoneCtrl.dispose();
+    _addressCtrl.dispose();
+    _salaryCtrl.dispose();
+     _dateCtrl.dispose(); // dispose the date controller
+    super.dispose();
+  }
+
+  Future<void> _updateEmployee() async {
+    final updated = Employee(
+      id: widget.employee.id,
+      name: _nameCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
+      phone: _phoneCtrl.text.trim(),
+      address: _addressCtrl.text.trim(),
+      position: _selectedPosition!,
+      salary: double.tryParse(_salaryCtrl.text.trim()) ?? 0,
+      hireDate: _selectedDate.toIso8601String(),
+    );
+
+    await ref.read(employeeProvider.notifier).updateEmployeeOnBackend(updated);
+
+    if (mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Employee updated')));
+    }
+  }
+
+  Future<void> _deleteEmployee() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirm Delete'),
+        content: const Text('Are you sure you want to delete this employee?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await ref
+          .read(employeeProvider.notifier)
+          .deleteEmployee(widget.employee.id!);
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Employee deleted')));
+      }
+    }
+  }
+
   Future<void> _submit() async {
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (isEdit) {
+      await _updateEmployee();
+    } else {
       final employee = Employee(
-        id:null , // backend will assign it
+        id: null,
         name: _nameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
         phone: _phoneCtrl.text.trim(),
         address: _addressCtrl.text.trim(),
         position: _selectedPosition!,
         salary: double.tryParse(_salaryCtrl.text.trim()) ?? 0,
-        hireDate: _selectedDate.toIso8601String(),
+hireDate: _selectedDate.toIso8601String(),
       );
 
       await ref.read(employeeProvider.notifier).addEmployee(employee);
-      Navigator.of(context).pop(); // Close modal
-    }
-  }
 
-//Design 
-  InputDecoration _inputDecoration(String hintText) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: const TextStyle(fontSize: 14, color: Colors.grey),
-      filled: true,
-      fillColor: const Color(0xFFF5F6FA),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-    );
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Employee added')));
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      insetPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      backgroundColor: Colors.white,
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
+    return CustomDialog(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.7,
+      title: widget.isViewOnly
+          ? 'View Employee'
+          : isEdit
+          ? 'Edit Employee'
+          : 'Add Employee',
+      onCancel: () => Navigator.of(context).pop(),
+      onSubmit: isEdit || !widget.isViewOnly ? _submit : null,
+      bodyContent: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              /// Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Add Employee',
-                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1B1B3A),
-                  ),
-                  ),
-                  IconButton(
-                     icon: const Icon(Icons.close, color: Color(0xFF1B1B3A)),
-                    onPressed: () => Navigator.of(context).pop(),
-                  )
-                ],
-              ),
-            KHeight16,
+              KHeight16,
+              // Hire Date
+             FractionallySizedBox(
+  widthFactor: 0.5,
+  child: TextFormField(
 
-              /// Name
+    readOnly: true,
+    enabled: !widget.isViewOnly,
+    controller: _dateCtrl,
+    style: const TextStyle(color: Colors.black, fontSize: 14),
+    decoration: buildInputDecoration(
+      "Hire Date",
+      icon: Icons.calendar_today,
+    ),
+    onTap: widget.isViewOnly
+        ? null
+        : () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: _selectedDate,
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+            );
+            if (picked != null) {
+              setState(() {
+                _selectedDate = picked;
+                _dateCtrl.text = DateFormat('MM/dd/yyyy').format(picked);
+              });
+            }
+          },
+  ),
+),
+
+
+              KHeight16,
+              // Name
               TextFormField(
+                style: TextStyle(color: Colors.black),
                 controller: _nameCtrl,
-                decoration: _inputDecoration("Employee Name"),
+                decoration: buildInputDecoration("Employee Name"),
+                readOnly: widget.isViewOnly ? true : !isEdit,
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Required' : null,
               ),
-             KHeight16,
-
-              /// Email
+              KHeight16,
+              // Email
               TextFormField(
+                 style: TextStyle(color: Colors.black),
                 controller: _emailCtrl,
-                 decoration: _inputDecoration("Email"),
+                decoration: buildInputDecoration("Email"),
+                readOnly: widget.isViewOnly ? true : !isEdit,
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Required' : null,
               ),
-               KHeight16,
-
-              /// Phone
+              KHeight16,
+              // Phone
               TextFormField(
+                 style: TextStyle(color: Colors.black),
                 controller: _phoneCtrl,
-                  decoration: _inputDecoration("Phone"),
+                decoration: buildInputDecoration("Phone"),
                 keyboardType: TextInputType.number,
                 maxLength: 10,
+                readOnly: widget.isViewOnly ? true : !isEdit,
                 validator: (val) {
                   if (val == null || val.isEmpty) return 'Required';
                   if (val.length != 10) return 'Must be 10 digits';
                   return null;
                 },
               ),
-               KHeight16,
-
-              /// Address
+              KHeight16,
+              // Address
               TextFormField(
+                 style: TextStyle(color: Colors.black),
                 controller: _addressCtrl,
-                 decoration: _inputDecoration("Address"),
+                decoration: buildInputDecoration("Address"),
+                readOnly: widget.isViewOnly ? true : !isEdit,
                 maxLines: 2,
               ),
-               KHeight16,
-
-              /// Position Dropdown
+              KHeight16,
+              // Position
               DropdownButtonFormField<String>(
-                 decoration: _inputDecoration("Select Position"),
+                 style: TextStyle(color: Colors.black),
+                decoration: buildInputDecoration("Select Position"),
                 value: _selectedPosition,
                 items: _positions
-                    .map((pos) =>
-                        DropdownMenuItem(value: pos, child: Text(pos)))
+                    .map(
+                      (pos) => DropdownMenuItem(value: pos, child: Text(pos)),
+                    )
                     .toList(),
-                onChanged: (val) => setState(() => _selectedPosition = val),
+                onChanged: widget.isViewOnly
+                    ? null
+                    : (val) => setState(() => _selectedPosition = val),
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Required' : null,
               ),
-               KHeight16,
-
-              /// Salary
+              KHeight16,
+              // Salary
               TextFormField(
+                 style: TextStyle(color: Colors.black),
                 controller: _salaryCtrl,
-                 decoration: _inputDecoration("Salary"),
+                decoration: buildInputDecoration("Salary"),
                 keyboardType: TextInputType.number,
+                readOnly: widget.isViewOnly ? true : !isEdit,
               ),
-               KHeight16,
-
-              /// Hire Date Picker
-              InkWell(
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: _selectedDate,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _selectedDate = picked;
-                    });
-                  }
-                },
-               child: InputDecorator(
-  decoration: _inputDecoration('Hire Date').copyWith(
-    labelText: 'Hire Date',
-  ),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(DateFormat('MM/dd/yyyy').format(_selectedDate)),
-      const Icon(Icons.calendar_today, size: 18),
-    ],
-  ),
-),
-
-              ),
-
-              const SizedBox(height: 20),
-
-              /// Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+              KHeight16,
+              // Show Delete & Update buttons if editable
+              if (isEdit)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    OutlinedButton(
+                      onPressed: _deleteEmployee,
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
                       child: const Text(
-                        'Cancel',
-                          style: TextStyle(color: Color(0xFF1B1B3A), fontWeight: FontWeight.w500),
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _submit,
-                       style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0A0A33),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ElevatedButton(
+                      onPressed: _updateEmployee,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0A0A33),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
                         ),
+                      ),
                       child: const Text(
-                        'Submit',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
+                        'Update',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ),
         ),
@@ -401,4 +485,3 @@ class _AddEmployeeModalState extends ConsumerState<AddEmployeeModal> {
     );
   }
 }
-*/

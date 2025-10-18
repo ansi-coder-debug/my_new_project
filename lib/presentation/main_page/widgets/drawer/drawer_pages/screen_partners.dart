@@ -35,7 +35,9 @@ class _ScreenPartnersState extends ConsumerState<PartnersPage> {
             // Top Header
             CustomHeader(
               title: "Partners",
-              onBack: () {},
+              onBack: () {
+                
+              },
               onFilter: () {
                 // TODO: Implement filter
               },
@@ -68,15 +70,47 @@ class _ScreenPartnersState extends ConsumerState<PartnersPage> {
                           title: partner.name,
                           subtitle: partner.phone!,
                           address: partner.address,
-                           onView: () {
-                            // You can show a dialog or navigate to a detail screen
-                          },
-                          onEdit: () {
-                            
-                          },
-                          onDelete: () {
-                         
-                          },
+                          onView: () {
+  showDialog(
+    context: context,
+    builder: (_) => AddPartnerForm(
+      partner: partner,   // the Partner object you want to view
+      isViewOnly: true,   // view only mode
+    ),
+  );
+},
+
+onEdit: () {
+  showDialog(
+    context: context,
+    builder: (_) => AddPartnerForm(
+      partner: partner,   // the Partner object you want to edit
+      isViewOnly: false,  // allow editing
+    ),
+  );
+},
+
+onDelete: () async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Confirm Delete'),
+      content: const Text('Are you sure you want to delete this partner?'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
+    await ref.read(partnerProvider.notifier).deletePartner(partner.id!);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Partner deleted')),
+    );
+  }
+},
+
                         );
                       },
                     ),
