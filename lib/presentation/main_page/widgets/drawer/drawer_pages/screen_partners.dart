@@ -35,9 +35,9 @@ class _ScreenPartnersState extends ConsumerState<PartnersPage> {
             // Top Header
             CustomHeader(
               title: "Partners",
-              onBack: () {
+              // onBack: () {
                 
-              },
+              // },
               onFilter: () {
                 // TODO: Implement filter
               },

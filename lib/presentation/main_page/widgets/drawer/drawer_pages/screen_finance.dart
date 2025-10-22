@@ -23,6 +23,9 @@ class ScreenFinance extends ConsumerWidget {
           children: [
             CustomHeader(
               title: 'Finance',
+              // onBack: () {
+                
+              // },
               onFilter: () {
                 // TODO: Open filter dialog
               },

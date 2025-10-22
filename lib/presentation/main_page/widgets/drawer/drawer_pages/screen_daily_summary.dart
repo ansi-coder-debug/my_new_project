@@ -29,7 +29,7 @@ class _ScreenDailySummaryState extends ConsumerState<ScreenDailySummary> {
             /// 🔹 Custom Header (Same as Monthly)
             CustomHeaderSummary(
               title: 'Daily Summary',
-              onBack: () => Navigator.pop(context),
+              // onBack: (){},
               headerContent: SummaryHeaderButtons(
                 selectedTab: selectedTab,
                 onTabSelected: (tab) {

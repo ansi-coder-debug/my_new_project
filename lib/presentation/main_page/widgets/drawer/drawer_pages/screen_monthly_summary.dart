@@ -31,7 +31,7 @@ class _ScreenMonthlySummaryState extends ConsumerState<ScreenMonthlySummary> {
             // Custom header (reused)
            CustomHeaderSummary(
              title: 'Monthly Summary',
-             onBack: () => Navigator.pop(context),
+            //  onBack: () {},
              headerContent: SummaryHeaderButtons(
                selectedTab: selectedTab,
                onTabSelected: (tab) {

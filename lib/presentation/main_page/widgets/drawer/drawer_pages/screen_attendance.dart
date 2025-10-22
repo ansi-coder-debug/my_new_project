@@ -23,9 +23,9 @@ class ScreenAttendance extends ConsumerWidget {
             // Top Header with Add Button
             CustomHeader(
               title: "Attendance",
-              onBack: () {
-                // Optional back action
-              },
+              // onBack: () {
+              //   // Optional back action
+              // },
               onFilter: () {
                 // TODO: Open filter
               },

@@ -23,9 +23,9 @@ class ScreenAdvance extends ConsumerWidget {
           children: [
             CustomHeader(
               title: "Advances",
-              onBack: () {
-                //last index wanna do at later
-              },
+              // onBack: () {
+              
+              // },
               onFilter: () {
                 // TODO: Open filter
               },

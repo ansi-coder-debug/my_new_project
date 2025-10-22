@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/accounts/account_provider.dart';
+import 'package:my_new_project/application/navigation/navigation_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 // import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/widgets/accounts/add_account_dialog.dart';
@@ -23,9 +24,9 @@ class ScreenAccounts extends ConsumerWidget {
           children: [
             CustomHeader(
               title: "Accounts",
-              onBack: () {
-                //last index wanna do at later
-              },
+              // onBack: () {
+               
+              // },
               showAdd: true,
               onAdd: () {
                 showDialog(

@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/navigation/navigation_provider.dart';
 
-class CustomHeaderSummary extends StatelessWidget {
+class CustomHeaderSummary extends ConsumerWidget {
   final String title;
   final VoidCallback? onBack;
   final VoidCallback? onFilter;
@@ -42,7 +44,14 @@ class CustomHeaderSummary extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
+    final defaultOnBack = () {
+  final success = ref.read(navigationProvider.notifier).goBack();
+  if (!success) {
+    ref.read(navigationProvider.notifier).selectPage(0); // fallback Dashboard
+  }
+};
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -54,7 +63,7 @@ class CustomHeaderSummary extends StatelessWidget {
             children: [
               _buildIconButton(
                 Icons.arrow_back,
-                onBack ?? () => Navigator.pop(context),
+                onBack ?? defaultOnBack,
               ),
               const SizedBox(width: 12),
               Text(

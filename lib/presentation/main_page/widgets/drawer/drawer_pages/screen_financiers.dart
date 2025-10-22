@@ -23,9 +23,9 @@ class ScreenFinanciers extends ConsumerWidget {
           children: [
             CustomHeader(
               title: "Financiers",
-              onBack: () {
-                // Optional back action
-              },
+              // onBack: () {
+              //   // Optional back action
+              // },
               onFilter: () {
                 // TODO: Open filter
               },

@@ -10,7 +10,7 @@ class Purchase {
   final String modeOfPayment;
   final String paymentStatus;
   // final  purchasePaid; // add this
-  final double paidAmount; // 
+  final double paidAmount; //
   final String? accountId;
   final String? accountName; // holds the account name (e.g., "Federal Bank")
 
@@ -26,8 +26,8 @@ class Purchase {
     required this.modeOfPayment, // Will store Account ID as String, not just a string name
     required this.paymentStatus,
     // required this.purchasePaid, //(partial , paid )
-     required this.paidAmount,
-       this.accountId,
+    required this.paidAmount,
+    this.accountId,
     this.accountName,
   });
 
@@ -45,13 +45,14 @@ class Purchase {
       price: double.tryParse(json['price'].toString()) ?? 0.0,
       // modeOfPayment: json['mode_of_payment']
       //     .toString(), // This should be account id string
-      modeOfPayment: (json['mode_of_payment'] ?? json['account_id'] ?? '').toString(),
+      modeOfPayment: (json['mode_of_payment'] ?? json['account_id'] ?? '')
+          .toString(),
       paymentStatus: json['payment_status'] ?? '',
       // purchasePaid:
       //     json['purchase_paid'] == 1 ||
       //     json['purchase_paid'] == true, // adapt based on actual type
-       paidAmount: double.tryParse(json['purchase_paid'].toString()) ?? 0.0,
-        accountId: json['account_id']?.toString(), // PARSE HERE
+      paidAmount: double.tryParse(json['purchase_paid'].toString()) ?? 0.0,
+      accountId: json['account_id']?.toString(), // PARSE HERE
       accountName: json['account_name'] ?? '', // NEW field added
     );
   }
@@ -66,11 +67,11 @@ class Purchase {
       'address': address,
       'date': date.toIso8601String(),
       'price': price,
-      'mode_of_payment': modeOfPayment, // account id string here
+      'purchase_paid': paidAmount,
+      'from_account': accountId ?? modeOfPayment, // always send valid ID
       'payment_status': paymentStatus,
-      // 'purchase_paid': purchasePaid ? 1 : 0, // adapt type accordingly
-      'purchase_paid': paidAmount, 
-       'account_id': accountId, // INCLUDE HERE TOO
+      'account_id': accountId ?? '', // send empty string if required by backend
+      'account_name': accountName ?? '',
     };
   }
 }

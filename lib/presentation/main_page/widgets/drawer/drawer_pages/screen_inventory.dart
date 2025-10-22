@@ -63,7 +63,7 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                   selectedStatus = status;
                 });
               },
-              onBack: () => Navigator.pop(context),
+              // onBack: (){},
               onAdd: () {
                 showDialog(
                   context: context,

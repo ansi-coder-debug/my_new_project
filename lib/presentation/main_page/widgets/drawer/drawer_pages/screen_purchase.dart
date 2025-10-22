@@ -37,7 +37,7 @@ class ScreenPurchase extends ConsumerWidget {
           children: [
             CustomHeader(
               title: 'Purchase',
-              onBack: () => Navigator.pop(context),
+              // onBack: () {},
               onFilter: () {
                 // TODO: Open filter
               },

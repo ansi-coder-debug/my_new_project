@@ -33,6 +33,7 @@ class ScreenPartnerships extends ConsumerWidget {
           children: [
             CustomHeader(
               title: "Partnerships",
+              // onBack: (){},
               onFilter: () {
                 // TODO: Open filter dialog
               },

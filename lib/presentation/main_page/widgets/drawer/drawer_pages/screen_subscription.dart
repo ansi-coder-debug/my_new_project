@@ -29,9 +29,9 @@ class _ScreenSubscriptionState extends ConsumerState<ScreenSubscription> {
           children: [
             CustomHeader(
               title: "Subscription Plans",
-              onBack: () {
-                //last index wanna do at later
-              },
+              // onBack: () {
+              //   //last index wanna do at later
+              // },
             ),
             KHeight,
 

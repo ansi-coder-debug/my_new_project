@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/navigation/navigation_provider.dart';
 
 import 'package:my_new_project/core/constants/constant.dart';
 
@@ -31,6 +32,8 @@ import 'package:my_new_project/presentation/main_page/widgets/drawer/drawer_page
 import 'package:my_new_project/presentation/main_page/widgets/drawer/main_drawer.dart';
 import 'package:my_new_project/presentation/notifications/screen_notifications.dart';
 import 'package:my_new_project/presentation/profile/screen_profile.dart';
+import 'package:my_new_project/widgets/grid/grid_menu.dart';
+import 'package:my_new_project/widgets/settings/profile_settings.dart';
 
 class ScreenMainPage extends ConsumerStatefulWidget {
   const ScreenMainPage({super.key});
@@ -40,58 +43,81 @@ class ScreenMainPage extends ConsumerStatefulWidget {
 }
 
 class _ScreenMainPageState extends ConsumerState<ScreenMainPage> {
+ 
   String? _inventoryStatus; // 👈 track status like "Available", "Sold"
 
-  int _selectedDrawerIndex = 0;
+  // int _selectedDrawerIndex = 0;
 
-  List<Widget> get _drawerPages => [
-    ScreenDashboard(
-      onCardTap: (int index, {String? status}) {
-        setState(() {
-          _selectedDrawerIndex = index;
+  // List<Widget> get _drawerPages => [
+  late final List<Widget> _drawerPages;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _drawerPages = [
+      ScreenDashboard(
+        
+        onCardTap: (int index, {String? status}) {
+          ref.read(navigationProvider.notifier).selectPage(index);
           // Only set _inventoryStatus for index 1 (Vehicles)
-          if (index == 1) {
-            _inventoryStatus = status ?? 'Available';
-          } else {
-            _inventoryStatus = null; //Reset for other screens
-          }
-        });
-      },
-    ),
+          if (index == 1) {       
+ ref.read(inventoryStatusProvider.notifier).state =
+                status ?? 'Available';
+          
+          } 
+        },
+      ),
+        // Use Consumer here to rebuild when inventoryStatus changes
+      // Consumer(
+      //   builder: (context, ref, _) {
+      //     final status = ref.watch(inventoryStatusProvider);
+      //     return ScreenInventory(
+      //       key: ValueKey(status), // ensures rebuild on status change
+      //       initialStatus: status,
+      //     );
+      //   },
+      // ),
 
-    ScreenInventory(initialStatus: _inventoryStatus), // 1: Vehicles
-    ScreenSales(), // 2: Sales
-    ScreenPurchase(), // 3: Purchase
-    ScreenExpense(), // 4: Expenses
-    ScreenExpenseTypes(), // 5: Expense Type
-    ScreenBrokerage(), // 6: Brokerage
-    ScreenCashbook(), // 7: Cashbook
-    ScreenMonthlySummary(), // 8: Monthly Summary
-    ScreenDailySummary(), // 9: Daily Summary
-    ScreenFinance(), // 10: Finance
-    ScreenPartnerships(), // 11: Partnerships
-    ScreenAccounts(), // 12: Account
-    ScreenAdvance(), // 13: Advance
-    ScreenBrokers(), // 14: Broker
-    ScreenEmployees(), // 15: Employees
-    ScreenPayroll(), // 16: Payroll
-    ScreenAttendance(), // 17: Attendance
-    ScreenFinanciers(), // 18: Financier
-    PartnersPage(), // 19: Partner
-    ScreenSubscription(), // 20: Subscription
-    ScreenSettings(), // 21: Settings
-  ];
+      ScreenInventory(initialStatus: _inventoryStatus), // 1: Vehicles
+      ScreenSales(), // 2: Sales
+      ScreenPurchase(), // 3: Purchase
+      ScreenExpense(), // 4: Expenses
+      ScreenExpenseTypes(), // 5: Expense Type
+      ScreenBrokerage(), // 6: Brokerage
+      ScreenCashbook(), // 7: Cashbook
+      ScreenMonthlySummary(), // 8: Monthly Summary
+      ScreenDailySummary(), // 9: Daily Summary
+      ScreenFinance(), // 10: Finance
+      ScreenPartnerships(), // 11: Partnerships
+      ScreenAccounts(), // 12: Account
+      ScreenAdvance(), // 13: Advance
+      ScreenBrokers(), // 14: Broker
+      ScreenEmployees(), // 15: Employees
+      ScreenPayroll(), // 16: Payroll
+      ScreenAttendance(), // 17: Attendance
+      ScreenFinanciers(), // 18: Financier
+      PartnersPage(), // 19: Partner
+      ScreenSubscription(), // 20: Subscription
+      ScreenSettings(), // 21: Settings
+      GridMenu(),  // 22:gridmenu
+      ProfileSettingsPage(), // 23:profile seetings  
+      // ];
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
+     final companyName = ref.watch(companyNameProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children:  [
             Text(
-              'Wheelx',
+             companyName , // reactive company name
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ],
@@ -133,20 +159,25 @@ class _ScreenMainPageState extends ConsumerState<ScreenMainPage> {
       ),
 
       drawer: MainDrawer(
-        selectedIndex: _selectedDrawerIndex,
+        // selectedIndex: ref.watch(navigationProvider).currentIndex,
         onItemSelected: (index) {
           setState(() {
-            _selectedDrawerIndex = index;
+            ref.read(navigationProvider.notifier).selectPage(index);
           });
           Navigator.pop(context);
         },
       ),
-      body: _drawerPages[_selectedDrawerIndex],
+      // body: _drawerPages[ref.watch(navigationProvider).currentIndex],
+      body: IndexedStack(
+  index: ref.watch(navigationProvider).currentIndex,
+  children: _drawerPages,
+),
 
-       bottomNavigationBar: const BottomNavigationWidget(),
+
+      bottomNavigationBar: const BottomNavigationWidget(),
     );
   }
 }
 
-/*
-*/
+
+

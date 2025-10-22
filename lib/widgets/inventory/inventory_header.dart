@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/navigation/navigation_provider.dart';
 
-class InventoryHeader extends StatelessWidget {
+class InventoryHeader extends ConsumerWidget {
   final VoidCallback? onBack;
   final VoidCallback? onAdd;
   final String title;
@@ -9,7 +11,6 @@ class InventoryHeader extends StatelessWidget {
   final VoidCallback? onFilter;
   final VoidCallback? onRefresh;
   final VoidCallback? onSearch;
-  
 
   const InventoryHeader({
     super.key,
@@ -27,14 +28,14 @@ class InventoryHeader extends StatelessWidget {
     String label,
     bool selected,
     VoidCallback onTap,
-    Color defaultBgColor
+    Color defaultBgColor,
   ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: selected ? Colors.black: defaultBgColor,
+          color: selected ? Colors.black : defaultBgColor,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -70,7 +71,16 @@ class InventoryHeader extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final defaultOnBack = () {
+      final success = ref.read(navigationProvider.notifier).goBack();
+      if (!success) {
+        ref
+            .read(navigationProvider.notifier)
+            .selectPage(0); // fallback Dashboard
+      }
+    };
+
     return Column(
       children: [
         // Row 1: Back, Title, Add button
@@ -79,10 +89,7 @@ class InventoryHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              _buildIconButton(
-                Icons.arrow_back,
-                onBack ?? () => Navigator.pop(context),
-              ),
+              _buildIconButton(Icons.arrow_back, onBack ?? defaultOnBack),
               const SizedBox(width: 12),
               Text(
                 title,
@@ -118,22 +125,27 @@ class InventoryHeader extends StatelessWidget {
               _buildStatusChip(
                 "Available",
                 selectedStatus == "Available",
-                () => onStatusSelected(selectedStatus == "Available" ? null : "Available"),
-                Colors.green.shade200
+                () => onStatusSelected(
+                  selectedStatus == "Available" ? null : "Available",
+                ),
+                Colors.green.shade200,
               ),
               const SizedBox(width: 8),
               _buildStatusChip(
                 "Maintenance",
                 selectedStatus == "Maintenance",
-                () => onStatusSelected(selectedStatus == "Maintenance" ? null : "Maintenance"),
-                 Colors.yellow.shade200
+                () => onStatusSelected(
+                  selectedStatus == "Maintenance" ? null : "Maintenance",
+                ),
+                Colors.yellow.shade200,
               ),
               const SizedBox(width: 8),
               _buildStatusChip(
                 "Sold",
                 selectedStatus == "Sold",
-                () => onStatusSelected(selectedStatus == "Sold" ? null : "Sold"),
-                 Colors.red.shade200
+                () =>
+                    onStatusSelected(selectedStatus == "Sold" ? null : "Sold"),
+                Colors.red.shade200,
               ),
             ],
           ),
@@ -148,7 +160,7 @@ class InventoryHeader extends StatelessWidget {
               _buildIconButton(Icons.filter_alt_outlined, onFilter),
               _buildIconButton(Icons.refresh, onRefresh),
               _buildIconButton(Icons.search, onSearch),
-            
+
               const Spacer(),
             ],
           ),

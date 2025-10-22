@@ -21,9 +21,9 @@ class ScreenPayroll extends ConsumerWidget {
           children: [
             CustomHeader(
               title: "Payroll",
-              onBack: () {
-                // TODO: handle back if needed
-              },
+              // onBack: () {
+              //   // TODO: handle back if needed
+              // },
               onFilter: () {
                 // TODO: Open filter dialog
               },

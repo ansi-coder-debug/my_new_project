@@ -26,9 +26,9 @@ class ScreenSales extends ConsumerWidget {
             // Custom Header
             CustomHeader(
               title: 'Sales',
-              onBack: () {
-                //last index wanna do at later
-              },
+              // onBack: () {
+              //   //last index wanna do at later
+              // },
               onFilter: () {
                 // TODO: Open filter
               },

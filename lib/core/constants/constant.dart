@@ -137,3 +137,73 @@ InputDecoration buildInputDecoration(String hintText, {IconData? icon}) {
       ),
     );
   }
+
+
+
+/*ADD Vehicle Form Constant button style etcc */
+
+const Color kPrimaryBlue = Color(0xFF3366FF);
+const Color kLightGreyBackground = Color(0xFFF7F9FC);
+const Color kInputFillColor = Color(0xFFF0F2F5);
+const Color kInputBorderColor = Color(0xFFE0E0E0);
+const Color kDarkText = Color(0xFF333333);
+const Color kLightText = Color(0xFF666666);
+const Color kErrorRed = Color(0xFFE57373); // A standard error red
+
+// --- Input Decoration ---
+final InputDecoration kInputDecoration = InputDecoration(
+  filled: true,
+  fillColor: kInputFillColor,
+  contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8.0),
+    borderSide: BorderSide(color: kInputBorderColor, width: 1),
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8.0),
+    borderSide: BorderSide(color: kInputBorderColor, width: 1),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8.0),
+    borderSide: const BorderSide(color: kPrimaryBlue, width: 1), // Blue focus border
+  ),
+  errorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8.0),
+    borderSide: const BorderSide(color: kErrorRed, width: 1),
+  ),
+  focusedErrorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(8.0),
+    borderSide: const BorderSide(color: kErrorRed, width: 1),
+  ),
+  hintStyle: const TextStyle(color: kLightText, fontSize: 15),
+  labelStyle: const TextStyle(color: kDarkText, fontSize: 15),
+  floatingLabelBehavior: FloatingLabelBehavior.never, // Labels don't float for this design
+);
+
+// --- Button Styles ---
+final ButtonStyle kPrimaryButtonStyle = ElevatedButton.styleFrom(
+  backgroundColor: kPrimaryBlue,
+  foregroundColor: Colors.white,
+  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(8.0),
+  ),
+  elevation: 0, // Flat button
+  textStyle: const TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+  ),
+);
+
+final ButtonStyle kSecondaryButtonStyle = TextButton.styleFrom(
+  backgroundColor: const Color(0xFFE6E8EA), // Light grey for secondary buttons
+  foregroundColor: kDarkText,
+  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(8),
+  ),
+  textStyle: const TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+  ),
+);

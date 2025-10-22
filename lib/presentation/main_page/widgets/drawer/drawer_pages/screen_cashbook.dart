@@ -26,9 +26,9 @@ class ScreenCashbook extends ConsumerWidget {
           children: [
             CustomHeader(
               title: "Cash Book",
-              onBack: () {
-                //last index wanna do at later
-              },
+              // onBack: () {
+              //   //last index wanna do at later
+              // },
               onFilter: () {
                 // TODO: Open filter
               },

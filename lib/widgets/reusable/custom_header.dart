@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/navigation/navigation_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 
-class CustomHeader extends StatelessWidget {
+class CustomHeader extends ConsumerWidget {
   final String title;
   final VoidCallback? onBack;
   final VoidCallback? onFilter;
@@ -47,7 +49,16 @@ class CustomHeader extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final defaultOnBack = () {
+      final success = ref.read(navigationProvider.notifier).goBack();
+      if (!success) {
+        ref
+            .read(navigationProvider.notifier)
+            .selectPage(0); // fallback Dashboard
+      }
+    };
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -57,10 +68,15 @@ class CustomHeader extends StatelessWidget {
           // 🔹 First Row: Back + Title
           Row(
             children: [
+              // _buildIconButton(
+              //   Icons.arrow_back,
+              //   onBack ?? () => Navigator.pop(context),
+              // ),
               _buildIconButton(
                 Icons.arrow_back,
-                onBack ?? () => Navigator.pop(context),
-              ),
+                onBack ?? defaultOnBack,
+                ),
+
               KWidth12,
               Text(
                 title,
@@ -71,7 +87,7 @@ class CustomHeader extends StatelessWidget {
                 ),
               ),
             ],
-          ),  
+          ),
 
           const SizedBox(height: 12),
 
@@ -120,8 +136,5 @@ class CustomHeader extends StatelessWidget {
         ],
       ),
     );
-    
   }
-
- 
 }

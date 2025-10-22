@@ -21,9 +21,9 @@ class ScreenExpenseTypes extends ConsumerWidget {
           children: [
             CustomHeader(
               title: "Expense Types",
-              onBack: () {
-                //last index wanna do at later
-              },
+              // onBack: () {
+              //   //last index wanna do at later
+              // },
               onFilter: () {
                 // TODO: Open filter
               },
