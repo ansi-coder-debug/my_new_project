@@ -11,8 +11,7 @@ class Finance {
   final double receivedPrice;
   final Financier? financier;
   final VehicleSummary? vehicle;
-    final int? accountId;
-
+  final int? accountId;
   final String? accountName;
 
   Finance({
@@ -24,7 +23,7 @@ class Finance {
     required this.receivedPrice,
     this.financier,
     this.vehicle,
-     this.accountId,
+    this.accountId,
     this.accountName,
   });
 
@@ -36,35 +35,52 @@ class Finance {
 
       if (json['vehicle'] != null && json['vehicle'] is Map<String, dynamic>) {
         final vehicleJson = json['vehicle'] as Map<String, dynamic>;
-
-        // Create a new map with flat keys for VehicleSummary.fromJson
         final flatVehicleJson = {
           'vehicle_name':
               '${vehicleJson['make'] ?? ''} ${vehicleJson['model'] ?? ''}'
                   .trim(),
           'vehicle_reg_no': vehicleJson['reg_no'],
         };
-
         vehicleSummary = VehicleSummary.fromJson(flatVehicleJson);
       }
 
       return Finance(
         id: json['id']?.toString() ?? '',
-        
-      accountId: json['to_account'] is int
-    ? json['to_account']
-    : int.tryParse(json['to_account']?.toString() ?? ''),
-
-      accountName: json['account_name'] ?? '', // NEW field added
         vehicleId: json['vehicle_id']?.toString() ?? '',
-        toAccount: json['to_account']?.toString() ?? '',
-        paymentStatus: json['payment_status']?.toString() ?? '',
-        amount: (json['amount'] is num)
-            ? (json['amount'] as num).toDouble()
-            : double.tryParse(json['amount']?.toString() ?? '') ?? 0.0,
-        receivedPrice: (json['received_price'] is num)
-            ? (json['received_price'] as num).toDouble()
-            : double.tryParse(json['received_price']?.toString() ?? '') ?? 0.0,
+        toAccount: (json['finance_to_account'] ??
+                json['to_account'] ??
+                json['account_id'] ??
+                '')
+            .toString(),
+        paymentStatus: (json['finance_payment_status'] ??
+                json['payment_status'] ??
+                '')
+            .toString(),
+        amount: (json['finance_amount'] ??
+                    json['amount'] ??
+                    0)
+                is num
+            ? (json['finance_amount'] ?? json['amount']).toDouble()
+            : double.tryParse(
+                    (json['finance_amount'] ?? json['amount'] ?? '0')
+                        .toString()) ??
+                0.0,
+        receivedPrice: (json['finance_received_price'] ??
+                    json['received_price'] ??
+                    0)
+                is num
+            ? (json['finance_received_price'] ?? json['received_price'])
+                .toDouble()
+            : double.tryParse(
+                    (json['finance_received_price'] ??
+                            json['received_price'] ??
+                            '0')
+                        .toString()) ??
+                0.0,
+        accountId: json['account_id'] is int
+            ? json['account_id']
+            : int.tryParse(json['account_id']?.toString() ?? ''),
+        accountName: json['account_name'] ?? '',
         financier: json['financier_name'] != null
             ? Financier(
                 id: json['financier_id'] is int
@@ -96,12 +112,12 @@ class Finance {
   Map<String, dynamic> toJson() {
     return {
       'vehicle_id': vehicleId,
-      'to_account': toAccount,
-      'payment_status': paymentStatus,
-      'amount': amount,
-      'received_price': receivedPrice,
+      'finance_to_account': toAccount,
+      'finance_payment_status': paymentStatus,
+      'finance_amount': amount,
+      'finance_received_price': receivedPrice,
       'financier_id': financier?.id,
-       'account_id': accountId, // INCLUDE HERE TOO
+      'account_id': accountId,
     };
   }
 
@@ -114,6 +130,8 @@ class Finance {
     double? receivedPrice,
     Financier? financier,
     VehicleSummary? vehicle,
+    int? accountId,
+    String? accountName,
   }) {
     return Finance(
       id: id ?? this.id,
@@ -124,6 +142,8 @@ class Finance {
       receivedPrice: receivedPrice ?? this.receivedPrice,
       financier: financier ?? this.financier,
       vehicle: vehicle ?? this.vehicle,
+      accountId: accountId ?? this.accountId,
+      accountName: accountName ?? this.accountName,
     );
   }
 }

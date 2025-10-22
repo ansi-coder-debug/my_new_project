@@ -16,19 +16,19 @@ class VehicleRepository {
     return await _vehicleService.getVehicles();
   }
 
-  // add these for update delete etcc
-  Future<void> addVehicle(Vehicle vehicle) async {
-    await _vehicleService.addVehicle(vehicle);
+  // ✅ FIXED: Properly return the created vehicle
+  Future<Vehicle> addVehicle(Vehicle vehicle) async {
+    return await _vehicleService.addVehicle(vehicle);
   }
 
-  Future<void> updateVehicle(Vehicle vehicle) async {
-    await _vehicleService.updateVehicle(vehicle);
+  // ✅ FIXED: Properly return the updated vehicle
+  Future<Vehicle> updateVehicle(Vehicle vehicle) async {
+    return await _vehicleService.updateVehicle(vehicle);
   }
 
-  Future<void> markVehicleAsSold(String vehicleId, Map<String, dynamic> saleData) async {
-  await _vehicleService.markVehicleAsSold(vehicleId, saleData);
-}
-
+  Future<Vehicle> markVehicleAsSold(String vehicleId, Map<String, dynamic> saleData) async {
+    return await _vehicleService.markVehicleAsSold(vehicleId, saleData);
+  }
 
   Future<void> deleteVehicle(String id) async {
     await _vehicleService.deleteVehicle(id);

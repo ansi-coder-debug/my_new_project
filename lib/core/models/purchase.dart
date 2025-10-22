@@ -36,42 +36,41 @@ class Purchase {
       id: json['id'].toString(),
       vehicleId: json['vehicle_id'].toString(),
       userId: json['user_id'].toString(),
-      name: json['name'] ?? '',
-      phone: json['phone'] ?? '',
-      address: json['address'] ?? '',
-      date: json['date'] != null
-          ? DateTime.parse(json['date'])
+      name: json['purchase_name'] ?? json['name'] ?? '',
+      phone: json['purchase_phone'] ?? json['phone'] ?? '',
+      address: json['purchase_address'] ?? json['address'] ?? '',
+      date: json['purchase_date'] != null
+          ? DateTime.parse(json['purchase_date'])
           : DateTime.now(),
-      price: double.tryParse(json['price'].toString()) ?? 0.0,
-      // modeOfPayment: json['mode_of_payment']
-      //     .toString(), // This should be account id string
-      modeOfPayment: (json['mode_of_payment'] ?? json['account_id'] ?? '')
-          .toString(),
-      paymentStatus: json['payment_status'] ?? '',
-      // purchasePaid:
-      //     json['purchase_paid'] == 1 ||
-      //     json['purchase_paid'] == true, // adapt based on actual type
+      price: double.tryParse(json['purchase_price'].toString()) ?? 0.0,
+      modeOfPayment:
+          (json['purchase_mode_of_payment'] ?? json['mode_of_payment'] ?? '')
+              .toString(),
+      paymentStatus:
+          json['purchase_payment_status'] ?? json['payment_status'] ?? '',
       paidAmount: double.tryParse(json['purchase_paid'].toString()) ?? 0.0,
-      accountId: json['account_id']?.toString(), // PARSE HERE
-      accountName: json['account_name'] ?? '', // NEW field added
+      accountId: json['account_id']?.toString(),
+      accountName: json['account_name'] ?? '',
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'vehicle_id': vehicleId,
-      'user_id': userId,
-      'name': name,
-      'phone': phone,
-      'address': address,
-      'date': date.toIso8601String(),
-      'price': price,
-      'purchase_paid': paidAmount,
-      'from_account': accountId ?? modeOfPayment, // always send valid ID
-      'payment_status': paymentStatus,
-      'account_id': accountId ?? '', // send empty string if required by backend
-      'account_name': accountName ?? '',
-    };
-  }
+Map<String, dynamic> toJson() {
+  final jsonMap = {
+    'id': id,
+    'vehicle_id': vehicleId,
+    'user_id': userId,
+    'purchase_name': name, // Changed from 'name'
+    'purchase_phone': phone, // Changed from 'phone'
+    'purchase_address': address, // Changed from 'address'
+    'purchase_date': date.toIso8601String(), // Changed from 'date'
+    'purchase_price': price.toString(), // Changed from 'price'
+    'purchase_paid': paidAmount.toString(), // This field is crucial!
+    'purchase_from_account': modeOfPayment, // Changed from 'mode_of_payment'
+    'purchase_payment_status': paymentStatus, // Changed from 'payment_status'
+  };
+
+  print('🔥 Purchase.toJson() → $jsonMap');
+  return jsonMap;
+}
+
 }

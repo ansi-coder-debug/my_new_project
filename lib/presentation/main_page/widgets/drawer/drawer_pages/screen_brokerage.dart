@@ -63,10 +63,9 @@ class ScreenBrokerage extends ConsumerWidget {
                   final brokerage =
                       brokerageEntries[index]['brokerage'] as Brokerage;
 
-                  final doubleAmount = double.tryParse(brokerage.amount) ?? 0.0;
-                  final doublePaid =
-                      double.tryParse(brokerage.brokeragePaid ?? '0') ?? 0.0;
-                  final doubleBalance = doubleAmount - doublePaid;
+              final doubleAmount = double.tryParse(brokerage.amount.toString()) ?? 0.0;
+final doublePaid = double.tryParse(brokerage.brokeragePaid?.toString() ?? '0') ?? 0.0;
+final doubleBalance = doubleAmount - doublePaid;
 
                   String computedStatus;
                   if (doublePaid == 0) {

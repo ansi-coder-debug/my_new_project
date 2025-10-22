@@ -172,50 +172,57 @@ final Purchase purchaseInfo; // 👈 required field
   }
 
   Map<String, dynamic> toJson() {
-    dynamic cleanNumeric(String? value) {
-      if (value == null) return 0.0;
-      final cleaned = value.replaceAll(',', '');
-      return double.tryParse(cleaned) ?? 0.0;
-    }
-
-    String? cleanDate(String? date) {
-      if (date == null || date.isEmpty) return null;
-      return date;
-    }
-
-    return {
-      'make': make,
-      'model': model,
-      'year': int.tryParse(year) ?? 0,
-      'reg_no': registrationId,
-      'color': color,
-      'mileage': mileage,
-      'expected_price': cleanNumeric(price),
-      'status': status,
-      'notes': description ?? '',
-      'fuel_type': fuelType.toLowerCase(),
-      'photos': photos,
-
-      // 'partnerships': partnerships?.map((p) => p.toJson()).toList(),
-
-      // 🔥 CHANGED → only include if non-empty
-      'partnerships_info': partnerships!.map((p) => p.toJson()).toList(),
-
-
-'purchase_info': purchaseInfo.toJson(),
-
-
-
-
-      if (saleInfo != null) 'sale_info': saleInfo!.toJson(),
-
-      if (brokerageInfo != null && brokerageInfo!.isNotEmpty)
-    'brokerage_info': brokerageInfo!.map((b) => b.toJson()).toList(),
-    
-
-    'to_account': toAccount,
-      'account_name': accountName,
-
-    };
+  dynamic cleanNumeric(String? value) {
+    if (value == null) return 0.0;
+    final cleaned = value.replaceAll(',', '');
+    return double.tryParse(cleaned) ?? 0.0;
   }
+
+  // Start with vehicle data
+  final jsonMap = {
+    'make': make,
+    'model': model,
+    'year': int.tryParse(year) ?? 0,
+    'reg_no': registrationId,
+    'color': color,
+    'mileage': mileage,
+    'expected_price': cleanNumeric(price),
+    'status': status,
+    'notes': description ?? '',
+    'fuel_type': fuelType.toLowerCase(),
+    'photos': photos,
+    'is_partnership': partnerships != null && partnerships!.isNotEmpty,
+  };
+
+  // ✅ FLATTEN purchase info to root level (like your friend's React app)
+  jsonMap.addAll({
+    'purchase_name': purchaseInfo.name,
+    'purchase_phone': purchaseInfo.phone,
+    'purchase_address': purchaseInfo.address,
+    'purchase_date': purchaseInfo.date.toIso8601String(),
+    'purchase_price': purchaseInfo.price.toString(),
+    'purchase_paid': purchaseInfo.paidAmount.toString(), // This is important!
+    'purchase_from_account': purchaseInfo.modeOfPayment, // Changed from mode_of_payment
+    'purchase_payment_status': purchaseInfo.paymentStatus,
+  });
+
+  // Add partnerships if they exist
+  if (partnerships != null && partnerships!.isNotEmpty) {
+    jsonMap['partnerships'] = partnerships!.map((p) => p.toJson()).toList();
+  }
+
+  // Add other optional fields
+  if (saleInfo != null) {
+    jsonMap.addAll(saleInfo!.toJson());
+  }
+
+  if (brokerageInfo != null && brokerageInfo!.isNotEmpty) {
+    jsonMap['brokerage_info'] = brokerageInfo!.map((b) => b.toJson()).toList();
+  }
+
+  // Debug print to verify the structure
+  print('🚗 Vehicle.toJson() → $jsonMap');
+
+  return jsonMap;
+}
 }

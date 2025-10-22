@@ -11,13 +11,14 @@ import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
+
 import 'package:image_picker/image_picker.dart';
 // import 'package:my_new_project/core/constants/constant.dart'; // We'll replace/augment this
 
 import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/sales.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/widgets/inventory/screen_vehicle_details.dart';
 import 'package:my_new_project/widgets/partnerships/add_partner_form.dart'; // Assuming this exists
 import 'package:my_new_project/widgets/partnerships/add_partnership_details.dart'; // Assuming this exists
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
@@ -285,6 +286,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       decoration: kInputDecoration.copyWith(hintText: "Select Make"),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter make' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
+  ],
                     ),
                     KHeight16,
 
@@ -294,6 +298,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       decoration: kInputDecoration.copyWith(hintText: "Select Model"),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter model' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
+  ],
                     ),
                     KHeight16,
 
@@ -304,6 +311,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       decoration: kInputDecoration.copyWith(hintText: "Year (e.g., 2022)"),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter year' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.digitsOnly
+  ],
                     ),
                     KHeight16,
 
@@ -313,6 +323,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       decoration: kInputDecoration.copyWith(hintText: "Color"),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter color' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
+  ],
                     ),
                     KHeight16,
 
@@ -322,6 +335,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       decoration: kInputDecoration.copyWith(hintText: "Registration No."),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter registration number' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')), // letters & numbers
+  ],
                     ),
                     KHeight16,
 
@@ -332,6 +348,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       decoration: kInputDecoration.copyWith(hintText: "Kilometre Driven"),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter kilometre driven' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.digitsOnly
+  ],
                     ),
                     KHeight16,
 
@@ -365,6 +384,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       ),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter amount' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.digitsOnly
+  ],
                     ),
                     KHeight16,
 
@@ -376,6 +398,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                         hintText: "Additional Notes (optional)",
                       ),
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
+  ],
                     ),
                     KHeight16,
 
@@ -505,6 +530,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       decoration: kInputDecoration.copyWith(hintText: "Seller Name"),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter seller name' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
+  ],
                     ),
                     KHeight16,
 
@@ -514,6 +542,7 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   keyboardType: TextInputType.phone,
   decoration: kInputDecoration.copyWith(hintText: "Seller Phone"),
   style: const TextStyle(color: kDarkText),
+  
   
   // Validator for required and length
   validator: (value) {
@@ -540,6 +569,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       decoration: kInputDecoration.copyWith(hintText: "Seller Address"),
                       validator: (value) => value == null || value.isEmpty ? 'Please enter seller address' : null,
                       style: const TextStyle(color: kDarkText),
+                       inputFormatters: [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
+  ],
                     ),
                     KHeight16,
 
@@ -553,11 +585,15 @@ TextFormField(
   ),
   validator: (value) => value == null || value.isEmpty ? 'Please enter purchase amount' : null,
   style: const TextStyle(color: kDarkText),
+   inputFormatters: [
+    FilteringTextInputFormatter.digitsOnly
+  ],
   onChanged: (value) {
     setState(() {
       _statusController.text = _getPaymentStatus();
     });
   },
+
 ),
 KHeight16,
 
@@ -568,8 +604,12 @@ TextFormField(
   decoration: kInputDecoration.copyWith(
     hintText: "Purchase Paid Amount",
     suffixIcon: const Icon(Icons.calculate_outlined, color: kLightText),
+    
   ),
   style: const TextStyle(color: kDarkText),
+   inputFormatters: [
+    FilteringTextInputFormatter.digitsOnly
+  ],
   validator: (value) => value == null || value.isEmpty ? 'Please enter paid amount' : null,
   onChanged: (value) {
     setState(() {
@@ -807,22 +847,37 @@ if (!['pending','partial','paid'].contains(paymentStatus)) {
 
                              // --- ADD THIS DEBUG PRINT ---
         print('Purchase payload: ${newVehicle.purchaseInfo.toJson()}');
-                            try {
-                              if (isEditing) {
-                                await ref.read(vehicleProvider.notifier).updateVehicle(newVehicle);
-                              } else {
-                                await ref.read(vehicleProvider.notifier).addVehicle(newVehicle);
-                              }
-                              ref.read(vehicleProvider.notifier).clearVehicleToEdit();
-                              widget.onAddComplete();
-                            } catch (e) {
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Error saving vehicle: ${e.toString()}')),
-                              );
-                            }
-                          }
-                        },
+                            
+                            
+                            
+                             try {
+      // ✅ addVehicle now returns the created vehicle
+      Vehicle createdVehicle = await ref.read(vehicleProvider.notifier).addVehicle(newVehicle);
+      
+      // ✅ Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vehicle added successfully!')),
+      );
+      
+      // ✅ Navigate to details screen with REAL vehicle ID
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ScreenVehicleDetails(
+            vehicleId: createdVehicle.id, // This is the actual ID from backend
+            onBack: () => Navigator.of(context).pop(),
+          ),
+        ),
+      );
+      
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+},
+
+
                         child: Text(isEditing ? 'Update Vehicle' : 'Submit'),
                       ),
                     ),
@@ -837,15 +892,17 @@ if (!['pending','partial','paid'].contains(paymentStatus)) {
     );
   }
 
-  // Helper to derive payment status based on amounts
+
+// Helper to derive payment status based on amounts
 String _getPaymentStatus() {
   final purchaseAmount = double.tryParse(_purchaseAmountController.text.trim()) ?? 0.0;
   final paidAmount = double.tryParse(_purchasePaidAmountController.text.trim()) ?? 0.0;
 
-  if (paidAmount <= 0) return 'pending';
+  if (paidAmount <= 0) return 'unpaid';
   if (paidAmount < purchaseAmount) return 'partial';
   return 'paid';
 }
+
 
 
   

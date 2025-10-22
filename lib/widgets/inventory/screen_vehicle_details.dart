@@ -940,10 +940,11 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
     final double grandTotal = purchasePrice + totalExpenseAmount;
 
     // 🟢 Brokerage
-    final double totalBrokerage = (vehicle.brokerageInfo ?? []).fold(
-      0.0,
-      (sum, item) => sum + (double.tryParse(item.amount ?? '0') ?? 0.0),
-    );
+   final double totalBrokerage = (vehicle.brokerageInfo ?? []).fold(
+  0.0,
+  (sum, item) => sum + (double.tryParse(item.amount?.toString() ?? '0') ?? 0.0),
+);
+
 
     // 🟢 Profit Calculations
     final double grossProfit = salePrice - grandTotal - totalBrokerage;
@@ -1397,13 +1398,10 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                           "No brokerage records have been recorded for this vehicle.",
                       children: vehicle.brokerageInfo != null
                           ? vehicle.brokerageInfo!.map((brokerage) {
-                              final doubleAmount =
-                                  double.tryParse(brokerage.amount) ?? 0.0;
-                              final doublePaid =
-                                  double.tryParse(
-                                          brokerage.brokeragePaid ?? '0') ??
-                                      0.0;
-                              final doubleBalance = doubleAmount - doublePaid;
+                             final doubleAmount = brokerage.amount ?? 0.0;
+final doublePaid = brokerage.brokeragePaid ?? 0.0;
+final doubleBalance = doubleAmount - doublePaid;
+
 
                               // Status calculation
                               String computedStatus;

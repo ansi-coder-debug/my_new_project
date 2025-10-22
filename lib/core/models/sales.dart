@@ -11,10 +11,8 @@ class SaleInfo {
   final String modeOfPayment;
   final String paymentStatus;
   final String? accountId;
-  final String? accountName; // holds the account name (e.g., "Federal Bank")
+  final String? accountName;
   final Finance? financeInfo;
-
-  
 
   SaleInfo({
     this.id,
@@ -28,30 +26,37 @@ class SaleInfo {
     required this.paymentStatus,
     this.accountId,
     this.accountName,
-    this.financeInfo
+    this.financeInfo,
   });
 
+  // ✅ Factory from backend JSON
   factory SaleInfo.fromJson(Map<String, dynamic> json) {
     print('🔥 SaleInfo JSON received: $json');
     return SaleInfo(
       id: json['id']?.toString(),
-      name: json['name'] ?? '',
-      phone: json['phone'] ?? '',
-      address: json['address'] ?? '',
-      date: json['date'] ?? '',
-      price: json['price']?.toString() ?? '0',
-      receivedPrice: json['received_price']?.toString() ?? '0',
-      modeOfPayment: json['mode_of_payment'] ?? '',
-      paymentStatus: json['payment_status'] ?? 'pending',
-      accountId: json['account_id']?.toString(), // PARSE HERE
-      accountName: json['account_name'] ?? '', // NEW field added
-       // ✅ Parse nested finance_info using your existing Finance class
-    financeInfo: json['finance_info'] != null
-        ? Finance.fromJson(json['finance_info'])
-        : null,
+      name: json['sale_name'] ?? json['name'] ?? '',
+      phone: json['sale_phone'] ?? json['phone'] ?? '',
+      address: json['sale_address'] ?? json['address'] ?? '',
+      date: json['sale_date']?.toString() ?? json['date'] ?? '',
+      price: json['sale_price']?.toString() ?? json['price']?.toString() ?? '0',
+      receivedPrice:
+          json['sale_received_price']?.toString() ?? json['received_price']?.toString() ?? '0',
+      modeOfPayment: (json['sale_to_account'] ??
+              json['sale_mode_of_payment'] ??
+              json['mode_of_payment'] ??
+              '')
+          .toString(),
+      paymentStatus:
+          json['sale_payment_status'] ?? json['payment_status'] ?? 'pending',
+      accountId: json['account_id']?.toString(),
+      accountName: json['account_name'] ?? '',
+      financeInfo: json['finance_info'] != null
+          ? Finance.fromJson(json['finance_info'])
+          : null,
     );
   }
 
+  // ✅ Convert to backend-compatible payload
   Map<String, dynamic> toJson() {
     dynamic cleanNumeric(String? value) {
       if (value == null) return 0.0;
@@ -61,15 +66,17 @@ class SaleInfo {
 
     return {
       'id': id,
-      'name': name,
-      'phone': phone,
-      'address': address,
-      'date': date,
-      'price': cleanNumeric(price),
-      'received_price': cleanNumeric(receivedPrice),
-      'mode_of_payment': modeOfPayment,
-      'payment_status': paymentStatus,
-      'account_id': accountId, // INCLUDE HERE TOO
+      'sale_name': name,
+      'sale_phone': phone,
+      'sale_address': address,
+      'sale_date': date,
+      'sale_price': cleanNumeric(price),
+      'sale_received_price': cleanNumeric(receivedPrice),
+      'sale_to_account': modeOfPayment, // ✅ backend key
+      'sale_payment_status': paymentStatus, // ✅ backend key
+      'account_id': accountId ?? '',
+      'account_name': accountName ?? '',
+      if (financeInfo != null) 'finance_info': financeInfo!.toJson(),
     };
   }
 }

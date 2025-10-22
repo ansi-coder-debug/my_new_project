@@ -223,8 +223,9 @@ class _BrokerageDialogState extends ConsumerState<BrokerageDialog> {
     super.initState();
     isEdit = !widget.isViewOnly;
 
-    _amountController.text = widget.brokerage.amount;
-    _paidAmountController.text = widget.brokerage.brokeragePaid ?? '';
+    _amountController.text = widget.brokerage.amount.toString();
+_paidAmountController.text = (widget.brokerage.brokeragePaid ?? '0').toString();
+
     _remarksController.text = widget.brokerage.remarks ?? '';
 
     // Load vehicle info from provider
@@ -251,8 +252,9 @@ class _BrokerageDialogState extends ConsumerState<BrokerageDialog> {
       id: widget.brokerage.id,
       brokerId: widget.brokerage.brokerId,
       brokerName: widget.brokerage.brokerName,
-      amount: _amountController.text.trim(),
-      brokeragePaid: _paidAmountController.text.trim(),
+      amount: double.tryParse(_amountController.text.trim()) ?? 0.0,
+brokeragePaid: double.tryParse(_paidAmountController.text.trim()) ?? 0.0,
+
       remarks: _remarksController.text.trim(),
       paymentStatus: widget.brokerage.paymentStatus,
       saleId: widget.brokerage.saleId,

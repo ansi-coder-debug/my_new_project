@@ -35,8 +35,8 @@ class VehicleService {
         '$HbaseUrl/vehicles/paginated',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-          print('Raw response data: ${response.data}');
-      
+      print('Raw response data: ${response.data}');
+
       if (response.statusCode == 200) {
         final data = response.data;
 
@@ -60,7 +60,7 @@ class VehicleService {
   }
 
   //ADD VEHICLE CONECCTING TO BACKENDv
-  Future<void> addVehicle(Vehicle vehicle) async {
+  Future<Vehicle> addVehicle(Vehicle vehicle) async {
     print("Sending Payload: ${vehicle.toJson()}");
 
     print(
@@ -77,6 +77,7 @@ class VehicleService {
       FormData formData = FormData();
 
       // Add all regular fields
+      // Add all regular fields
       formData.fields.addAll([
         MapEntry('make', vehicle.make),
         MapEntry('model', vehicle.model),
@@ -92,16 +93,19 @@ class VehicleService {
         MapEntry('purchase_phone', vehicle.purchaseInfo.phone ?? ''),
         MapEntry('purchase_address', vehicle.purchaseInfo.address ?? ''),
         MapEntry('purchase_date', vehicle.purchaseInfo.date.toIso8601String()),
+        MapEntry('purchase_price', vehicle.purchaseInfo.price.toString()),
         MapEntry(
-          'purchase_price',
-          vehicle.purchaseInfo.price.toString()
-        ),
-        MapEntry('purchase_mode_of_payment', vehicle.purchaseInfo.modeOfPayment ?? ''),
+          'purchase_paid',
+          vehicle.purchaseInfo.paidAmount.toString(),
+        ), // ✅ ADDED THIS
+        MapEntry(
+          'purchase_from_account',
+          vehicle.purchaseInfo.modeOfPayment ?? '',
+        ), // ✅ CHANGED FIELD NAME
         MapEntry(
           'purchase_payment_status',
           vehicle.purchaseInfo.paymentStatus ?? 'pending',
         ),
-
         MapEntry(
           'is_partnership',
           (vehicle.partnerships?.isNotEmpty ?? false).toString(),
@@ -114,7 +118,6 @@ class VehicleService {
         formData.files.add(MapEntry('photos', imageFiles[i]));
       }
 
-     
       if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
         for (int i = 0; i < vehicle.partnerships!.length; i++) {
           final partner = vehicle.partnerships![i];
@@ -178,6 +181,8 @@ class VehicleService {
 
       print('✅ Vehicle created successfully: ${response.statusCode}');
       print('Response: ${response.data}');
+
+      return Vehicle.fromJson(response.data);
     } on DioException catch (e) {
       print('❌ Failed to add vehicle: ${e.message}');
       if (e.response != null) {
@@ -188,7 +193,7 @@ class VehicleService {
   }
 
   //  UPDATE VEHICLE CONECCTING TO BACKEND
-  Future<void> updateVehicle(Vehicle vehicle) async {
+  Future<Vehicle> updateVehicle(Vehicle vehicle) async {
     print("Sending Payload: ${vehicle.toJson()}");
 
     print(
@@ -207,6 +212,7 @@ class VehicleService {
       FormData formData = FormData();
 
       // Add all regular fields
+      // Add all regular fields
       formData.fields.addAll([
         MapEntry('make', vehicle.make),
         MapEntry('model', vehicle.model),
@@ -222,23 +228,25 @@ class VehicleService {
         MapEntry('purchase_phone', vehicle.purchaseInfo.phone ?? ''),
         MapEntry('purchase_address', vehicle.purchaseInfo.address ?? ''),
         MapEntry('purchase_date', vehicle.purchaseInfo.date.toIso8601String()),
+        MapEntry('purchase_price', vehicle.purchaseInfo.price.toString()),
         MapEntry(
-          'purchase_price',
-          vehicle.purchaseInfo.price.toString()
-        ),
-        MapEntry('purchase_mode_of_payment', vehicle.purchaseInfo.modeOfPayment ?? ''),
+          'purchase_paid',
+          vehicle.purchaseInfo.paidAmount.toString(),
+        ), // ✅ ADDED THIS
+        MapEntry(
+          'purchase_from_account',
+          vehicle.purchaseInfo.modeOfPayment ?? '',
+        ), // ✅ CHANGED FIELD NAME
         MapEntry(
           'purchase_payment_status',
           vehicle.purchaseInfo.paymentStatus ?? 'pending',
         ),
         MapEntry(
           'is_partnership',
-          // vehicle.partnerships != null ? 'true' : 'false',
           (vehicle.partnerships?.isNotEmpty ?? false).toString(),
         ),
       ]);
 
-     
       if (vehicle.partnerships != null && vehicle.partnerships!.isNotEmpty) {
         for (int i = 0; i < vehicle.partnerships!.length; i++) {
           final partner = vehicle.partnerships![i];
@@ -308,6 +316,8 @@ class VehicleService {
 
       print('✅ Vehicle updated successfully: ${response.statusCode}');
       print('Response: ${response.data}');
+
+      return Vehicle.fromJson(response.data);
     } on DioException catch (e) {
       print('❌ Failed to update  vehicle: ${e.message}');
       if (e.response != null) {
@@ -317,43 +327,40 @@ class VehicleService {
     }
   }
 
+  Future<Vehicle> markVehicleAsSold(
+    String vehicleId,
+    Map<String, dynamic> saleData,
+  ) async {
+    try {
+      final authState = _ref.read(authNotifierProvider);
+      final token = authState.user?.accessToken;
 
+      if (token == null) throw Exception('User not authenticated');
+      if (vehicleId.isEmpty) throw Exception('Vehicle ID is required');
 
+      final url = '$HbaseUrl/vehicles/detailed/$vehicleId';
 
-Future<void> markVehicleAsSold(String vehicleId, Map<String, dynamic> saleData) async {
-  try {
-    final authState = _ref.read(authNotifierProvider);
-    final token = authState.user?.accessToken;
+      final response = await _dio.put(
+        url,
+        data: saleData,
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
 
-    if (token == null) throw Exception('User not authenticated');
-    if (vehicleId.isEmpty) throw Exception('Vehicle ID is required');
+      if (response.statusCode != 200) {
+        throw Exception('Failed to mark vehicle as sold');
+      }
 
-    final url = '$HbaseUrl/vehicles/detailed/$vehicleId';
+      print('✅ Vehicle marked as sold successfully: ${response.data}');
 
-    final response = await _dio.put(
-      url,
-      data: saleData,
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to mark vehicle as sold');
+      return Vehicle.fromJson(response.data);
+    } on DioException catch (e) {
+      print('❌ Failed to mark vehicle as sold: ${e.message}');
+      if (e.response != null) {
+        print('Backend error: ${e.response?.data}');
+      }
+      rethrow;
     }
-
-    print('✅ Vehicle marked as sold successfully: ${response.data}');
-  } on DioException catch (e) {
-    print('❌ Failed to mark vehicle as sold: ${e.message}');
-    if (e.response != null) {
-      print('Backend error: ${e.response?.data}');
-    }
-    rethrow;
   }
-}
-
-
-
-
-
 
   //DELETE VEHICLE CONECCTING TO BACKEND
   Future<void> deleteVehicle(String id) async {

@@ -351,8 +351,7 @@ print("Sale toAccount: ${sale?.accountId}, accountName: ${sale?.accountName}");
 
     try {
       await notifier.markVehicleAsSold(
-        vehicleId: widget.vehicle.id,
-        saleData: saleData,
+        widget.vehicle.id,saleData
       );
 
       if (context.mounted) {
