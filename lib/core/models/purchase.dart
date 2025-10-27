@@ -32,6 +32,9 @@ class Purchase {
   });
 
   factory Purchase.fromJson(Map<String, dynamic> json) {
+    print('🛒 [Purchase.fromJson] Raw JSON: $json');
+  print('🛒 [Purchase.fromJson] purchase_price: ${json['purchase_price']}');
+  print('🛒 [Purchase.fromJson] purchase_price type: ${json['purchase_price']?.runtimeType}');
     return Purchase(
       id: json['id'].toString(),
       vehicleId: json['vehicle_id'].toString(),
@@ -43,9 +46,12 @@ class Purchase {
           ? DateTime.parse(json['purchase_date'])
           : DateTime.now(),
       price: double.tryParse(json['purchase_price'].toString()) ?? 0.0,
-      modeOfPayment:
-          (json['purchase_mode_of_payment'] ?? json['mode_of_payment'] ?? '')
-              .toString(),
+
+      // modeOfPayment:
+      //     (json['purchase_mode_of_payment'] ?? json['mode_of_payment'] ?? '')
+      //         .toString(),
+      modeOfPayment: json['account_id'].toString()??'',
+
       paymentStatus:
           json['purchase_payment_status'] ?? json['payment_status'] ?? '',
       paidAmount: double.tryParse(json['purchase_paid'].toString()) ?? 0.0,
@@ -54,23 +60,22 @@ class Purchase {
     );
   }
 
-Map<String, dynamic> toJson() {
-  final jsonMap = {
-    'id': id,
-    'vehicle_id': vehicleId,
-    'user_id': userId,
-    'purchase_name': name, // Changed from 'name'
-    'purchase_phone': phone, // Changed from 'phone'
-    'purchase_address': address, // Changed from 'address'
-    'purchase_date': date.toIso8601String(), // Changed from 'date'
-    'purchase_price': price.toString(), // Changed from 'price'
-    'purchase_paid': paidAmount.toString(), // This field is crucial!
-    'purchase_from_account': modeOfPayment, // Changed from 'mode_of_payment'
-    'purchase_payment_status': paymentStatus, // Changed from 'payment_status'
-  };
+  Map<String, dynamic> toJson() {
+    final jsonMap = {
+      'id': id,
+      'vehicle_id': vehicleId,
+      'user_id': userId,
+      'purchase_name': name, // Changed from 'name'
+      'purchase_phone': phone, // Changed from 'phone'
+      'purchase_address': address, // Changed from 'address'
+      'purchase_date': date.toIso8601String(), // Changed from 'date'
+      'purchase_price': price.toString(), // Changed from 'price'
+      'purchase_paid': paidAmount.toString(), // This field is crucial!
+      'purchase_from_account': modeOfPayment, // Changed from 'mode_of_payment'
+      'purchase_payment_status': paymentStatus, // Changed from 'payment_status'
+    };
 
-  print('🔥 Purchase.toJson() → $jsonMap');
-  return jsonMap;
-}
-
+    print('🔥 Purchase.toJson() → $jsonMap');
+    return jsonMap;
+  }
 }

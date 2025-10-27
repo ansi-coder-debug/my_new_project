@@ -174,7 +174,8 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ScreenVehicleDetails(
-                                  vehicleId: vehicle.id,
+                                  // vehicleId: vehicle.id,
+                                  vehicle: vehicle,
                                   onBack: () {
                                     Navigator.pop(context);
                                   },

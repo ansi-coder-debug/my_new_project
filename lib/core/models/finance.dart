@@ -24,7 +24,7 @@ class Finance {
     this.financier,
     this.vehicle,
     this.accountId,
-    this.accountName,
+    this.accountName, 
   });
 
   factory Finance.fromJson(Map<String, dynamic> json) {

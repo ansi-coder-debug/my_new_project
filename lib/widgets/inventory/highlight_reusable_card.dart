@@ -29,12 +29,13 @@ class HighlightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: backgroundColor,
+        color:backgroundColor,
 
 
          // Optional: Add border/shadow to make light cards visible

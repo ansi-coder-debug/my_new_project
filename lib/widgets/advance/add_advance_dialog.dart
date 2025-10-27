@@ -402,22 +402,38 @@ FractionallySizedBox(
 KHeight16,
 
               // Vehicle Dropdown
+              // DropdownButtonFormField<String>(
+              //   isExpanded: true,
+              //   value: _selectedVehicleId,
+              //   decoration: buildInputDecoration("Select vehicle"),
+              //   items: vehicleState.vehicles.map((vehicle) {
+              //     return DropdownMenuItem<String>(
+              //       value: vehicle.id.toString(),
+              //       child: Text('${vehicle.make} ${vehicle.model} ~ ${vehicle.registrationId}'),
+              //     );
+              //   }).toList(),
+              //   onChanged: widget.isViewOnly
+              //       ? null
+              //       : (val) => setState(() => _selectedVehicleId = val),
+              //   validator: (val) =>
+              //       val == null ? 'Please select a vehicle' : null,
+              // ),
               DropdownButtonFormField<String>(
-                isExpanded: true,
-                value: _selectedVehicleId,
-                decoration: buildInputDecoration("Select vehicle"),
-                items: vehicleState.vehicles.map((vehicle) {
-                  return DropdownMenuItem<String>(
-                    value: vehicle.id.toString(),
-                    child: Text('${vehicle.make} ${vehicle.model} ~ ${vehicle.registrationId}'),
-                  );
-                }).toList(),
-                onChanged: widget.isViewOnly
-                    ? null
-                    : (val) => setState(() => _selectedVehicleId = val),
-                validator: (val) =>
-                    val == null ? 'Please select a vehicle' : null,
-              ),
+  isExpanded: true,
+  value: _selectedVehicleId,
+  decoration: buildInputDecoration("Select vehicle"),
+  items: vehicleState.vehicles.where((vehicle) => vehicle.status.toLowerCase() == 'available').map((vehicle) {
+    return DropdownMenuItem<String>(
+      value: vehicle.id.toString(),
+      child: Text('${vehicle.make} ${vehicle.model} ~ ${vehicle.registrationId}'),
+    );
+  }).toList(),
+  onChanged: widget.isViewOnly
+      ? null
+      : (val) => setState(() => _selectedVehicleId = val),
+  validator: (val) =>
+      val == null ? 'Please select a vehicle' : null,
+),
               KHeight16,
 
               // Amount

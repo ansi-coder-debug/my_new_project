@@ -23,7 +23,7 @@ class Broker {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
+      'name': name, 
       'phone': phone,
       'address': address,
     };

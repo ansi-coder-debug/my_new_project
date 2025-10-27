@@ -309,4 +309,21 @@ class VehicleNotifier extends StateNotifier<VehicleState> {
   void toggleVehicleDetails(bool show) {
     state = state.copyWith(showVehicleDetails: show);
   }
+
+
+  // sale form 
+  void showSaleForm(Vehicle vehicle) {
+  state = state.copyWith(
+    showSaleForm: true,
+    vehicleToSell: vehicle,
+  );
+}
+
+void hideSaleForm() {
+  state = state.copyWith(
+    showSaleForm: false,
+    vehicleToSell: null,
+  );
+}
+
 }

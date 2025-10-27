@@ -54,7 +54,6 @@
 //   }
 // }
 
-
 // vehicle_state.dart
 import 'package:my_new_project/core/models/vehicle.dart';
 
@@ -65,6 +64,9 @@ class VehicleState {
   final Vehicle? vehicleToEdit;
   final bool showAddForm;
   final bool showVehicleDetails;
+  // sale
+  final bool showSaleForm;
+  final Vehicle? vehicleToSell;
 
   const VehicleState({
     this.vehicles = const [],
@@ -73,6 +75,9 @@ class VehicleState {
     this.vehicleToEdit,
     this.showAddForm = false,
     this.showVehicleDetails = false,
+
+    this.showSaleForm = false,
+    this.vehicleToSell,
   });
 
   VehicleState copyWith({
@@ -82,6 +87,8 @@ class VehicleState {
     Vehicle? vehicleToEdit,
     bool? showAddForm,
     bool? showVehicleDetails,
+    bool? showSaleForm,
+    Vehicle? vehicleToSell,
   }) {
     return VehicleState(
       vehicles: vehicles ?? this.vehicles,
@@ -90,6 +97,8 @@ class VehicleState {
       vehicleToEdit: vehicleToEdit ?? this.vehicleToEdit,
       showAddForm: showAddForm ?? this.showAddForm,
       showVehicleDetails: showVehicleDetails ?? this.showVehicleDetails,
+      showSaleForm: showSaleForm ?? this.showSaleForm,
+vehicleToSell: vehicleToSell ?? this.vehicleToSell,
     );
   }
 }

@@ -2,15 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/widgets/sales/sale_form.dart';
 
 class ReusableInfoCard extends StatelessWidget {
   final String title;
   final List<MapEntry<String, String>> dataRows;
+  final Widget? child;
 
   const ReusableInfoCard({
     Key? key,
     required this.title,
     required this.dataRows,
+    this.child
   }) : super(key: key);
 
   @override
@@ -38,8 +41,13 @@ class ReusableInfoCard extends StatelessWidget {
          
         KHeight16,
 
+    // ✅ Info rows only if not empty
+    if (dataRows.isNotEmpty)
           // Info rows
           ...dataRows.map((entry) => _buildInfoRow(entry.key, entry.value)),
+
+           // ✅ Add SaleForm or any widget here
+    if (child != null) child!,
         ],
       ),
     );

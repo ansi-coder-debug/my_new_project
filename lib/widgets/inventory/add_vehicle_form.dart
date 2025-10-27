@@ -835,7 +835,7 @@ if (!['pending','partial','paid'].contains(paymentStatus)) {
                                 address: _sellerAddressController.text,
                                 date: _purchaseDate ?? DateTime.now(),
                                 price: double.tryParse(_purchaseAmountController.text) ?? 0.0,
-                                modeOfPayment: _selectedAccount?.id ?? '',
+                                modeOfPayment: _selectedAccount?.id?? '',
                                 paymentStatus: _getPaymentStatus(), // Use the derived status
                                 paidAmount: double.tryParse(_purchasePaidAmountController.text) ?? 0.0,
                                 
@@ -863,7 +863,8 @@ if (!['pending','partial','paid'].contains(paymentStatus)) {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => ScreenVehicleDetails(
-            vehicleId: createdVehicle.id, // This is the actual ID from backend
+            // vehicleId: createdVehicle.id, // This is the actual ID from backend
+            vehicle: createdVehicle,
             onBack: () => Navigator.of(context).pop(),
           ),
         ),

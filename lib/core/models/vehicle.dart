@@ -159,9 +159,12 @@ final Purchase purchaseInfo; // 👈 required field
       fuelType: json['fuel_type'] ?? 'petrol',
 
 
-      brokerageInfo: json['brokerage_info'] != null
+    brokerageInfo: json['brokerage_info'] != null
     ? (json['brokerage_info'] as List<dynamic>)
-        .map((e) => Brokerage.fromJson(e))
+        .map((e) {
+          print('🔄 Parsing brokerage: $e'); // Debug print
+          return Brokerage.fromJson(e);
+        })
         .toList()
     : [],
 

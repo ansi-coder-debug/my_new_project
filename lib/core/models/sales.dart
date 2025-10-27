@@ -41,11 +41,12 @@ class SaleInfo {
       price: json['sale_price']?.toString() ?? json['price']?.toString() ?? '0',
       receivedPrice:
           json['sale_received_price']?.toString() ?? json['received_price']?.toString() ?? '0',
-      modeOfPayment: (json['sale_to_account'] ??
-              json['sale_mode_of_payment'] ??
-              json['mode_of_payment'] ??
-              '')
-          .toString(),
+      // modeOfPayment: (json['sale_to_account'] ??
+      //         json['sale_mode_of_payment'] ??
+      //         json['mode_of_payment'] ??
+      //         '')
+      //     .toString(),
+      modeOfPayment: json['account_id'].toString()??'',
       paymentStatus:
           json['sale_payment_status'] ?? json['payment_status'] ?? 'pending',
       accountId: json['account_id']?.toString(),
