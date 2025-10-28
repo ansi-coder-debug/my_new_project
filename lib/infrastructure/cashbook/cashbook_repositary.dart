@@ -19,4 +19,5 @@ class CashBookRepository {
   Future<CashBookEntry> update(CashBookEntry entry) => _service.update(entry);
 
   Future<void> delete(String id) => _service.delete(id);
+  
 }

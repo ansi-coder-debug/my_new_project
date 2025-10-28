@@ -64,4 +64,47 @@ class CashBookNotifier extends StateNotifier<CashBookState> {
   void clearSelectedEntry() {
     state = state.copyWith(clearSelected: true);
   }
+
+  Future<void> transferMoney({
+  required String fromAccountId,
+  required String toAccountId,
+  required double amount,
+  // required String reference,
+}) async {
+  try {
+    state = state.copyWith(isLoading: true, error: null);
+
+    final now = DateTime.now();
+
+    // 1️⃣ Debit entry (money going out from source)
+    final debitEntry = CashBookEntry(
+      accountId: int.parse(fromAccountId),
+      debit: amount,
+      credit: 0,
+      transactionType: "transfer",
+      description: "Transfer to $toAccountId",
+      toAccountId: int.parse(toAccountId), // ✅ required for backend
+      createdAt: now,
+    );
+    await _repository.create(debitEntry);
+
+    // 2️⃣ Credit entry (money entering destination)
+    final creditEntry = CashBookEntry(
+      accountId: int.parse(toAccountId),
+      credit: amount,
+      debit: 0,
+      transactionType: "transfer",
+      description: "Transfer from $fromAccountId",
+toAccountId: int.parse(fromAccountId),
+    
+      createdAt: now,
+    );
+    await _repository.create(creditEntry);
+
+    await loadCashBookEntries();
+  } catch (e) {
+    state = state.copyWith(isLoading: false, error: e.toString());
+  }
+}
+
 }

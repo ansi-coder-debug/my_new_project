@@ -5,11 +5,11 @@ import 'package:my_new_project/application/navigation/navigation_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 // import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/widgets/accounts/add_account_dialog.dart';
+import 'package:my_new_project/widgets/accounts/edit_account_dialog.dart';
 import 'package:my_new_project/widgets/reusable/custom_header.dart';
 import 'package:my_new_project/widgets/reusable/output_card.dart';
 
 class ScreenAccounts extends ConsumerWidget {
-  
   const ScreenAccounts({super.key});
 
   @override
@@ -25,7 +25,7 @@ class ScreenAccounts extends ConsumerWidget {
             CustomHeader(
               title: "Accounts",
               // onBack: () {
-               
+
               // },
               showAdd: true,
               onAdd: () {
@@ -57,10 +57,72 @@ class ScreenAccounts extends ConsumerWidget {
                               ? account.description
                               : "No description",
 
-                          showAmount: false,
-                          onView: () {},
-                          onEdit: () {},
-                          onDelete: () {},
+                          showAmount: true,
+                          amount: account.amount,
+                          onView: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => EditAccountDialog(
+                                account: account,
+                                isViewMode: true,
+                              ),
+                            );
+                          },
+                          onEdit: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) =>
+                                  EditAccountDialog(account: account),
+                            );
+                          },
+                          onDelete: () async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Delete Account'),
+                                content: const Text(
+                                  'Are you sure you want to delete this account?',
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: const Text(
+                                      'Delete',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirmed == true) {
+                              try {
+                                await ref
+                                    .read(accountProvider.notifier)
+                                    .deleteAccount(account.id!);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Account deleted successfully',
+                                    ),
+                                  ),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Failed to delete account: $e',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          },
                         );
                       },
                     ),

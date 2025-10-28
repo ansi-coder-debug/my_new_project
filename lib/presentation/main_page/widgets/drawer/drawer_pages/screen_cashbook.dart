@@ -13,8 +13,13 @@ import 'package:my_new_project/widgets/reusable/output_card.dart';
 class ScreenCashbook extends ConsumerWidget {
   const ScreenCashbook({Key? key}) : super(key: key);
 
+  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+  
+  
+    
     print("Raw cashbook entry JSON: ${json.toString()}");
 
     final cashBookState = ref.watch(cashBookProvider);
@@ -58,9 +63,12 @@ class ScreenCashbook extends ConsumerWidget {
                       itemCount: entries.length,
                       itemBuilder: (context, index) {
                         final entry = entries[index];
+                        
 
                         return OutputCard(
-                          title: entry.accountName ?? entry.accountId,
+                          // title: entry.accountName ?? entry.accountId,
+                          title: entry.accountName ?? entry.accountId?.toString() ?? "",
+
                           subtitle: entry.vehicle != null
                               ? 'Expense Of: ${entry.vehicle!.name}'
                               : '',

@@ -34,10 +34,12 @@ class _AddAccountDialogState extends ConsumerState<AddAccountDialog> {
         : _descriptionController.text.trim();
 
     final newAccount = Account(
-      id: '',
+      // id: '',
       name: name,
       type: _selectedType,
       description: description,
+        amount: 0.0, // ✅ Required by backend validator
+
     );
 
     try {

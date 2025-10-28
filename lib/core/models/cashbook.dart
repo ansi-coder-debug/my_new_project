@@ -6,7 +6,7 @@ import 'package:my_new_project/core/models/vehicle_summary.dart';
 class CashBookEntry {
   final String? id;
   final String? userId;
-  final String accountId;
+  // final String accountId;
   final String? accountName; // Joined from account table
   final String transactionType; // "sale", "purchase", etc.
   final String? transactionId;
@@ -15,8 +15,10 @@ class CashBookEntry {
   final String? description;
   final DateTime? createdAt;
   final VehicleSummary? vehicle;
-
-
+  // final String? toAccountId;
+  final int accountId;
+  final int? toAccountId;
+  final int? fromAccountId;
 
   CashBookEntry({
     this.id,
@@ -29,8 +31,9 @@ class CashBookEntry {
     this.credit,
     this.description,
     this.createdAt,
-    this.vehicle
-    
+    this.vehicle,
+    this.toAccountId,
+    this.fromAccountId
   });
 
   // factory CashBookEntry.fromJson(Map<String, dynamic> json) {
@@ -55,53 +58,103 @@ class CashBookEntry {
   // }
 
   factory CashBookEntry.fromJson(Map<String, dynamic> json) {
-    try {
-      print("Raw cashbook entry JSON: ${jsonEncode(json)}");
-      final accountId = json['account_id']?.toString();
-      final transactionType = json['transaction_type']?.toString();
+  try {
+    print("Raw cashbook entry JSON: ${jsonEncode(json)}");
 
-      if (accountId == null || transactionType == null) {
-        print(
-          "⚠️ Skipping entry: account_id or transaction_type is null. Raw JSON: $json",
-        );
-        throw FormatException("Missing required fields");
-      }
+    final accountId = json['account_id'] != null
+        ? int.tryParse(json['account_id'].toString())
+        : null;
 
-      return CashBookEntry(
-        id: json['id']?.toString(),
-        userId: json['user_id']?.toString(),
-        accountId: accountId,
-        accountName: json['account_name'],
-        transactionType: transactionType,
-        transactionId: json['transaction_id']?.toString(),
-        debit: (json['debit'] != null)
-            ? double.tryParse(json['debit'].toString())
-            : null,
-        credit: (json['credit'] != null)
-            ? double.tryParse(json['credit'].toString())
-            : null,
-        description: json['description'],
-        createdAt: json['created_at'] != null
-            ? DateTime.tryParse(json['created_at'])
-            : null,
-             // ✅ new vehicle summary
+    final transactionType = json['transaction_type']?.toString();
+
+    if (accountId == null || transactionType == null) {
+      print(
+        "⚠️ Skipping entry: account_id or transaction_type is null. Raw JSON: $json",
+      );
+      throw FormatException("Missing required fields");
+    }
+
+    return CashBookEntry(
+      id: json['id']?.toString(),
+      userId: json['user_id']?.toString(),
+      accountId: accountId,
+      accountName: json['account_name'],
+      transactionType: transactionType,
+      transactionId: json['transaction_id']?.toString(),
+      debit: (json['debit'] != null)
+          ? double.tryParse(json['debit'].toString())
+          : null,
+      credit: (json['credit'] != null)
+          ? double.tryParse(json['credit'].toString())
+          : null,
+      description: json['description'],
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'])
+          : null,
       vehicle: (json['vehicle_name'] != null || json['vehicle_reg_no'] != null)
           ? VehicleSummary.fromJson(json)
           : null,
-            
-      );
-    } catch (e) {
-      print("❌ Error parsing CashBookEntry: $e");
-      rethrow; // Or return a fallback value
-    }
+      toAccountId: json['to_account_id'] != null
+          ? int.tryParse(json['to_account_id'].toString())
+          : null,
+          fromAccountId: json['from_account_id'],
+    );
+  } catch (e) {
+    print("❌ Error parsing CashBookEntry: $e");
+    rethrow;
   }
+}
 
-  //  accountId: json['account_id']?.toString() ?? (throw Exception("account_id missing")),
-  // transactionType: json['transaction_type']?.toString() ?? (throw Exception("transaction_type missing")),
+
+  // factory CashBookEntry.fromJson(Map<String, dynamic> json) {
+  //   try {
+  //     print("Raw cashbook entry JSON: ${jsonEncode(json)}");
+  //     final accountId = json['account_id']?.toString();
+  //     final transactionType = json['transaction_type']?.toString();
+
+  //     if (accountId == null || transactionType == null) {
+  //       print(
+  //         "⚠️ Skipping entry: account_id or transaction_type is null. Raw JSON: $json",
+  //       );
+  //       throw FormatException("Missing required fields");
+  //     }
+
+  //     return CashBookEntry(
+  //       id: json['id']?.toString(),
+  //       userId: json['user_id']?.toString(),
+  //       accountId: accountId,
+
+  //       accountName: json['account_name'],
+  //       transactionType: transactionType,
+  //       transactionId: json['transaction_id']?.toString(),
+  //       debit: (json['debit'] != null)
+  //           ? double.tryParse(json['debit'].toString())
+  //           : null,
+  //       credit: (json['credit'] != null)
+  //           ? double.tryParse(json['credit'].toString())
+  //           : null,
+  //       description: json['description'],
+  //       createdAt: json['created_at'] != null
+  //           ? DateTime.tryParse(json['created_at'])
+  //           : null,
+  //       // ✅ new vehicle summary
+  //       vehicle:
+  //           (json['vehicle_name'] != null || json['vehicle_reg_no'] != null)
+  //           ? VehicleSummary.fromJson(json)
+  //           : null,
+  //       toAccountId: json['to_account_id']?.toString(),
+  //     );
+  //   } catch (e) {
+  //     print("❌ Error parsing CashBookEntry: $e");
+  //     rethrow; // Or return a fallback value
+  //   }
+  // }
 
   Map<String, dynamic> toJson() {
     return {
       'account_id': accountId,
+      'to_account_id': toAccountId, // ✅ Added for transfer
+       "from_account_id": fromAccountId,
       'transaction_type': transactionType,
       'transaction_id': transactionId,
       'debit': debit,
@@ -113,7 +166,10 @@ class CashBookEntry {
   CashBookEntry copyWith({
     String? id,
     String? userId,
-    String? accountId,
+    // String? accountId,
+    int? accountId,
+int? toAccountId,
+
     String? accountName,
     String? transactionType,
     String? transactionId,
