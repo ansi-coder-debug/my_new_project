@@ -1154,18 +1154,11 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       IconButton(
   icon: const Icon(Icons.delete),
   onPressed: () {
-    _showDeleteDialog(context, vehicle.id);
+    _showDeleteDialog(context, vehicle.id,ref);
   },
 ),
 
-                      //  IconButton(
-                      //   onPressed: widget.onDelete,
-                      //   icon: const Icon(
-                      //     Icons.delete,
-                      //     color: Colors.red,
-                      //     size: 20,
-                      //   ),
-                      // ),
+                   
                     ),
                   ],
                 ),
@@ -1671,29 +1664,102 @@ if (vehicleState.showSaleForm && vehicleState.vehicleToSell != null)
   }
 
   // delete
-  void _showDeleteDialog(BuildContext context, String vehicleId) {
+
+void _showDeleteDialog(BuildContext context, String vehicleId, WidgetRef ref) {
   showDialog(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        title: const Text("Confirm Delete"),
-        content: const Text("Are you sure you want to delete this vehicle?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("No"),
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Confirm Delete",
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.grey),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20.0),
+              const Text(
+                "Are you sure you want to delete?",
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 30.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.grey.shade700,
+                        backgroundColor: Colors.grey.shade200,
+                        side: BorderSide.none, // Remove border
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      ),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 15.0),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final notifier = ref.read(vehicleProvider.notifier);
+                        await notifier.deleteVehicle(vehicleId);
+                   
+                        Navigator.pop(context); // Close dialog
+                        Navigator.pop(context); // Close details page
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red, // Confirm button color
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      ),
+                      child: const Text(
+                        "Confirm",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () async {
-              final notifier = ref.read(vehicleProvider.notifier);
-
-              await notifier.deleteVehicle(vehicleId); // ✅ Delete vehicle
-
-              Navigator.pop(context); // Close dialog ✅
-            },
-            child: const Text("Yes"),
-          ),
-        ],
+        ),
       );
     },
   );

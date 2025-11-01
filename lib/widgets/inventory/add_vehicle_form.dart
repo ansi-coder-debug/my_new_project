@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
@@ -8,6 +7,8 @@ import 'package:my_new_project/application/auth/auth_provider.dart';
 
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/constants/vehicle_make.dart';
+import 'package:my_new_project/core/constants/vehicle_model.dart';
 import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/core/models/purchase.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/sales.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
+import 'package:my_new_project/widgets/accounts/edit_account_dialog.dart';
 import 'package:my_new_project/widgets/inventory/screen_vehicle_details.dart';
 import 'package:my_new_project/widgets/partnerships/add_partner_form.dart'; // Assuming this exists
 import 'package:my_new_project/widgets/partnerships/add_partnership_details.dart'; // Assuming this exists
@@ -30,7 +32,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class AddVehicleForm extends ConsumerStatefulWidget {
   final Key? formKey;
-  final VoidCallback? onCancel; // This was "View Report" in your original code, which we'll remove
+  final VoidCallback?
+  onCancel; // This was "View Report" in your original code, which we'll remove
   final VoidCallback onAddComplete;
   final Vehicle? vehicleToEdit;
   final Vehicle? vehicle; // Duplicate? vehicleToEdit should be sufficient
@@ -52,7 +55,7 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   List<String> _pickedImages = []; // Stores paths of picked images
   bool _isPartnershipEnabled = false;
   List<Partnership> _partnerships = [];
-  Account? _selectedAccount; // For "From Account" dropdown
+ 
 
   // State for form fields
   final _formKey = GlobalKey<FormState>();
@@ -65,19 +68,28 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
   final TextEditingController _modelController = TextEditingController();
   final TextEditingController _yearController = TextEditingController();
   final TextEditingController _colorController = TextEditingController();
-  final TextEditingController _registrationIdController = TextEditingController();
+  final TextEditingController _registrationIdController =
+      TextEditingController();
   final TextEditingController _mileageController = TextEditingController();
-  final TextEditingController _expectedSellingAmountController = TextEditingController(); // NEW: For expected selling price
-  final TextEditingController _additionalNotesController = TextEditingController(); // NEW: For additional notes
+  final TextEditingController _expectedSellingAmountController =
+      TextEditingController(); // NEW: For expected selling price
+  final TextEditingController _additionalNotesController =
+      TextEditingController(); // NEW: For additional notes
 
   final TextEditingController _sellerNameController = TextEditingController();
   final TextEditingController _sellerPhoneController = TextEditingController();
-  final TextEditingController _sellerAddressController = TextEditingController();
-  final TextEditingController _purchaseAmountController = TextEditingController();
-  final TextEditingController _purchasePaidAmountController = TextEditingController();
-  final TextEditingController _purchaseDateController = TextEditingController(); // For displaying the date
+  final TextEditingController _sellerAddressController =
+      TextEditingController();
+  final TextEditingController _purchaseAmountController =
+      TextEditingController();
+  final TextEditingController _purchasePaidAmountController =
+      TextEditingController();
+  final TextEditingController _purchaseDateController =
+      TextEditingController(); // For displaying the date
   final TextEditingController _statusController = TextEditingController();
-
+  final TextEditingController _engineNumberController = TextEditingController();
+  final TextEditingController _chassisNumberController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -92,14 +104,18 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
       _registrationIdController.text = vehicle.registrationId;
       _mileageController.text = vehicle.mileage.toString();
       _fuelType = vehicle.fuelType; // Set dropdown value
-      _expectedSellingAmountController.text = vehicle.price; // Assuming vehicle.price is expected selling
-      _additionalNotesController.text = vehicle.description.toString(); // Assuming vehicle.description is additional notes
-
+      _expectedSellingAmountController.text =
+          vehicle.price; // Assuming vehicle.price is expected selling
+      _additionalNotesController.text = vehicle.description
+          .toString(); // Assuming vehicle.description is additional notes
+      _engineNumberController.text = vehicle.engineNumber ?? '';
+      _chassisNumberController.text = vehicle.chassisNumber ?? '';
       _sellerNameController.text = vehicle.purchaseInfo.name;
       _sellerPhoneController.text = vehicle.purchaseInfo.phone;
       _sellerAddressController.text = vehicle.purchaseInfo.address;
       _purchaseAmountController.text = vehicle.purchaseInfo.price.toString();
-      _purchasePaidAmountController.text = vehicle.purchaseInfo.paidAmount.toString();
+      _purchasePaidAmountController.text = vehicle.purchaseInfo.paidAmount
+          .toString();
       _purchaseDate = vehicle.purchaseInfo.date;
       _purchaseDateController.text = _purchaseDate != null
           ? "${_purchaseDate!.month.toString().padLeft(2, '0')}/${_purchaseDate!.day.toString().padLeft(2, '0')}/${_purchaseDate!.year}"
@@ -116,16 +132,17 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
         final accountState = ref.read(accountProvider);
         if (vehicle.purchaseInfo.modeOfPayment.isNotEmpty) {
           try {
-            _selectedAccount = accountState.accounts.firstWhere(
+           accountState.accounts.firstWhere(
               (acc) => acc.id == vehicle.purchaseInfo.modeOfPayment,
             );
           } catch (e) {
-            debugPrint('⚠️ From Account not found for ID: ${vehicle.purchaseInfo.modeOfPayment}');
+            debugPrint(
+              '⚠️ From Account not found for ID: ${vehicle.purchaseInfo.modeOfPayment}',
+            );
           }
         }
         setState(() {}); // Trigger rebuild to show selected account
       });
-
     } else {
       // Default for new vehicle
       _purchaseDate = DateTime.now();
@@ -133,7 +150,6 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
           "${_purchaseDate!.month.toString().padLeft(2, '0')}/${_purchaseDate!.day.toString().padLeft(2, '0')}/${_purchaseDate!.year}";
     }
   }
-
 
   @override
   void dispose() {
@@ -151,6 +167,8 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
     _purchaseAmountController.dispose();
     _purchasePaidAmountController.dispose();
     _purchaseDateController.dispose();
+    _engineNumberController.dispose();
+    _chassisNumberController.dispose();
     super.dispose();
   }
 
@@ -177,22 +195,32 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
 
   Widget _buildImagePreview(String imagePath) {
     if (kIsWeb || imagePath.startsWith('http')) {
-      return CachedNetworkImage( // Use CachedNetworkImage for network images
+      return CachedNetworkImage(
+        // Use CachedNetworkImage for network images
         imageUrl: imagePath,
         width: 100,
         height: 100,
         fit: BoxFit.cover,
-        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+        placeholder: (context, url) =>
+            const Center(child: CircularProgressIndicator()),
         errorWidget: (context, url, error) => const Icon(Icons.error),
       );
     } else {
-      return Image.file(File(imagePath), width: 100, height: 100, fit: BoxFit.cover);
+      return Image.file(
+        File(imagePath),
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+      );
     }
   }
 
-
   // Helper function to show date picker and update controller
-  Future<void> _selectDate(BuildContext context, TextEditingController controller, Function(DateTime?) onDateSelected) async {
+  Future<void> _selectDate(
+    BuildContext context,
+    TextEditingController controller,
+    Function(DateTime?) onDateSelected,
+  ) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -217,17 +245,22 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
       },
     );
     if (picked != null) {
-      final formattedDate = "${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}";
+      final formattedDate =
+          "${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}";
       controller.text = formattedDate;
       onDateSelected(picked);
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final accountState = ref.watch(accountProvider);
-    final isEditing = widget.vehicleToEdit != null; // Simpler way to check editing mode
+    final notifier = ref.read(accountProvider.notifier);
+    final enteredAmount =
+        double.tryParse(_purchasePaidAmountController.text) ?? 0;
+
+    final isEditing =
+        widget.vehicleToEdit != null; // Simpler way to check editing mode
 
     return Scaffold(
       backgroundColor: kLightGreyBackground, // Global background color
@@ -246,7 +279,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(16.0), // Padding for the whole form
+                  padding: const EdgeInsets.all(
+                    16.0,
+                  ), // Padding for the whole form
                   children: [
                     // --- Vehicle Details Section ---
                     const Text(
@@ -257,22 +292,41 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                         color: kDarkText,
                       ),
                     ),
-                    const Divider(thickness: 1, color: kInputBorderColor), // Subtle divider
+                    const Divider(
+                      thickness: 1,
+                      color: kInputBorderColor,
+                    ), // Subtle divider
                     KHeight20,
 
                     // Vehicle Type Dropdown
                     DropdownButtonFormField<String>(
                       value: _vehicleType,
-                      decoration: kInputDecoration.copyWith(hintText: "Bike"), // Changed hint to match default value
-                      items: ['Bike', 'Car', 'Truck', 'Other'] // Example vehicle types
-                          .map((type) => DropdownMenuItem(
-                                value: type,
-                                child: Text(type, style: const TextStyle(color: kDarkText)),
-                              ))
-                          .toList(),
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Bike",
+                      ), // Changed hint to match default value
+                      items:
+                          [
+                                'Bike',
+                                'Car',
+                                'Truck',
+                                'Other',
+                              ] // Example vehicle types
+                              .map(
+                                (type) => DropdownMenuItem(
+                                  value: type,
+                                  child: Text(
+                                    type,
+                                    style: const TextStyle(color: kDarkText),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         setState(() {
                           _vehicleType = value!;
+                          // ✅ CLEAR THE MAKE FIELD WHEN VEHICLE TYPE CHANGES
+                          _makeController.clear();
+                          _modelController.clear();
                         });
                       },
                       style: const TextStyle(color: kDarkText, fontSize: 15),
@@ -281,39 +335,231 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                     KHeight16,
 
                     // Select Make
-                    TextFormField(
-                      controller: _makeController,
-                      decoration: kInputDecoration.copyWith(hintText: "Select Make"),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter make' : null,
-                      style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
-  ],
+                    // In your AddVehicleForm build method, replace the current "Select Make" field:
+
+                    // Select Make - Autocomplete
+                    Autocomplete<String>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return const Iterable<String>.empty();
+                        }
+
+                        final makes = VehicleMakes.getMakesForVehicleType(
+                          _vehicleType,
+                        );
+
+                        return makes.where((String option) {
+                          return option.toLowerCase().contains(
+                            textEditingValue.text.toLowerCase(),
+                          );
+                        });
+                      },
+                      onSelected: (String selection) {
+                        _makeController.text = selection;
+                      },
+                      fieldViewBuilder:
+                          (
+                            BuildContext context,
+                            TextEditingController textEditingController,
+                            FocusNode focusNode,
+                            VoidCallback onFieldSubmitted,
+                          ) {
+                            // Use your existing controller
+                            textEditingController.text = _makeController.text;
+
+                            return TextFormField(
+                              controller: textEditingController,
+                              focusNode: focusNode,
+                              decoration: kInputDecoration.copyWith(
+                                hintText: "Select Make",
+                                suffixIcon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: kLightText,
+                                ),
+                              ),
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                  ? 'Please select make'
+                                  : null,
+                              style: const TextStyle(color: Colors.black),
+                              onChanged: (value) {
+                                _makeController.text = value;
+                              },
+                            );
+                          },
+                      optionsViewBuilder:
+                          (
+                            BuildContext context,
+                            AutocompleteOnSelected<String> onSelected,
+                            Iterable<String> options,
+                          ) {
+                            return Align(
+                              alignment: Alignment.topLeft,
+                              child: Material(
+                                elevation: 4.0,
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                    maxHeight: 200,
+                                  ),
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    itemCount: options.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                          final String option = options
+                                              .elementAt(index);
+                                          return ListTile(
+                                            title: Text(
+                                              option,
+                                              style: const TextStyle(
+                                                color: kDarkText,
+                                              ),
+                                            ),
+                                            onTap: () {
+                                              onSelected(option);
+                                            },
+                                          );
+                                        },
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                    ),
+                    KHeight16,
+                    //
+
+                    // Select Model
+                    Autocomplete<String>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (textEditingValue.text.isEmpty) {
+                          return const Iterable<String>.empty();
+                        }
+
+                        final models = VehicleModels.getModelsForMake(
+                          _vehicleType,
+                          _makeController.text,
+                        );
+
+                        return models.where((String option) {
+                          return option.toLowerCase().contains(
+                            textEditingValue.text.toLowerCase(),
+                          );
+                        });
+                      },
+
+                      onSelected: (String selection) {
+                        _modelController.text = selection;
+                      },
+
+                      fieldViewBuilder:
+                          (
+                            BuildContext context,
+                            TextEditingController textEditingController,
+                            FocusNode focusNode,
+                            VoidCallback onFieldSubmitted,
+                          ) {
+                            // Sync with your controller
+                            textEditingController.text = _modelController.text;
+
+                            return TextFormField(
+                              controller: textEditingController,
+                              focusNode: focusNode,
+                              decoration: kInputDecoration.copyWith(
+                                hintText: "Select Model",
+                                suffixIcon: const Icon(
+                                  Icons.arrow_drop_down,
+                                  color: kLightText,
+                                ),
+                              ),
+                              validator: (value) =>
+                                  value == null || value.isEmpty
+                                  ? 'Please select model'
+                                  : null,
+                              style: const TextStyle(color: kDarkText),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z\s]'),
+                                ),
+                              ],
+                              onChanged: (value) {
+                                _modelController.text = value;
+                              },
+                            );
+                          },
+
+                      optionsViewBuilder:
+                          (
+                            BuildContext context,
+                            AutocompleteOnSelected<String> onSelected,
+                            Iterable<String> options,
+                          ) {
+                            return Align(
+                              alignment: Alignment.topLeft,
+                              child: Material(
+                                elevation: 4.0,
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                    maxHeight: 200,
+                                  ),
+                                  child: ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    itemCount: options.length,
+                                    itemBuilder: (context, index) {
+                                      final String option = options.elementAt(
+                                        index,
+                                      );
+                                      return ListTile(
+                                        title: Text(
+                                          option,
+                                          style: const TextStyle(
+                                            color: kDarkText,
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          onSelected(option);
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                     ),
                     KHeight16,
 
-                    // Select Model
-                    TextFormField(
-                      controller: _modelController,
-                      decoration: kInputDecoration.copyWith(hintText: "Select Model"),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter model' : null,
-                      style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
-  ],
-                    ),
-                    KHeight16,
+                    // TextFormField(
+                    //   controller: _modelController,
+                    //   decoration: kInputDecoration.copyWith(
+                    //     hintText: "Select Model",
+                    //   ),
+                    //   validator: (value) => value == null || value.isEmpty
+                    //       ? 'Please enter model'
+                    //       : null,
+                    //   style: const TextStyle(color: kDarkText),
+                    //   inputFormatters: [
+                    //     FilteringTextInputFormatter.allow(
+                    //       RegExp(r'[a-zA-Z\s]'),
+                    //     ), // letters and spaces only
+                    //   ],
+                    // ),
+                    // KHeight16,
 
                     // Year
                     TextFormField(
                       controller: _yearController,
                       keyboardType: TextInputType.number,
-                      decoration: kInputDecoration.copyWith(hintText: "Year (e.g., 2022)"),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter year' : null,
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Year (e.g., 2022)",
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter year'
+                          : null,
                       style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.digitsOnly
-  ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                     KHeight16,
 
@@ -321,23 +567,34 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                     TextFormField(
                       controller: _colorController,
                       decoration: kInputDecoration.copyWith(hintText: "Color"),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter color' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter color'
+                          : null,
                       style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
-  ],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z\s]'),
+                        ), // letters and spaces only
+                      ],
                     ),
                     KHeight16,
 
                     // Registration No.
                     TextFormField(
                       controller: _registrationIdController,
-                      decoration: kInputDecoration.copyWith(hintText: "Registration No."),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter registration number' : null,
+                      textCapitalization: TextCapitalization.characters,
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Registration No.",
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter registration number'
+                          : null,
                       style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')), // letters & numbers
-  ],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z0-9]'),
+                        ), // letters & numbers
+                      ],
                     ),
                     KHeight16,
 
@@ -345,12 +602,49 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                     TextFormField(
                       controller: _mileageController,
                       keyboardType: TextInputType.number,
-                      decoration: kInputDecoration.copyWith(hintText: "Kilometre Driven"),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter kilometre driven' : null,
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Kilometre Driven",
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter kilometre driven'
+                          : null,
                       style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.digitsOnly
-  ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    ),
+                    KHeight16,
+
+                    TextFormField(
+                      controller: _engineNumberController,
+                      keyboardType: TextInputType
+                          .text, // Engine number can be alphanumeric
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Engine Number (Optional)",
+                        // If you want a specific icon, you can add it here
+                        // prefixIcon: Icon(Icons.confirmation_number),
+                      ),
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                      ),
+                      // No validator needed if it's optional, or add one if you need specific formatting
+                    ),
+                    KHeight16,
+
+                    const SizedBox(
+                      height: 16.0,
+                    ), // Spacing between the two fields
+                    TextFormField(
+                      controller: _chassisNumberController,
+                      keyboardType: TextInputType
+                          .text, // Chassis number can be alphanumeric
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Chassis Number (Optional)",
+                        // If you want a specific icon, you can add it here
+                        // prefixIcon: Icon(Icons.directions_car),
+                      ),
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 5, 2, 2),
+                      ),
+                      // No validator needed if it's optional
                     ),
                     KHeight16,
 
@@ -359,10 +653,15 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       value: _fuelType,
                       decoration: kInputDecoration.copyWith(hintText: "Petrol"),
                       items: ['Petrol', 'Diesel', 'Hybrid', 'Electric']
-                          .map((fuel) => DropdownMenuItem(
-                                value: fuel,
-                                child: Text(fuel, style: const TextStyle(color: kDarkText)),
-                              ))
+                          .map(
+                            (fuel) => DropdownMenuItem(
+                              value: fuel,
+                              child: Text(
+                                fuel,
+                                style: const TextStyle(color: kDarkText),
+                              ),
+                            ),
+                          )
                           .toList(),
                       onChanged: (value) {
                         setState(() {
@@ -380,13 +679,16 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       keyboardType: TextInputType.number,
                       decoration: kInputDecoration.copyWith(
                         hintText: "Expected Selling Amount",
-                        suffixIcon: const Icon(Icons.calculate_outlined, color: kLightText),
+                        suffixIcon: const Icon(
+                          Icons.calculate_outlined,
+                          color: kLightText,
+                        ),
                       ),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter amount' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter amount'
+                          : null,
                       style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.digitsOnly
-  ],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                     KHeight16,
 
@@ -398,9 +700,11 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                         hintText: "Additional Notes (optional)",
                       ),
                       style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
-  ],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z\s]'),
+                        ), // letters and spaces only
+                      ],
                     ),
                     KHeight16,
 
@@ -409,38 +713,77 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                       onTap: _pickImage,
                       child: InputDecorator(
                         decoration: kInputDecoration.copyWith(
-                          hintText: _pickedImages.isEmpty ? "No file chosen" : "${_pickedImages.length} file(s) chosen",
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-                          border: OutlineInputBorder( // Ensure border is visible for this "pseudo-button"
+                          hintText: _pickedImages.isEmpty
+                              ? "No file chosen"
+                              : "${_pickedImages.length} file(s) chosen",
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 14.0,
+                          ),
+                          border: OutlineInputBorder(
+                            // Ensure border is visible for this "pseudo-button"
                             borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide(color: kInputBorderColor, width: 1),
+                            borderSide: BorderSide(
+                              color: kInputBorderColor,
+                              width: 1,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide(color: kInputBorderColor, width: 1),
+                            borderSide: BorderSide(
+                              color: kInputBorderColor,
+                              width: 1,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
-                            borderSide: const BorderSide(color: kPrimaryBlue, width: 1),
+                            borderSide: const BorderSide(
+                              color: kPrimaryBlue,
+                              width: 1,
+                            ),
                           ),
-                          prefixIconConstraints: BoxConstraints.tightForFinite(width: 100), // Give space for "Choose Files" button
+                          prefixIconConstraints: BoxConstraints.tightForFinite(
+                            width: 100,
+                          ), // Give space for "Choose Files" button
                           prefixIcon: Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                            padding: const EdgeInsets.only(
+                              left: 8.0,
+                              right: 8.0,
+                            ),
                             child: Container(
                               alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFE6E8EA), // Light grey background
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: Colors.grey.withOpacity(0.4)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
                               ),
-                              child: const Text('Choose Files', style: TextStyle(color: kDarkText, fontSize: 14, fontWeight: FontWeight.w500)),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFFE6E8EA,
+                                ), // Light grey background
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: Colors.grey.withOpacity(0.4),
+                                ),
+                              ),
+                              child: const Text(
+                                'Choose Files',
+                                style: TextStyle(
+                                  color: kDarkText,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                         child: Text(
-                          _pickedImages.isEmpty ? "" : "${_pickedImages.length} file(s) chosen",
-                          style: const TextStyle(color: kLightText, fontSize: 15),
+                          _pickedImages.isEmpty
+                              ? ""
+                              : "${_pickedImages.length} file(s) chosen",
+                          style: const TextStyle(
+                            color: kLightText,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                     ),
@@ -457,7 +800,9 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                                   width: 80, // Smaller preview
                                   height: 80,
                                   decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey.shade300),
+                                    border: Border.all(
+                                      color: Colors.grey.shade300,
+                                    ),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: ClipRRect(
@@ -490,7 +835,6 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                         ),
                       ),
                     KHeight30, // Big spacer before next section
-
                     // --- Purchase Details Section ---
                     const Text(
                       "Purchase Details",
@@ -505,19 +849,26 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
 
                     // Date Picker
                     GestureDetector(
-                      onTap: () => _selectDate(context, _purchaseDateController, (date) {
-                        setState(() {
-                          _purchaseDate = date;
-                        });
-                      }),
-                      child: AbsorbPointer( // Prevents TextFormField from being editable directly
+                      onTap: () =>
+                          _selectDate(context, _purchaseDateController, (date) {
+                            setState(() {
+                              _purchaseDate = date;
+                            });
+                          }),
+                      child: AbsorbPointer(
+                        // Prevents TextFormField from being editable directly
                         child: TextFormField(
                           controller: _purchaseDateController,
                           decoration: kInputDecoration.copyWith(
                             hintText: "Date",
-                            suffixIcon: const Icon(Icons.calendar_today_outlined, color: kLightText),
+                            suffixIcon: const Icon(
+                              Icons.calendar_today_outlined,
+                              color: kLightText,
+                            ),
                           ),
-                          validator: (value) => value == null || value.isEmpty ? 'Please select a date' : null,
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Please select a date'
+                              : null,
                           style: const TextStyle(color: kDarkText),
                         ),
                       ),
@@ -527,121 +878,283 @@ class AddVehicleFormState extends ConsumerState<AddVehicleForm> {
                     // Seller Name
                     TextFormField(
                       controller: _sellerNameController,
-                      decoration: kInputDecoration.copyWith(hintText: "Seller Name"),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter seller name' : null,
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Seller Name",
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter seller name'
+                          : null,
                       style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
-  ],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z\s]'),
+                        ), // letters and spaces only
+                      ],
                     ),
                     KHeight16,
 
                     // Seller Phone
-                   TextFormField(
-  controller: _sellerPhoneController,
-  keyboardType: TextInputType.phone,
-  decoration: kInputDecoration.copyWith(hintText: "Seller Phone"),
-  style: const TextStyle(color: kDarkText),
-  
-  
-  // Validator for required and length
-  validator: (value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter seller phone';
-    } else if (value.length != 10) {
-      return 'Phone number must be 10 digits';
-    }
-    return null;
-  },
+                    TextFormField(
+                      controller: _sellerPhoneController,
+                      keyboardType: TextInputType.phone,
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Seller Phone",
+                      ),
+                      style: const TextStyle(color: kDarkText),
 
-  // Limit input to digits only and max 10 characters
-  inputFormatters: [
-    FilteringTextInputFormatter.digitsOnly,
-    LengthLimitingTextInputFormatter(10),
-  ],
-),
+                      // Validator for required and length
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter seller phone';
+                        } else if (value.length != 10) {
+                          return 'Phone number must be 10 digits';
+                        }
+                        return null;
+                      },
+
+                      // Limit input to digits only and max 10 characters
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(10),
+                      ],
+                    ),
                     KHeight16,
 
                     // Seller Address
                     TextFormField(
                       controller: _sellerAddressController,
                       maxLines: 3,
-                      decoration: kInputDecoration.copyWith(hintText: "Seller Address"),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter seller address' : null,
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Seller Address",
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter seller address'
+                          : null,
                       style: const TextStyle(color: kDarkText),
-                       inputFormatters: [
-    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), // letters and spaces only
-  ],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z\s]'),
+                        ), // letters and spaces only
+                      ],
                     ),
                     KHeight16,
 
-                  // Purchase Amount
-TextFormField(
-  controller: _purchaseAmountController,
-  keyboardType: TextInputType.number,
-  decoration: kInputDecoration.copyWith(
-    hintText: "Purchase Amount",
-    suffixIcon: const Icon(Icons.calculate_outlined, color: kLightText),
-  ),
-  validator: (value) => value == null || value.isEmpty ? 'Please enter purchase amount' : null,
-  style: const TextStyle(color: kDarkText),
-   inputFormatters: [
-    FilteringTextInputFormatter.digitsOnly
-  ],
-  onChanged: (value) {
-    setState(() {
-      _statusController.text = _getPaymentStatus();
-    });
-  },
+                    // Purchase Amount
+                    TextFormField(
+                      controller: _purchaseAmountController,
+                      keyboardType: TextInputType.number,
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Purchase Amount",
+                        suffixIcon: const Icon(
+                          Icons.calculate_outlined,
+                          color: kLightText,
+                        ),
+                      ),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter purchase amount'
+                          : null,
+                      style: const TextStyle(color: kDarkText),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      onChanged: (value) {
+                        setState(() {
+                          _statusController.text = _getPaymentStatus();
+                        });
+                      },
+                    ),
+                    KHeight16,
 
-),
-KHeight16,
-
-// Purchase Paid Amount
-TextFormField(
-  controller: _purchasePaidAmountController,
-  keyboardType: TextInputType.number,
-  decoration: kInputDecoration.copyWith(
-    hintText: "Purchase Paid Amount",
-    suffixIcon: const Icon(Icons.calculate_outlined, color: kLightText),
-    
-  ),
-  style: const TextStyle(color: kDarkText),
-   inputFormatters: [
-    FilteringTextInputFormatter.digitsOnly
-  ],
-  validator: (value) => value == null || value.isEmpty ? 'Please enter paid amount' : null,
-  onChanged: (value) {
-    setState(() {
-      _statusController.text = _getPaymentStatus();
-    });
-  },
-),
+                    // Purchase Paid Amount
+                    TextFormField(
+                      controller: _purchasePaidAmountController,
+                      keyboardType: TextInputType.number,
+                      decoration: kInputDecoration.copyWith(
+                        hintText: "Purchase Paid Amount",
+                        suffixIcon: const Icon(
+                          Icons.calculate_outlined,
+                          color: kLightText,
+                        ),
+                      ),
+                      style: const TextStyle(color: kDarkText),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter paid amount'
+                          : null,
+                      onChanged: (value) {
+                        setState(() {
+                          _statusController.text = _getPaymentStatus();
+                        });
+                      },
+                    ),
 
                     KHeight16,
 
                     // From Account Dropdown
                     DropdownButtonFormField<Account>(
+                      selectedItemBuilder: (context) {
+                        return accountState.accounts.map((account) {
+                          return Text(
+                            account.name,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        }).toList();
+                      },
+                      // This is crucial for the hint text to appear correctly when no item is selected.
                       decoration: kInputDecoration.copyWith(
-                        hintText: "From Account",
+                        hintText: 'From Account',
+                        // You might want to remove or customize the default underline if kInputDecoration has one.
+                        // For a cleaner look like your first image, you might want InputBorder.none or OutlineInputBorder.
+                        border:
+                            const OutlineInputBorder(), // Example: A clean border
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ), // Adjust padding as needed
                       ),
-                      value: _selectedAccount,
-                      onChanged: (Account? newAccount) {
-                        setState(() {
-                          _selectedAccount = newAccount;
-                        });
+                      value: accountState.selectedAccount,
+                      onChanged: (account) {
+                        notifier.setSelectedAccount(account);
+                        if (account != null && account.amount < enteredAmount) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Insufficient balance! Please add money.',
+                              ),
+                              backgroundColor: Colors.redAccent,
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
                       },
                       items: accountState.accounts.map((account) {
+                        final hasInsufficientBalance =
+                            account.amount < enteredAmount;
                         return DropdownMenuItem<Account>(
                           value: account,
-                          child: Text("${account.name} (${account.type})", style: const TextStyle(color: kDarkText)),
+                          // Use Padding to give some horizontal spacing to the dropdown items
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 0.0,
+                            ), // Adjust horizontal padding for items
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment
+                                  .spaceBetween, // Align text to left and amount/edit to right
+                              children: [
+                                Expanded(
+                                  // Use Expanded to ensure the account name doesn't overflow
+                                  child: Text(
+                                    account.name,
+                                    style: TextStyle(
+                                      color: hasInsufficientBalance
+                                          ? Colors.orange
+                                          : Colors
+                                                .grey
+                                                .shade800, // Using a darker grey for selected text
+                                      fontWeight: FontWeight.w600,
+                                      fontSize:
+                                          15, // Match the style of your first image
+                                    ),
+                                    overflow: TextOverflow
+                                        .ellipsis, // Handle long account names
+                                  ),
+                                ),
+                                Row(
+                                  // Group amount and edit icon together
+                                  children: [
+                                    Text(
+                                      '₹${account.amount}', // Added currency symbol
+                                      style: TextStyle(
+                                        color: hasInsufficientBalance
+                                            ? Colors.black
+                                            : Colors
+                                                  .black, // Slightly darker red for clarity
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 12,
+                                    ), // Increased spacing
+                                    GestureDetector(
+                                      onTap: () async {
+                                        // Important: When interacting with items in the dropdown,
+                                        // you often need to close the dropdown first to avoid unexpected behavior.
+                                        Navigator.pop(
+                                          context,
+                                        ); // Close dropdown first
+                                        final result = await showDialog(
+                                          context: context,
+                                          builder: (ctx) => EditAccountDialog(
+                                            account: account,
+                                          ),
+                                        );
+                                        if (result == true)
+                                          notifier.loadAccounts();
+                                      },
+                                      child: const Icon(
+                                        Icons.edit,
+                                        size: 20,
+                                        color: Colors.grey,
+                                      ), // Grey edit icon
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         );
                       }).toList(),
-                      validator: (value) => value == null ? 'Please select an account' : null,
-                      style: const TextStyle(color: kDarkText, fontSize: 15),
+                      validator: (value) =>
+                          value == null ? 'Please select an account' : null,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 15,
+                      ), // Default style for selected text
                       dropdownColor: Colors.white,
+                      icon: const Icon(
+                        Icons.arrow_drop_down,
+                        color: Colors.grey,
+                      ), // Customize dropdown icon color
+                      isExpanded:
+                          true, // This helps the dropdown items take full width
                     ),
                     KHeight16,
+
+                    // DropdownButtonFormField<Account>(
+                    //   decoration: kInputDecoration.copyWith(
+                    //     hintText: "From Account",
+                    //   ),
+                    //   value: _selectedAccount,
+                    //   onChanged: (Account? newAccount) {
+                    //     setState(() {
+                    //       _selectedAccount = newAccount;
+                    //     });
+                    //   },
+                    //   items: accountState.accounts.map((account) {
+                    //     return DropdownMenuItem<Account>(
+                    //       value: account,
+                    //       child: Text(
+                    //         "${account.name} (${account.type})",
+                    //         style: const TextStyle(color: kDarkText),
+                    //       ),
+                    //     );
+                    //   }).toList(),
+                    //   validator: (value) =>
+                    //       value == null ? 'Please select an account' : null,
+                    //   style: const TextStyle(color: kDarkText, fontSize: 15),
+                    //   dropdownColor: Colors.white,
+                    // ),
+                    // KHeight16,
 
                     // Payment Status (Read-only, derived from amounts)
                     // The image doesn't show a dedicated "Payment Status" field.
@@ -649,13 +1162,15 @@ TextFormField(
                     // and use it in a read-only TextFormField.
                     // For now, I'm assuming it's handled internally or in the backend.
                     // If you need it visible, style it like other TextFormFields.
-                    TextFormField(
-                      controller: _statusController,
-                      readOnly: true,
-                      decoration: kInputDecoration.copyWith(hintText: "Payment Status"),
-                      style: const TextStyle(color: kDarkText),
-                    ),
-                    KHeight20,
+                    // TextFormField(
+                    //   controller: _statusController,
+                    //   readOnly: true,
+                    //   decoration: kInputDecoration.copyWith(
+                    //     hintText: "Payment Status",
+                    //   ),
+                    //   style: const TextStyle(color: kDarkText),
+                    // ),
+                    // KHeight20,
 
                     // Enable Partnership Toggle
                     SwitchListTile(
@@ -685,7 +1200,10 @@ TextFormField(
                         decoration: BoxDecoration(
                           color: Colors.white, // White background for the card
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: kInputBorderColor, width: 1), // Subtle border
+                          border: Border.all(
+                            color: kInputBorderColor,
+                            width: 1,
+                          ), // Subtle border
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -702,7 +1220,10 @@ TextFormField(
                             if (_partnerships.isEmpty)
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 12),
-                                child: Text("No partners have been added yet.", style: TextStyle(color: kLightText)),
+                                child: Text(
+                                  "No partners have been added yet.",
+                                  style: TextStyle(color: kLightText),
+                                ),
                               )
                             else
                               Column(
@@ -711,33 +1232,43 @@ TextFormField(
                                     padding: const EdgeInsets.all(12),
                                     margin: const EdgeInsets.only(bottom: 8),
                                     decoration: BoxDecoration(
-                                      color: kInputFillColor, // Light grey background for each partner item
+                                      color:
+                                          kInputFillColor, // Light grey background for each partner item
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
                                           child: Text.rich(
                                             TextSpan(
                                               children: [
                                                 TextSpan(
-                                                  text: "${partnership.partnerName}: ",
+                                                  text:
+                                                      "${partnership.partnerName}: ",
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.w600,
                                                     color: kDarkText,
                                                   ),
                                                 ),
                                                 TextSpan(
-                                                  text: "Contribution ₹${partnership.contribution}",
-                                                  style: const TextStyle(color: kDarkText),
+                                                  text:
+                                                      "Contribution ₹${partnership.contribution}",
+                                                  style: const TextStyle(
+                                                    color: kDarkText,
+                                                  ),
                                                 ),
                                               ],
                                             ),
                                           ),
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.clear, color: kErrorRed, size: 20),
+                                          icon: const Icon(
+                                            Icons.clear,
+                                            color: kErrorRed,
+                                            size: 20,
+                                          ),
                                           onPressed: () {
                                             setState(() {
                                               _partnerships.remove(partnership);
@@ -750,31 +1281,82 @@ TextFormField(
                                 }).toList(),
                               ),
                             KHeight16,
+
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
                                 style: kPrimaryButtonStyle.copyWith(
-                                  backgroundColor: MaterialStateProperty.all(const Color(0xFF333333)), // Darker blue for '+' button
-                                  padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 16)), // Larger padding
+                                  backgroundColor: MaterialStateProperty.all(
+                                    const Color(0xFF333333),
+                                  ), // Darker blue for '+' button
+                                  padding: MaterialStateProperty.all(
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                  ), // Larger padding
                                 ),
+
+
+
                                 onPressed: () async {
-                                  final selectedPartnership = await showModalBottomSheet<Partnership>(
+                                  final selectedPartnership = await showDialog<Partnership>(
                                     context: context,
-                                    isScrollControlled: true,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.vertical(
-                                        top: Radius.circular(20),
-                                      ),
-                                    ),
-                                    builder: (context) => Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                                      ),
-                                      child: AddPartnershipDetails(
-                                        vehicleId: isEditing ? widget.vehicleToEdit!.id : '', // Pass vehicle ID
-                                      ),
-                                    ),
+                                    barrierDismissible: false,
+                                    builder: (context) {
+                                      final mq = MediaQuery.of(context);
+
+                                      return Dialog(
+                                        insetPadding: EdgeInsets
+                                            .zero, // ✅ removes default side margins
+                                        backgroundColor: Colors
+                                            .transparent, // for cleaner edge look
+                                        alignment: Alignment
+                                            .center, // ✅ centers vertically
+                                        child: LayoutBuilder(
+                                          builder: (context, constraints) {
+                                            final fullWidth = mq.size.width;
+
+                                            return Center(
+                                              child: ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth:
+                                                      fullWidth, // ✅ full screen width
+                                                ),
+                                                child: Padding(
+                                                  padding: EdgeInsets.only(
+                                                    bottom:
+                                                        mq.viewInsets.bottom,
+                                                  ),
+                                                  child: SingleChildScrollView(
+                                                    child: Material(
+                                                      color: Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      elevation: 6,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              16.0,
+                                                            ),
+                                                        child: AddPartnershipDetails(
+                                                          vehicleId: isEditing
+                                                              ? widget
+                                                                    .vehicleToEdit!
+                                                                    .id
+                                                              : '',
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    },
                                   );
+                                  // llllllllllllllllllllllllllllllllllllllllllllllllllll
 
                                   if (selectedPartnership != null) {
                                     setState(() {
@@ -782,41 +1364,53 @@ TextFormField(
                                     });
                                   }
                                 },
-                                child: const Icon(Icons.add, color: Colors.white, size: 28), // Just a '+' icon
+                                child: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: 28,
+                                ), // Just a '+' icon
                               ),
                             ),
                           ],
                         ),
                       ),
                     KHeight30, // Spacer before submit
-
                     // Submit Button
                     SizedBox(
                       width: double.infinity, // Make button full width
                       child: ElevatedButton(
                         style: kPrimaryButtonStyle.copyWith(
-                          backgroundColor: MaterialStateProperty.all(const Color(0xFF333333)), // Dark blue as in image
+                          backgroundColor: MaterialStateProperty.all(
+                            const Color(0xFF333333),
+                          ), // Dark blue as in image
                         ),
                         onPressed: () async {
-                          
                           if (_formKey.currentState!.validate()) {
-
                             final paymentStatus = _getPaymentStatus();
-if (!['pending','partial','paid'].contains(paymentStatus)) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Invalid payment status')),
-  );
-  return;
-}
-
+                            if (![
+                              'pending',
+                              'partial',
+                              'paid',
+                            ].contains(paymentStatus)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Invalid payment status'),
+                                ),
+                              );
+                              return;
+                            }
 
                             // Collect data and submit
                             final newVehicle = Vehicle(
-                              id: isEditing ? widget.vehicleToEdit!.id : const Uuid().v4(),
+                              id: isEditing
+                                  ? widget.vehicleToEdit!.id
+                                  : const Uuid().v4(),
                               make: _makeController.text,
                               model: _modelController.text,
                               photos: _pickedImages,
-                              mileage: double.tryParse(_mileageController.text) ?? 0.0,
+                              mileage:
+                                  double.tryParse(_mileageController.text) ??
+                                  0.0,
                               fuelType: _fuelType,
                               year: _yearController.text,
                               price: _expectedSellingAmountController.text,
@@ -826,58 +1420,81 @@ if (!['pending','partial','paid'].contains(paymentStatus)) {
                               status: 'available', // Default status
                               purchaseInfo: Purchase(
                                 id: '', // Generated on backend or if you have a purchase ID
-                                vehicleId: isEditing ? widget.vehicleToEdit!.id : const Uuid().v4(),
-                              //  userId: ref.read(authNotifierProvider).user?.id ?? '',
-                              userId: '',
-                                  accountId: _selectedAccount?.id ?? '',
+                                vehicleId: isEditing
+                                    ? widget.vehicleToEdit!.id
+                                    : const Uuid().v4(),
+                                //  userId: ref.read(authNotifierProvider).user?.id ?? '',
+                                userId: '',
+                                accountId: accountState.selectedAccount?.id ?? '',
                                 name: _sellerNameController.text,
                                 phone: _sellerPhoneController.text,
                                 address: _sellerAddressController.text,
                                 date: _purchaseDate ?? DateTime.now(),
-                                price: double.tryParse(_purchaseAmountController.text) ?? 0.0,
-                                modeOfPayment: _selectedAccount?.id?? '',
-                                paymentStatus: _getPaymentStatus(), // Use the derived status
-                                paidAmount: double.tryParse(_purchasePaidAmountController.text) ?? 0.0,
-                                
+                                price:
+                                    double.tryParse(
+                                      _purchaseAmountController.text,
+                                    ) ??
+                                    0.0,
+                                modeOfPayment: accountState.selectedAccount?.id ?? '',
+                                paymentStatus:
+                                    _getPaymentStatus(), // Use the derived status
+                                paidAmount:
+                                    double.tryParse(
+                                      _purchasePaidAmountController.text,
+                                    ) ??
+                                    0.0,
                               ),
-                              
-                              partnerships: _isPartnershipEnabled ? _partnerships : [],
+
+                              partnerships: _isPartnershipEnabled
+                                  ? _partnerships
+                                  : [],
+                              engineNumber:
+                                  _engineNumberController.text.isNotEmpty
+                                  ? _engineNumberController.text
+                                  : null,
+                              chassisNumber:
+                                  _chassisNumberController.text.isNotEmpty
+                                  ? _chassisNumberController.text
+                                  : null,
                             );
 
+                            // --- ADD THIS DEBUG PRINT ---
+                            print(
+                              'Purchase payload: ${newVehicle.purchaseInfo.toJson()}',
+                            );
 
-                             // --- ADD THIS DEBUG PRINT ---
-        print('Purchase payload: ${newVehicle.purchaseInfo.toJson()}');
-                            
-                            
-                            
-                             try {
-      // ✅ addVehicle now returns the created vehicle
-      Vehicle createdVehicle = await ref.read(vehicleProvider.notifier).addVehicle(newVehicle);
-      
-      // ✅ Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Vehicle added successfully!')),
-      );
-      
-      // ✅ Navigate to details screen with REAL vehicle ID
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => ScreenVehicleDetails(
-            // vehicleId: createdVehicle.id, // This is the actual ID from backend
-            vehicle: createdVehicle,
-            onBack: () => Navigator.of(context).pop(),
-          ),
-        ),
-      );
-      
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    }
-  }
-},
+                            try {
+                              // ✅ addVehicle now returns the created vehicle
+                              Vehicle createdVehicle = await ref
+                                  .read(vehicleProvider.notifier)
+                                  .addVehicle(newVehicle);
 
+                              // ✅ Show success message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Vehicle added successfully!'),
+                                ),
+                              );
+
+                              // ✅ Navigate to details screen with REAL vehicle ID
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ScreenVehicleDetails(
+                                    // vehicleId: createdVehicle.id, // This is the actual ID from backend
+                                    vehicle: createdVehicle,
+                                    onBack: () => Navigator.of(context).pop(),
+                                  ),
+                                ),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Error: ${e.toString()}'),
+                                ),
+                              );
+                            }
+                          }
+                        },
 
                         child: Text(isEditing ? 'Update Vehicle' : 'Submit'),
                       ),
@@ -893,20 +1510,18 @@ if (!['pending','partial','paid'].contains(paymentStatus)) {
     );
   }
 
+  // Helper to derive payment status based on amounts
+  String _getPaymentStatus() {
+    final purchaseAmount =
+        double.tryParse(_purchaseAmountController.text.trim()) ?? 0.0;
+    final paidAmount =
+        double.tryParse(_purchasePaidAmountController.text.trim()) ?? 0.0;
 
-// Helper to derive payment status based on amounts
-String _getPaymentStatus() {
-  final purchaseAmount = double.tryParse(_purchaseAmountController.text.trim()) ?? 0.0;
-  final paidAmount = double.tryParse(_purchasePaidAmountController.text.trim()) ?? 0.0;
+    if (paidAmount <= 0) return 'unpaid';
+    if (paidAmount < purchaseAmount) return 'partial';
+    return 'paid';
+  }
 
-  if (paidAmount <= 0) return 'unpaid';
-  if (paidAmount < purchaseAmount) return 'partial';
-  return 'paid';
-}
-
-
-
-  
   // Your existing _updatePaymentStatus is good, but make sure to call setState
   // when the internal _statusController or _purchasePaymentStatus needs updating.
   // I've removed the direct binding to _statusController as it's not present in the design.

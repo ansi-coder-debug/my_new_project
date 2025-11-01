@@ -81,12 +81,20 @@ class CashBookEntry {
       accountName: json['account_name'],
       transactionType: transactionType,
       transactionId: json['transaction_id']?.toString(),
-      debit: (json['debit'] != null)
-          ? double.tryParse(json['debit'].toString())
-          : null,
-      credit: (json['credit'] != null)
-          ? double.tryParse(json['credit'].toString())
-          : null,
+      // debit: (json['debit'] != null)
+      //     ? double.tryParse(json['debit'].toString())
+      //     : null,
+      debit: json['debit'] != null
+    ? double.tryParse(json['debit'].toString())
+    : 0, // ✅ never null — avoids 0 display issue
+
+      // credit: (json['credit'] != null)
+      //     ? double.tryParse(json['credit'].toString())
+      //     : null,
+      credit: json['credit'] != null
+    ? double.tryParse(json['credit'].toString())
+    : 0,
+
       description: json['description'],
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
@@ -97,7 +105,10 @@ class CashBookEntry {
       toAccountId: json['to_account_id'] != null
           ? int.tryParse(json['to_account_id'].toString())
           : null,
-          fromAccountId: json['from_account_id'],
+         fromAccountId: json['from_account_id'] != null
+    ? int.tryParse(json['from_account_id'].toString())
+    : null,
+
     );
   } catch (e) {
     print("❌ Error parsing CashBookEntry: $e");

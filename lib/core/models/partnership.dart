@@ -19,6 +19,10 @@ class Partnership {
   final String? vehicleMake;
 final String? vehicleModel;
 final String? vehicleRegNo;
+final String? profitShare; // NEW
+final String? profitShareStatus; // NEW
+
+
 
 
 
@@ -42,7 +46,9 @@ final String? vehicleRegNo;
     this.contributionPaid,
      this.vehicleMake,     // NEW
   this.vehicleModel,    // NEW
-  this.vehicleRegNo, 
+  this.vehicleRegNo,
+   this.profitShare,           // NEW
+  this.profitShareStatus,  
 
 
   });

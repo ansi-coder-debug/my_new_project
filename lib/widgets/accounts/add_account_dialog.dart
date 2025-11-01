@@ -6,7 +6,8 @@ import 'package:my_new_project/core/models/account.dart';
 import 'package:my_new_project/widgets/reusable/custom_dialog.dart';
 
 class AddAccountDialog extends ConsumerStatefulWidget {
-  const AddAccountDialog({Key? key}) : super(key: key);
+   final String? initialName; // ✅ Add this line for name prefilling 
+  const AddAccountDialog({Key? key, this.initialName}) : super(key: key);
 
   @override
   ConsumerState<AddAccountDialog> createState() => _AddAccountDialogState();

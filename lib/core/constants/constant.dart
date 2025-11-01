@@ -207,3 +207,73 @@ final ButtonStyle kSecondaryButtonStyle = TextButton.styleFrom(
     fontWeight: FontWeight.w600,
   ),
 );
+
+// for checking amount in partnership textform field 
+TextEditingController contributionController = TextEditingController();
+TextEditingController paidAmountController = TextEditingController();
+
+void handleContributionChange(BuildContext context) {
+  
+  final contributionText = contributionController.text.trim();
+  final paidText = paidAmountController.text.trim();
+
+  final contribution = double.tryParse(contributionText) ?? 0;
+  final paid = double.tryParse(paidText) ?? 0;
+
+  final purchasePrice = 500000; // ← replace with your actual purchase price
+  final purchasePaid = 100000; // ← replace with your actual purchase paid amount
+  final otherPartnersContribution = 200000; // ← replace with your calculated sum
+
+  final maxAllowed = purchasePrice - purchasePaid - otherPartnersContribution;
+
+  // ✅ Validation 1 — contribution < paid
+  if (paid > 0 && contribution < paid) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Contribution cannot be less than the amount already paid.',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  // ✅ Validation 2 — exceeds available
+  if (contribution > maxAllowed) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Contribution capped. The remaining amount is ₹$maxAllowed.',
+          style: const TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
+
+    contributionController.text = maxAllowed.toStringAsFixed(0);
+  }
+}
+
+void handlePaidChange(BuildContext context) {
+  final contributionText = contributionController.text.trim();
+  final paidText = paidAmountController.text.trim();
+
+  final contribution = double.tryParse(contributionText) ?? 0;
+  final paid = double.tryParse(paidText) ?? 0;
+
+  if (paid > contribution) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Paid amount cannot be greater than the contribution.',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.red,
+      ),
+    );
+    paidAmountController.text = contribution.toStringAsFixed(0);
+  }
+  
+}

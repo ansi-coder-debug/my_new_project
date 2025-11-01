@@ -134,4 +134,7 @@ class AccountNotifier extends StateNotifier<AccountState> {
   void clearSelectedAccount() {
     state = state.copyWith(clearSelected: true);
   }
+
+
+
 }

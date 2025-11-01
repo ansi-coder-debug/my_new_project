@@ -47,6 +47,7 @@ dependencies:
   remixicon: ^1.0.0
   flutter_svg: ^2.1.0
   carousel_slider: ^5.1.1
+  dropdown_search: ^6.0.2
 
   
   

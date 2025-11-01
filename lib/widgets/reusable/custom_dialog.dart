@@ -11,6 +11,13 @@ class CustomDialog extends StatelessWidget {
   final double? width;
   final double? height; // ✅ Manually adjustable height
 
+  // ✅ New customizable button text parameters
+  final String? submitButtonText;
+  final String? cancelButtonText;
+  final String? deleteButtonText;
+
+
+
   const CustomDialog({
     Key? key,
     required this.title,
@@ -21,6 +28,11 @@ class CustomDialog extends StatelessWidget {
     this.onDelete,
     this.width,
     this.height,
+
+    // ✅ Custom button text with default values
+    this.submitButtonText,
+    this.cancelButtonText,
+    this.deleteButtonText,
   }) : super(key: key);
 
   @override
@@ -142,8 +154,8 @@ class CustomDialog extends StatelessWidget {
                                     onDelete!(); // perform delete action
                                     onCancel(); // close main dialog
                                   },
-                                  child: const Text(
-                                    "Yes",
+                                  child:  Text(
+              /*changed*/                   deleteButtonText ??   "Yes",
                                     style: TextStyle(color: Colors.red),
                                   ),
                                 ),
@@ -161,8 +173,8 @@ class CustomDialog extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
-                          "Delete",
+                        child:  Text(
+     /*changed*/         deleteButtonText ??   "Delete",
                           style: TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
@@ -183,8 +195,8 @@ class CustomDialog extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: const Text(
-                          "Cancel",
+                        child:  Text(
+ /*changed*/           cancelButtonText ??  "Cancel",
                           style: TextStyle(
                             color: Color(0xFF1B1B3A),
                             fontWeight: FontWeight.w500,
@@ -206,10 +218,18 @@ class CustomDialog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: Text(
-                        onDelete != null
-                            ? "Update"
-                            : "Submit", // ✅ Change label automatically
+                      // child: Text(
+                      //   onDelete != null
+                      //       ? "Update"
+                      //       : "Submit", // ✅ Change label automatically
+                      //   style: const TextStyle(
+                      //     color: Colors.white,
+                      //     fontWeight: FontWeight.bold,
+                      //   ),
+                      // ),
+                       child: Text(
+                        // Priority: 1. Custom submit text, 2. Auto-detect update, 3. Default "Submit"
+                        submitButtonText ?? (onDelete != null ? "Update" : "Submit"),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

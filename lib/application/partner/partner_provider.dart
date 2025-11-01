@@ -87,3 +87,7 @@ final partnerProvider = StateNotifierProvider<PartnerNotifier, PartnerState>((
   final repository = ref.watch(partnerRepositoryProvider);
   return PartnerNotifier(repository);
 });
+
+
+// ✅ Holds the currently selected partner in forms
+final selectedPartnerProvider = StateProvider<Partner?>((ref) => null);

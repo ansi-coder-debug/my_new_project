@@ -58,7 +58,8 @@ class ScreenCashbook extends ConsumerWidget {
                   ? const Center(child: CircularProgressIndicator())
                   : entries.isEmpty
                   ? const Center(child: Text('No cashbook entries found'))
-                  : ListView.builder(
+                  :
+                   ListView.builder(
                       padding: const EdgeInsets.all(12),
                       itemCount: entries.length,
                       itemBuilder: (context, index) {
@@ -66,8 +67,18 @@ class ScreenCashbook extends ConsumerWidget {
                         
 
                         return OutputCard(
-                          // title: entry.accountName ?? entry.accountId,
-                          title: entry.accountName ?? entry.accountId?.toString() ?? "",
+                       
+                          // title: entry.accountName ?? entry.accountId?.toString() ?? "",
+                          title: (() {
+  if (entry.transactionType == "transfer") {
+    return "Transfer to: ${entry.accountName ?? entry.toAccountId}";
+  }
+  if (entry.transactionType == "received") {
+    return "Received from: ${entry.accountName ?? entry.toAccountId}";
+  }
+  return entry.accountName ?? entry.accountId?.toString() ?? "";
+})(),
+
 
                           subtitle: entry.vehicle != null
                               ? 'Expense Of: ${entry.vehicle!.name}'
@@ -75,9 +86,32 @@ class ScreenCashbook extends ConsumerWidget {
 
                           phone: entry.vehicle?.regNo ?? '',
 
-                          amount:
-                              (entry.debit ?? entry.credit ?? 0) *
-                              (entry.debit != null ? -1 : 1),
+                          // amount:
+                          //     (entry.debit ?? entry.credit ?? 0) *
+                          //     (entry.debit != null ? -1 : 1),  works well for deposit and withdrawal
+
+                          amount: (() {
+  // ✅ Transfer Out → Negative
+  if (entry.transactionType == 'transfer') {
+    return -(entry.debit ?? 0);
+  }
+
+  // ✅ Transfer In / Deposit → Positive
+  if (entry.transactionType == 'received') {
+    return (entry.credit ?? 0);
+  }
+
+  // ✅ Existing Deposit / Withdrawal fallback
+  return (entry.credit ?? 0) > 0
+      ? (entry.credit ?? 0)
+      : -(entry.debit ?? 0);
+})(),
+
+
+                       
+
+
+
                               isCashBook: true,
                           onView: () {
                             // TODO: Handle view
@@ -100,4 +134,6 @@ class ScreenCashbook extends ConsumerWidget {
   String formatDate(DateTime date) {
     return "${date.day}/${date.month}/${date.year}";
   }
+
+  
 }

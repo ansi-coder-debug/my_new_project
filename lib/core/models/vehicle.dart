@@ -26,6 +26,8 @@ final Purchase purchaseInfo; // 👈 required field
   final List<Brokerage>? brokerageInfo;
    final int? toAccount; // <-- add this
      final String? accountName;
+      final String? engineNumber;
+  final String? chassisNumber;
 
   Vehicle({
     required this.id,
@@ -47,7 +49,9 @@ final Purchase purchaseInfo; // 👈 required field
     required this.fuelType,
     this.brokerageInfo, 
      this.toAccount,
-     this.accountName
+     this.accountName,
+      this.engineNumber,
+    this.chassisNumber,
   });
   Vehicle copyWith({
     String? id,
@@ -69,6 +73,8 @@ final Purchase purchaseInfo; // 👈 required field
     double? mileage,
     String? fuelType,
    List<Brokerage>? brokerageInfo,
+       String? engineNumber,
+    String? chassisNumber,
 
   }) {
     return Vehicle(
@@ -91,6 +97,8 @@ final Purchase purchaseInfo; // 👈 required field
       mileage: mileage ?? this.mileage,
       fuelType: fuelType ?? this.fuelType,
       brokerageInfo: brokerageInfo ?? this.brokerageInfo,
+       engineNumber: engineNumber ?? this.engineNumber,
+      chassisNumber: chassisNumber ?? this.chassisNumber,
 
     );
   }
@@ -170,6 +178,8 @@ final Purchase purchaseInfo; // 👈 required field
 
        toAccount: json['to_account'],      // map backend
       accountName: json['account_name'],  // map backend
+         engineNumber: json['engine_number'],
+      chassisNumber: json['chassis_number'],
 
     );
   }
@@ -195,6 +205,8 @@ final Purchase purchaseInfo; // 👈 required field
     'fuel_type': fuelType.toLowerCase(),
     'photos': photos,
     'is_partnership': partnerships != null && partnerships!.isNotEmpty,
+     'engine_number': engineNumber,
+      'chassis_number': chassisNumber,
   };
 
   // ✅ FLATTEN purchase info to root level (like your friend's React app)
