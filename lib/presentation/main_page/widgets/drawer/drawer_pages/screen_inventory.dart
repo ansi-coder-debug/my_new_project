@@ -1,6 +1,7 @@
 // new code
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_new_project/application/vehicle/vehicle_form_notifier.dart';
 import 'package:my_new_project/application/vehicle/vehicle_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
 import 'package:my_new_project/widgets/inventory/add_vehicle_form.dart';
@@ -25,8 +26,7 @@ class ScreenInventory extends ConsumerStatefulWidget {
 }
 
 class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
-  final GlobalKey<AddVehicleFormState> addFormKey =
-      GlobalKey<AddVehicleFormState>();
+  
 
   String? selectedStatus; // ✅ null means "no filter selected"
 
@@ -39,6 +39,8 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
     });
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(vehicleProvider);
@@ -49,6 +51,26 @@ class _ScreenInventoryState extends ConsumerState<ScreenInventory> {
                 (v) => v.status.toLowerCase() == selectedStatus!.toLowerCase(),
               )
               .toList();
+
+              // 👇FOR EDIT IN SCREEN DETAILS PAGE 
+WidgetsBinding.instance.addPostFrameCallback((_) {
+  final notifier = ref.read(vehicleProvider.notifier);
+
+  if (state.showAddForm) {
+    showDialog(
+      context: context,
+      builder: (_) => AddVehicleForm(
+        onAddComplete: notifier.loadVehicles,
+        vehicleToEdit: state.vehicleToEdit, // 👈 pass vehicle to edit
+      ),
+    ).then((_) {
+      // When dialog closes, reset form state
+      notifier.toggleAddForm(false);
+      notifier.setVehicleToEdit(null);
+    });
+  }
+});
+
 
     return Scaffold(
       backgroundColor: Colors.white,

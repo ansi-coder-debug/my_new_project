@@ -15,6 +15,7 @@ class Vehicle {
   final String status;
   final String year;
   final String? description;
+   final String? vehicleType; // ✅ ADD THIS
 
 final Purchase purchaseInfo; // 👈 required field
 
@@ -40,6 +41,8 @@ final Purchase purchaseInfo; // 👈 required field
     required this.status,
     required this.year,
     this.description,
+         this.vehicleType, // ✅ ADD THIS
+
 
   required this.purchaseInfo,
 
@@ -64,6 +67,7 @@ final Purchase purchaseInfo; // 👈 required field
     String? status,
     String? year,
     String? description,
+      String? vehicleType, // ✅ ADD THIS
 
    Purchase? purchaseInfo,
 
@@ -88,6 +92,7 @@ final Purchase purchaseInfo; // 👈 required field
       status: status ?? this.status,
       year: year ?? this.year,
       description: description ?? this.description,
+      vehicleType: vehicleType ?? this.vehicleType, // ✅ ADD THIS
 
        purchaseInfo: purchaseInfo ?? this.purchaseInfo,
 
@@ -121,6 +126,8 @@ final Purchase purchaseInfo; // 👈 required field
       id: (json['id'] ?? json['_id'] ?? '').toString(),
       make: json['make'] ?? '',
       model: json['model'] ?? '',
+          vehicleType: json['vehicle_type'] ?? '', // ✅ ADD THIS - default to 'Bike'
+
       photos: (json['photos'] is List)
           ? (json['photos'] as List).map((e) {
               if (e.toString().startsWith('http')) {
@@ -196,6 +203,8 @@ final Purchase purchaseInfo; // 👈 required field
     'make': make,
     'model': model,
     'year': int.tryParse(year) ?? 0,
+        'vehicle_type': vehicleType, // ✅ ADD THIS
+
     'reg_no': registrationId,
     'color': color,
     'mileage': mileage,

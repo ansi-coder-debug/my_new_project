@@ -761,6 +761,7 @@ import 'package:my_new_project/core/models/partnership.dart';
 import 'package:my_new_project/core/models/vehicle.dart';
 import 'package:my_new_project/infrastructure/vehicle/vehicle_repositary.dart';
 import 'package:my_new_project/widgets/expense/add_expense_dialog.dart';
+import 'package:my_new_project/widgets/inventory/add_vehicle_form.dart';
 import 'package:my_new_project/widgets/inventory/highlight_reusable_card.dart';
 import 'package:my_new_project/widgets/inventory/reusable_info_card.dart';
 import 'package:my_new_project/widgets/inventory/reusable_section_card.dart';
@@ -903,10 +904,8 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
 
   @override
   Widget build(BuildContext context) {
-    
     final vehicleState = ref.watch(vehicleProvider);
     final accounts = ref.watch(accountProvider).accounts;
-    
 
     print(
       'Stored ID: ${widget.vehicle.purchaseInfo.modeOfPayment} (${widget.vehicle.purchaseInfo.modeOfPayment.runtimeType})',
@@ -964,7 +963,6 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
     final vehicleFinances = allFinances
         .where((f) => f.vehicleId == vehicle.id)
         .toList();
-
 
     // Add this RIGHT BEFORE your purchase calculations:
     print('🔍 [DEBUG] Vehicle purchaseInfo: ${vehicle.purchaseInfo}');
@@ -1130,12 +1128,19 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          ref
-                              .read(vehicleProvider.notifier)
-                              .setVehicleToEdit(vehicle);
-                          if (widget.onEdit != null) {
-                            widget.onEdit!();
-                          }
+                         final notifier = ref.read(vehicleProvider.notifier);
+
+    // ✅ Set the vehicle we’re editing
+    notifier.setVehicleToEdit(vehicle);
+
+    // ✅ Show the add form (same form used for editing)
+    notifier.toggleAddForm(true);
+
+    // ✅ Hide details screen if showing
+    notifier.toggleVehicleDetails(false);
+                        
+                          // 👇 Go back to inventory screen so it can react
+  Navigator.pop(context);
                         },
                         icon: const Icon(
                           Icons.edit,
@@ -1144,21 +1149,19 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                         ),
                       ),
                     ),
+
                     // Delete button
                     Container(
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.redAccent),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child:
-                      IconButton(
-  icon: const Icon(Icons.delete),
-  onPressed: () {
-    _showDeleteDialog(context, vehicle.id,ref);
-  },
-),
-
-                   
+                      child: IconButton(
+                        icon: const Icon(Icons.delete,color:Colors.red,),
+                        onPressed: () {
+                          _showDeleteDialog(context, vehicle.id, ref);
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -1240,42 +1243,37 @@ class _ScreenVehicleDetailsState extends ConsumerState<ScreenVehicleDetails> {
                   _buildVehicleImageSection(vehicle),
                   KHeight30,
 
+                  // if (vehicleState.showSaleForm && vehicleState.vehicleToSell != null)
+                  //   Container(
+                  //     padding: const EdgeInsets.all(16),
+                  //     margin: const EdgeInsets.all(16),
+                  //     decoration: BoxDecoration(
+                  //       borderRadius: BorderRadius.circular(12),
+                  //       border: Border.all(color: Colors.grey),
+                  //       color: Colors.white,
+                  //     ),
+                  //     child: SaleForm(
+                  //       vehicle: vehicleState.vehicleToSell!,
 
-
-               
-
-// if (vehicleState.showSaleForm && vehicleState.vehicleToSell != null)
-//   Container(
-//     padding: const EdgeInsets.all(16),
-//     margin: const EdgeInsets.all(16),
-//     decoration: BoxDecoration(
-//       borderRadius: BorderRadius.circular(12),
-//       border: Border.all(color: Colors.grey),
-//       color: Colors.white,
-//     ),
-//     child: SaleForm(
-//       vehicle: vehicleState.vehicleToSell!,
-     
-//       onSubmitSuccess: () {
-//         ref.read(vehicleProvider.notifier).hideSaleForm();
-//         ref.read(vehicleProvider.notifier).loadVehicles();
-//       },
-//     ),
-//   ),
-if (vehicleState.showSaleForm && vehicleState.vehicleToSell != null)
-  ReusableInfoCard(
-    title: "Sales Information",
-    dataRows: const [], // no display rows in top part
-    child: SaleForm(
-      vehicle: vehicleState.vehicleToSell!,
-      onSubmitSuccess: () {
-        ref.read(vehicleProvider.notifier).hideSaleForm();
-        ref.read(vehicleProvider.notifier).loadVehicles();
-      },
-    ),
-  ),
-
-
+                  //       onSubmitSuccess: () {
+                  //         ref.read(vehicleProvider.notifier).hideSaleForm();
+                  //         ref.read(vehicleProvider.notifier).loadVehicles();
+                  //       },
+                  //     ),
+                  //   ),
+                  if (vehicleState.showSaleForm &&
+                      vehicleState.vehicleToSell != null)
+                    ReusableInfoCard(
+                      title: "Sales Information",
+                      dataRows: const [], // no display rows in top part
+                      child: SaleForm(
+                        vehicle: vehicleState.vehicleToSell!,
+                        onSubmitSuccess: () {
+                          ref.read(vehicleProvider.notifier).hideSaleForm();
+                          ref.read(vehicleProvider.notifier).loadVehicles();
+                        },
+                      ),
+                    ),
 
                   VehicleInfoCard(
                     vehicle: vehicle,
@@ -1286,10 +1284,11 @@ if (vehicleState.showSaleForm && vehicleState.vehicleToSell != null)
                       // }
 
                       if (newStatus == "sold") {
-  ref.read(vehicleProvider.notifier).showSaleForm(vehicle);
-  return;
-}
-
+                        ref
+                            .read(vehicleProvider.notifier)
+                            .showSaleForm(vehicle);
+                        return;
+                      }
 
                       try {
                         await ref
@@ -1665,104 +1664,104 @@ if (vehicleState.showSaleForm && vehicleState.vehicleToSell != null)
 
   // delete
 
-void _showDeleteDialog(BuildContext context, String vehicleId, WidgetRef ref) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Confirm Delete",
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.grey),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20.0),
-              const Text(
-                "Are you sure you want to delete?",
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 30.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.grey.shade700,
-                        backgroundColor: Colors.grey.shade200,
-                        side: BorderSide.none, // Remove border
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(fontSize: 16.0),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 15.0),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final notifier = ref.read(vehicleProvider.notifier);
-                        await notifier.deleteVehicle(vehicleId);
-                   
-                        Navigator.pop(context); // Close dialog
-                        Navigator.pop(context); // Close details page
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red, // Confirm button color
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12.0),
-                      ),
-                      child: const Text(
-                        "Confirm",
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+  void _showDeleteDialog(
+    BuildContext context,
+    String vehicleId,
+    WidgetRef ref,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
           ),
-        ),
-      );
-    },
-  );
-}
+          elevation: 0,
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Confirm Delete",
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20.0),
+                const Text(
+                  "Are you sure you want to delete?",
+                  style: TextStyle(fontSize: 16.0, color: Colors.black87),
+                ),
+                const SizedBox(height: 30.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.grey.shade700,
+                          backgroundColor: Colors.grey.shade200,
+                          side: BorderSide.none, // Remove border
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        ),
+                        child: const Text(
+                          "Cancel",
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 15.0),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final notifier = ref.read(vehicleProvider.notifier);
+                          await notifier.deleteVehicle(vehicleId);
 
+                          Navigator.pop(context); // Close dialog
+                          Navigator.pop(context); // Close details page
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red, // Confirm button color
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        ),
+                        child: const Text(
+                          "Confirm",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
