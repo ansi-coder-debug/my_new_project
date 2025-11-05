@@ -14,7 +14,7 @@ class MonthlySummaryNotifier extends StateNotifier<MonthlySummaryState> {
   final MonthlySummaryRepository _repository;
 
   MonthlySummaryNotifier(this._repository) : super(MonthlySummaryState(summaries: [])) {
-    loadMonthlySummaries();
+    // loadMonthlySummaries();
   }
 
   Future<void> loadMonthlySummaries() async {

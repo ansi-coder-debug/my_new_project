@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_query/flutter_query.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/core/models/employee.dart';
 import 'package:my_new_project/application/auth/auth_provider.dart';
@@ -17,39 +18,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
 
-//   // 1. FIRST register ALL adapters
-  // Hive.registerAdapter(VehicleAdapter());
-  // Hive.registerAdapter(PartnershipAdapter());
-  // Hive.registerAdapter(EmployeeAdapter());
-  // Hive.registerAdapter(ExpenseAdapter());
-  // Hive.registerAdapter(PurchaseAdapter());
-  // Hive.registerAdapter(SalesAdapter());
-  // Hive.registerAdapter(UserAdapter()); // 👈 ADD THIS
-
-// //  await Hive.deleteBoxFromDisk('vehicles');
-//   // 2. THEN open boxes
-  // await Hive.openBox<Vehicle>('vehicles');
-  // await Hive.openBox<Employee>('employees');
-  // await Hive.openBox<Expense>('expenses');
-  // await Hive.openBox<Partnership>('partnerships');
-  // await Hive.openBox<Purchase>('purchases');
-  // await Hive.openBox<Sales>('sales');
-  // await Hive.openBox('authBox');
-
- 
-
-
-  // // // 3. Clear boxes if needed (only for development)
-  //  await Hive.box<Vehicle>('vehicles').clear();
-  //  await Hive.box<Partnership>('partnerships').clear();
-  //  await Hive.box<Sales>('sales').clear();
-  // await Hive.box<Purchase>('purchases').clear();
-
-  // only keeping auth setup 
+  // only keeping auth setup
   final container = ProviderContainer();
   await container.read(authNotifierProvider.notifier).loadUserFromHive();
 
-  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
+  runApp(
+  QueryScope( // ✅ Adds global caching & query client
+    child: UncontrolledProviderScope(
+      container: container,
+      child:  MyApp(),
+    ),
+  ),
+);
+
 }
 
 // vehicle_provider.dart
@@ -59,7 +40,6 @@ class MyApp extends ConsumerWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final authState = ref.watch(authNotifierProvider);
 
     return MaterialApp(
@@ -73,7 +53,7 @@ class MyApp extends ConsumerWidget {
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           // foregroundColor: Colors.white
-          ),
+        ),
         primaryColor: Colors.white,
 
         textTheme: TextTheme(
@@ -81,15 +61,6 @@ class MyApp extends ConsumerWidget {
           bodyLarge: TextStyle(color: Colors.lightGreenAccent),
         ),
       ),
-
-
-
-
-
-
-
-
-
 
       // Show login if user is not logged in
       home: authState.user == null ? LoginScreen() : ScreenMainPage(),

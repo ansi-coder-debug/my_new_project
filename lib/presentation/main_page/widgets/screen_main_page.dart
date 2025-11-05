@@ -51,60 +51,132 @@ class _ScreenMainPageState extends ConsumerState<ScreenMainPage> {
   // List<Widget> get _drawerPages => [
   late final List<Widget> _drawerPages;
 
-  @override
-  void initState() {
-    super.initState();
+//   @override
+//   void initState() {
+//     super.initState();
 
-    _drawerPages = [
-      ScreenDashboard(
+//     _drawerPages = [
+//       ScreenDashboard(
         
+//         onCardTap: (int index, {String? status}) {
+//           ref.read(navigationProvider.notifier).selectPage(index);
+//           // Only set _inventoryStatus for index 1 (Vehicles)
+//           if (index == 1) {       
+//  ref.read(inventoryStatusProvider.notifier).state =
+//                 status ?? 'Available';
+          
+//           } 
+//         },
+//       ),
+//         // Use Consumer here to rebuild when inventoryStatus changes
+//       // Consumer(
+//       //   builder: (context, ref, _) {
+//       //     final status = ref.watch(inventoryStatusProvider);
+//       //     return ScreenInventory(
+//       //       key: ValueKey(status), // ensures rebuild on status change
+//       //       initialStatus: status,
+//       //     );
+//       //   },
+//       // ),
+
+//       ScreenInventory(initialStatus: _inventoryStatus), // 1: Vehicles
+//       ScreenSales(), // 2: Sales
+//       ScreenPurchase(), // 3: Purchase
+//       ScreenExpense(), // 4: Expenses
+//       ScreenExpenseTypes(), // 5: Expense Type
+//       ScreenBrokerage(), // 6: Brokerage
+//       ScreenCashbook(), // 7: Cashbook
+//       ScreenMonthlySummary(), // 8: Monthly Summary
+//       ScreenDailySummary(), // 9: Daily Summary
+//       ScreenFinance(), // 10: Finance
+//       ScreenPartnerships(), // 11: Partnerships
+//       ScreenAccounts(), // 12: Account
+//       ScreenAdvance(), // 13: Advance
+//       ScreenBrokers(), // 14: Broker
+//       ScreenEmployees(), // 15: Employees
+//       ScreenPayroll(), // 16: Payroll
+//       ScreenAttendance(), // 17: Attendance
+//       ScreenFinanciers(), // 18: Financier
+//       PartnersPage(), // 19: Partner
+//       ScreenSubscription(), // 20: Subscription
+//       ScreenSettings(), // 21: Settings
+//       GridMenu(),  // 22:gridmenu
+//       ProfileSettingsPage(), // 23:profile seetings  
+//       // ];
+//     ];
+//   }
+
+@override
+void initState() {
+  super.initState();
+}
+
+/// ✅ Only build the selected page when needed
+Widget _getDrawerPage(int index) {
+  switch (index) {
+    case 0:
+      return ScreenDashboard(
         onCardTap: (int index, {String? status}) {
           ref.read(navigationProvider.notifier).selectPage(index);
-          // Only set _inventoryStatus for index 1 (Vehicles)
-          if (index == 1) {       
- ref.read(inventoryStatusProvider.notifier).state =
+          if (index == 1) {
+            ref.read(inventoryStatusProvider.notifier).state =
                 status ?? 'Available';
-          
-          } 
+          }
         },
-      ),
-        // Use Consumer here to rebuild when inventoryStatus changes
-      // Consumer(
-      //   builder: (context, ref, _) {
-      //     final status = ref.watch(inventoryStatusProvider);
-      //     return ScreenInventory(
-      //       key: ValueKey(status), // ensures rebuild on status change
-      //       initialStatus: status,
-      //     );
-      //   },
-      // ),
-
-      ScreenInventory(initialStatus: _inventoryStatus), // 1: Vehicles
-      ScreenSales(), // 2: Sales
-      ScreenPurchase(), // 3: Purchase
-      ScreenExpense(), // 4: Expenses
-      ScreenExpenseTypes(), // 5: Expense Type
-      ScreenBrokerage(), // 6: Brokerage
-      ScreenCashbook(), // 7: Cashbook
-      ScreenMonthlySummary(), // 8: Monthly Summary
-      ScreenDailySummary(), // 9: Daily Summary
-      ScreenFinance(), // 10: Finance
-      ScreenPartnerships(), // 11: Partnerships
-      ScreenAccounts(), // 12: Account
-      ScreenAdvance(), // 13: Advance
-      ScreenBrokers(), // 14: Broker
-      ScreenEmployees(), // 15: Employees
-      ScreenPayroll(), // 16: Payroll
-      ScreenAttendance(), // 17: Attendance
-      ScreenFinanciers(), // 18: Financier
-      PartnersPage(), // 19: Partner
-      ScreenSubscription(), // 20: Subscription
-      ScreenSettings(), // 21: Settings
-      GridMenu(),  // 22:gridmenu
-      ProfileSettingsPage(), // 23:profile seetings  
-      // ];
-    ];
+      );
+    case 1:
+      return ScreenInventory(initialStatus: _inventoryStatus);
+    case 2:
+      return ScreenSales();
+    case 3:
+      return ScreenPurchase();
+    case 4:
+      return ScreenExpense();
+    case 5:
+      return ScreenExpenseTypes();
+    case 6:
+      return ScreenBrokerage();
+    case 7:
+      return ScreenCashbook();
+    case 8:
+      return ScreenMonthlySummary();
+    case 9:
+      return ScreenDailySummary();
+    case 10:
+      return ScreenFinance();
+    case 11:
+      return ScreenPartnerships();
+    case 12:
+      return ScreenAccounts();
+    case 13:
+      return ScreenAdvance();
+    case 14:
+      return ScreenBrokers();
+    case 15:
+      return ScreenEmployees();
+    case 16:
+      return ScreenPayroll();
+    case 17:
+      return ScreenAttendance();
+    case 18:
+      return ScreenFinanciers();
+    case 19:
+      return PartnersPage();
+    case 20:
+      return ScreenSubscription();
+    case 21:
+      return ScreenSettings();
+    case 22:
+      return GridMenu();
+    case 23:
+      return ProfileSettingsPage();
+    default:
+      return const Center(child: Text("Unknown Page"));
   }
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -168,10 +240,15 @@ class _ScreenMainPageState extends ConsumerState<ScreenMainPage> {
         },
       ),
       // body: _drawerPages[ref.watch(navigationProvider).currentIndex],
-      body: IndexedStack(
-  index: ref.watch(navigationProvider).currentIndex,
-  children: _drawerPages,
-),
+//       body: IndexedStack(
+//   index: ref.watch(navigationProvider).currentIndex,
+//   children: _drawerPages,
+// ),
+
+
+
+body: _getDrawerPage(ref.watch(navigationProvider).currentIndex),
+
 
 
       bottomNavigationBar: const BottomNavigationWidget(),

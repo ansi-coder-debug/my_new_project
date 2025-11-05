@@ -1,4 +1,128 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart'; // Import flutter_hooks
+import 'package:flutter_query/flutter_query.dart'; // Import flutter_query
+import 'package:hooks_riverpod/hooks_riverpod.dart'; // Use hooks_riverpod for HookConsumerWidget
+import 'package:my_new_project/core/constants/constant.dart';
+import 'package:my_new_project/core/models/monthlysummary.dart';
+import 'package:my_new_project/core/query/query_client.dart'; // Assuming you have this for QueryClient
+import 'package:my_new_project/infrastructure/monthlysummary/monthlysummary_repositary.dart';
+import 'package:my_new_project/widgets/reusable/custom_header_summary.dart';
+import 'package:my_new_project/widgets/reusable/custom_header_buttons.dart';
+import 'package:my_new_project/widgets/reusable/output_card.dart';
+
+class ScreenMonthlySummary extends HookConsumerWidget { // Changed to HookConsumerWidget
+  const ScreenMonthlySummary({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) { // Added WidgetRef ref
+    final selectedTab = useState('sales'); // Use useState for local state
+
+    // Initialize QueryClient (if not already done globally)
+    final queryClient = ref.read(queryClientProvider);
+
+    // Use useQuery for data fetching and caching
+    final query = useQuery<List<MonthlySummary>, dynamic>(
+      'monthlySummaries', // Unique cache key for monthly summaries
+      (key) async {
+        final repo = ref.read(monthlySummaryRepositoryProvider);
+        return await repo.getMonthlySummaries();
+      },
+      staleDuration: const Duration(minutes: 5), // Cache for 5 minutes
+    );
+
+    final summaries = query.state.data ?? []; // Get data from query state
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            /// 🔹 Custom Header (Same as Daily)
+            CustomHeaderSummary(
+              title: 'Monthly Summary',
+              headerContent: SummaryHeaderButtons(
+                selectedTab: selectedTab.value, // Access value of useState
+                onTabSelected: (tab) => selectedTab.value = tab, // Update value
+                onFilter: () {
+                  // TODO: open filters if needed
+                },
+                onRefresh: () {
+                  query.refetch(); // Trigger a manual refresh
+                },
+              ),
+            ),
+
+            KHeight16,
+
+            /// 🔹 Summary List (Using OutputCard)
+            Expanded(
+              child: query.state.status.isFetching // Check fetching status
+                  ? const Center(child: CircularProgressIndicator())
+                  : query.state.status.isFailure // Check for errors
+                      ? Center(
+                          child: Text(
+                            'Error: ${query.state.error}',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        )
+                      : summaries.isEmpty // Check if data is empty
+                          ? const Center(child: Text('No monthly reports found'))
+                          : ListView.builder(
+                              padding: const EdgeInsets.all(12),
+                              itemCount: summaries.length,
+                              itemBuilder: (context, index) {
+                                final summary = summaries[index];
+
+                                // 🔸 Map data based on tab
+                                String subtitle = '';
+                                double? amount;
+                                double? received;
+                                double? balance;
+                                String receivedLabel = ''; // Added receivedLabel for consistency
+
+                                if (selectedTab.value == 'sales') {
+                                  subtitle = 'Sales: ${summary.saleCount}';
+                                  amount = summary.saleReceived + summary.salePending;
+                                  received = summary.saleReceived;
+                                  balance = summary.salePending;
+                                  receivedLabel = 'Received';
+                                } else if (selectedTab.value == 'purchases') {
+                                  subtitle = 'Purchases: ${summary.purchaseCount}';
+                                  amount = summary.purchasePaid + summary.purchasePending;
+                                  received = summary.purchasePaid;
+                                  balance = summary.purchasePending;
+                                  receivedLabel = 'Paid';
+                                } else if (selectedTab.value == 'expenses') {
+                                  subtitle = 'Expenses: ${summary.expenseCount}';
+                                  amount = summary.expenseAmount;
+                                  received = summary.expensePaid;
+                                  balance = summary.expenseBalance;
+                                  receivedLabel = 'Paid';
+                                }
+
+                                return OutputCard(
+                                  title: '${summary.month} ${summary.year}',
+                                  subtitle: subtitle,
+                                  amount: amount,
+                                  received: received,
+                                  balance: balance,
+                                  receivedLabel: receivedLabel,
+                                  isSummaryView: true,
+                                  showMenu: false,
+                                );
+                              },
+                            ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+/*
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_new_project/application/monthlysummary/monthlysummary_provider.dart';
 import 'package:my_new_project/core/constants/constant.dart';
@@ -107,214 +231,5 @@ class _ScreenMonthlySummaryState extends ConsumerState<ScreenMonthlySummary> {
   }
 
  
-}
-
-
-/*import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:my_new_project/application/monthlysummary/monthlysummary_provider.dart';
-import 'package:my_new_project/core/constants/constant.dart';
-import 'package:my_new_project/core/models/monthlysummary.dart';
-import 'package:my_new_project/widgets/reusable/custom_header.dart';
-import 'package:my_new_project/widgets/reusable/output_card.dart';
-
-class ScreenMonthlySummary extends ConsumerStatefulWidget {
-  const ScreenMonthlySummary({super.key});
-
-  @override
-  ConsumerState<ScreenMonthlySummary> createState() => _ScreenMonthlySummaryState();
-}
-
-class _ScreenMonthlySummaryState extends ConsumerState<ScreenMonthlySummary> {
-  String selectedTab = 'sales';
-
-  @override
-  Widget build(BuildContext context) {
-    final monthlySummaryState = ref.watch(monthlySummaryProvider);
-    final summaries = monthlySummaryState.summaries;
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Reuse your CustomHeader exactly like Cashbook
-            CustomHeader(
-              title: 'Monthly Summary',
-              onBack: () => Navigator.pop(context),
-              // We can reuse customActions if needed
-              customActions: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Row(
-                  children: [
-                    _buildIconButton(Icons.filter_alt_outlined, () {
-                      // TODO: Open filters
-                    }),
-                    _buildIconButton(Icons.refresh, () {
-                      ref.read(monthlySummaryProvider.notifier).loadMonthlySummaries();
-                    }),
-                  ],
-                ),
-              ),
-            ),
-
-            // Tabs like Cashbook has buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  _buildTabButton('Sales'),
-                  const SizedBox(width: 6),
-                  _buildTabButton('Purchases'),
-                  const SizedBox(width: 6),
-                  _buildTabButton('Expenses'),
-                ],
-              ),
-            ),
-
-            KHeight16,
-
-            Expanded(
-              child: monthlySummaryState.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : summaries.isEmpty
-                      ? const Center(child: Text('No monthly reports found'))
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(12),
-                          itemCount: summaries.length,
-                          itemBuilder: (context, index) {
-                            final summary = summaries[index];
-                            return _buildOutputCard(summary);
-                          },
-                        ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTabButton(String tabName) {
-    final isSelected = selectedTab == tabName.toLowerCase();
-
-    return Expanded(
-      child: OutlinedButton(
-        onPressed: () {
-          setState(() {
-            selectedTab = tabName.toLowerCase();
-          });
-        },
-        style: OutlinedButton.styleFrom(
-          backgroundColor: isSelected ? Colors.black : Colors.white,
-          foregroundColor: isSelected ? Colors.white : Colors.black,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          side: BorderSide(color: Colors.grey.shade300),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-        ),
-        child: Text(
-          tabName,
-          style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 13,
-            overflow: TextOverflow.ellipsis,
-          ),
-          maxLines: 1,
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildIconButton(IconData icon, VoidCallback onPressed) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8),
-      child: SizedBox(
-        width: 36,
-        height: 36,
-        child: IconButton(
-          onPressed: onPressed,
-          icon: Icon(icon, size: 18),
-          style: IconButton.styleFrom(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: Colors.grey.shade300),
-            ),
-            padding: EdgeInsets.zero,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOutputCard(MonthlySummary summary) {
-    // Parse month-year string like "YYYY-MM" safely
-    DateTime date;
-    try {
-      date = DateTime.parse('${summary.month}-01');
-    } catch (_) {
-      date = DateTime.now();
-    }
-
-    final title = '${_monthName(date.month)} ${date.year}';
-
-    // Map data based on selectedTab
-    String subtitle = '';
-    double amount = 0;
-    double? received;
-    double? balance;
-    String receivedLabel = 'Received';
-    Color? receivedLabelColor = Colors.green;
-    bool showBalanceBelowPaid = true;
-
-    switch (selectedTab) {
-      case 'sales':
-        subtitle = 'Sales Count: ${summary.saleCount}';
-        amount = summary.saleReceived + summary.salePending;
-        received = summary.saleReceived;
-        balance = summary.salePending;
-        receivedLabel = 'Received';
-        break;
-      case 'purchases':
-        subtitle = 'Purchases Count: ${summary.purchaseCount}';
-        amount = summary.purchasePaid + summary.purchasePending;
-        received = summary.purchasePaid;
-        balance = summary.purchasePending;
-        receivedLabel = 'Paid';
-        break;
-      case 'expenses':
-        subtitle = 'Expenses Count: ${summary.expenseCount}';
-        amount = summary.expenseAmount;
-        received = summary.expensePaid;
-        balance = summary.expenseBalance;
-        receivedLabel = 'Paid';
-        break;
-    }
-
-    return OutputCard(
-      title: title,
-      subtitle: subtitle,
-      amount: amount,
-      received: received,
-      balance: balance,
-      receivedLabel: receivedLabel,
-      receivedLabelColor: receivedLabelColor,
-      showBalanceBelowPaid: showBalanceBelowPaid,
-      showMenu: false,
-      onView: () {
-        // TODO: Implement detail view if needed
-      },
-    );
-  }
-
-  String _monthName(int month) {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    return months[month - 1];
-  }
 }
 */
